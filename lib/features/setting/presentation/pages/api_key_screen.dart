@@ -22,7 +22,7 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
       child: BlocConsumer<SettingsCubit, SettingsState>(
         listener: (context, state) {
           if (state is SettingsLoaded && !state.isApiKeyMissing) {
-            context.go('/main'); // Go to main if key is saved
+            context.go('/download'); // Go to download screen to sync data
           } else if (state is SettingsError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),

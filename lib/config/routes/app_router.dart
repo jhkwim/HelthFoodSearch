@@ -34,8 +34,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/detail',
       builder: (context, state) {
-        final item = state.extra as FoodItem;
-        return DetailScreen(item: item);
+        if (state.extra is FoodItem) {
+          final item = state.extra as FoodItem;
+          return DetailScreen(item: item);
+        } else if (state.extra is Map) {
+          final extra = state.extra as Map<String, dynamic>;
+          return DetailScreen(
+            item: extra['item'] as FoodItem,
+            onIngredientSelected: extra['onIngredientSelected'],
+          );
+        }
+        return const Scaffold(body: Center(child: Text("Invalid Arguments")));
       },
     ),
   ],

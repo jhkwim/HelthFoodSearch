@@ -1,7 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
-import '../../../core/usecases/usecase.dart';
+import 'package:health_food_search/core/usecases/usecase.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings_usecase.dart';
 import '../../domain/usecases/save_api_key_usecase.dart';

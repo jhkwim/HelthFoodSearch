@@ -9,7 +9,6 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
@@ -42,7 +41,6 @@ import '../../features/setting/domain/usecases/save_api_key_usecase.dart'
     as _i152;
 import '../../features/setting/presentation/bloc/settings_cubit.dart' as _i291;
 import 'register_module.dart' as _i291;
-import 'storage_module.dart' as _i371;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -56,23 +54,26 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     final registerModule = _$RegisterModule();
-    final storageModule = _$StorageModule();
     gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
-    gh.lazySingleton<_i558.FlutterSecureStorage>(
-        () => storageModule.secureStorage);
     gh.lazySingleton<_i91.RemoteDataSource>(
         () => _i91.RemoteDataSourceImpl(gh<_i361.Dio>()));
-    gh.lazySingleton<_i688.LocalDataSource>(() => _i688.LocalDataSourceImpl());
-    gh.lazySingleton<_i424.IFoodRepository>(() => _i64.FoodRepositoryImpl(
-          gh<InvalidType>(),
-          gh<InvalidType>(),
-        ));
     gh.lazySingleton<_i990.ISettingsRepository>(
-        () => _i1025.SettingsRepositoryImpl(gh<_i558.FlutterSecureStorage>()));
+        () => _i1025.SettingsRepositoryImpl());
+    gh.lazySingleton<_i688.LocalDataSource>(() => _i688.LocalDataSourceImpl());
     gh.factory<_i940.GetSettingsUseCase>(
         () => _i940.GetSettingsUseCase(gh<_i990.ISettingsRepository>()));
     gh.factory<_i152.SaveApiKeyUseCase>(
         () => _i152.SaveApiKeyUseCase(gh<_i990.ISettingsRepository>()));
+    gh.factory<_i291.SettingsCubit>(() => _i291.SettingsCubit(
+          gh<_i940.GetSettingsUseCase>(),
+          gh<_i152.SaveApiKeyUseCase>(),
+        ));
+    gh.lazySingleton<_i424.IFoodRepository>(() => _i64.FoodRepositoryImpl(
+          gh<_i91.RemoteDataSource>(),
+          gh<_i688.LocalDataSource>(),
+        ));
+    gh.factory<_i938.CheckDataExistenceUseCase>(
+        () => _i938.CheckDataExistenceUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i918.GetSuggestedIngredientsUseCase>(() =>
         _i918.GetSuggestedIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i778.SyncDataUseCase>(
@@ -81,12 +82,6 @@ extension GetItInjectableX on _i174.GetIt {
         _i337.SearchFoodByIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i924.SearchFoodByNameUseCase>(
         () => _i924.SearchFoodByNameUseCase(gh<_i424.IFoodRepository>()));
-    gh.factory<_i938.CheckDataExistenceUseCase>(
-        () => _i938.CheckDataExistenceUseCase(gh<_i424.IFoodRepository>()));
-    gh.factory<_i291.SettingsCubit>(() => _i291.SettingsCubit(
-          gh<_i940.GetSettingsUseCase>(),
-          gh<_i152.SaveApiKeyUseCase>(),
-        ));
     gh.factory<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(
           gh<_i778.SyncDataUseCase>(),
           gh<_i938.CheckDataExistenceUseCase>(),
@@ -103,5 +98,3 @@ extension GetItInjectableX on _i174.GetIt {
 }
 
 class _$RegisterModule extends _i291.RegisterModule {}
-
-class _$StorageModule extends _i371.StorageModule {}

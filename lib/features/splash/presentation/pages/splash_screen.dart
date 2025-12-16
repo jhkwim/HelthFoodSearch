@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/injection.dart';
-import '../../setting/presentation/bloc/settings_cubit.dart';
-import '../../search/presentation/bloc/data_sync_cubit.dart';
+import 'package:health_food_search/core/di/injection.dart';
+import 'package:health_food_search/features/setting/presentation/bloc/settings_cubit.dart';
+import 'package:health_food_search/features/search/presentation/bloc/data_sync_cubit.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});

@@ -48,6 +48,8 @@ dependencies:
   url_launcher: ^6.3.2
   path_provider: ^2.1.5
   json_annotation: ^4.9.0
+  dartz: ^0.10.1
+  bloc: ^9.1.0
 
 dev_dependencies:
   flutter_test:
