@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/setting/presentation/pages/api_key_screen.dart';
+import '../../features/setting/presentation/pages/settings_screen.dart';
 import '../../features/search/presentation/pages/download_screen.dart';
-
-class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Main Screen')));
-}
+import '../../features/search/presentation/pages/main_screen.dart';
+import '../../features/search/presentation/pages/detail_screen.dart';
+import '../../features/search/domain/entities/food_item.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -22,12 +20,23 @@ final appRouter = GoRouter(
       builder: (context, state) => const ApiKeyScreen(),
     ),
     GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
       path: '/download',
       builder: (context, state) => const DownloadScreen(),
     ),
     GoRoute(
       path: '/main',
       builder: (context, state) => const MainScreen(),
+    ),
+    GoRoute(
+      path: '/detail',
+      builder: (context, state) {
+        final item = state.extra as FoodItem;
+        return DetailScreen(item: item);
+      },
     ),
   ],
 );

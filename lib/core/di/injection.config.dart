@@ -29,6 +29,9 @@ import '../../features/search/domain/usecases/search_food_by_name_usecase.dart'
     as _i924;
 import '../../features/search/domain/usecases/sync_data_usecase.dart' as _i778;
 import '../../features/search/presentation/bloc/data_sync_cubit.dart' as _i48;
+import '../../features/search/presentation/bloc/ingredient_search_cubit.dart'
+    as _i548;
+import '../../features/search/presentation/bloc/search_cubit.dart' as _i77;
 import '../../features/setting/data/repositories/settings_repository_impl.dart'
     as _i1025;
 import '../../features/setting/domain/repositories/i_settings_repository.dart'
@@ -89,6 +92,12 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i938.CheckDataExistenceUseCase>(),
           gh<_i940.GetSettingsUseCase>(),
         ));
+    gh.factory<_i548.IngredientSearchCubit>(() => _i548.IngredientSearchCubit(
+          gh<_i337.SearchFoodByIngredientsUseCase>(),
+          gh<_i918.GetSuggestedIngredientsUseCase>(),
+        ));
+    gh.factory<_i77.SearchCubit>(
+        () => _i77.SearchCubit(gh<_i924.SearchFoodByNameUseCase>()));
     return this;
   }
 }
