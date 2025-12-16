@@ -19,6 +19,8 @@ import '../../features/search/data/repositories/food_repository_impl.dart'
     as _i64;
 import '../../features/search/domain/repositories/i_food_repository.dart'
     as _i424;
+import '../../features/search/domain/usecases/check_data_existence_usecase.dart'
+    as _i938;
 import '../../features/search/domain/usecases/get_suggested_ingredients_usecase.dart'
     as _i918;
 import '../../features/search/domain/usecases/search_food_by_ingredients_usecase.dart'
@@ -26,6 +28,7 @@ import '../../features/search/domain/usecases/search_food_by_ingredients_usecase
 import '../../features/search/domain/usecases/search_food_by_name_usecase.dart'
     as _i924;
 import '../../features/search/domain/usecases/sync_data_usecase.dart' as _i778;
+import '../../features/search/presentation/bloc/data_sync_cubit.dart' as _i48;
 import '../../features/setting/data/repositories/settings_repository_impl.dart'
     as _i1025;
 import '../../features/setting/domain/repositories/i_settings_repository.dart'
@@ -34,6 +37,7 @@ import '../../features/setting/domain/usecases/get_settings_usecase.dart'
     as _i940;
 import '../../features/setting/domain/usecases/save_api_key_usecase.dart'
     as _i152;
+import '../../features/setting/presentation/bloc/settings_cubit.dart' as _i291;
 import 'register_module.dart' as _i291;
 import 'storage_module.dart' as _i371;
 
@@ -74,6 +78,17 @@ extension GetItInjectableX on _i174.GetIt {
         _i337.SearchFoodByIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i924.SearchFoodByNameUseCase>(
         () => _i924.SearchFoodByNameUseCase(gh<_i424.IFoodRepository>()));
+    gh.factory<_i938.CheckDataExistenceUseCase>(
+        () => _i938.CheckDataExistenceUseCase(gh<_i424.IFoodRepository>()));
+    gh.factory<_i291.SettingsCubit>(() => _i291.SettingsCubit(
+          gh<_i940.GetSettingsUseCase>(),
+          gh<_i152.SaveApiKeyUseCase>(),
+        ));
+    gh.factory<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(
+          gh<_i778.SyncDataUseCase>(),
+          gh<_i938.CheckDataExistenceUseCase>(),
+          gh<_i940.GetSettingsUseCase>(),
+        ));
     return this;
   }
 }

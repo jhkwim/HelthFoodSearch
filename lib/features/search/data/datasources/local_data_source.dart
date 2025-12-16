@@ -9,6 +9,7 @@ abstract class LocalDataSource {
   Future<List<FoodItemHiveModel>> searchFoodByName(String query);
   Future<List<FoodItemHiveModel>> searchFoodByIngredients(List<String> ingredients, {bool matchAll = false});
   Future<void> clearData();
+  Future<bool> hasData();
 }
 
 @LazySingleton(as: LocalDataSource)
@@ -18,7 +19,6 @@ class LocalDataSourceImpl implements LocalDataSource {
   @override
   Future<void> cacheFoodItems(List<FoodItemHiveModel> items) async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
-    // Use putAll for batch insert using reportNo as key if unique, or just add
     final Map<String, FoodItemHiveModel> map = {
       for (var item in items) item.reportNo: item
     };
@@ -55,5 +55,11 @@ class LocalDataSourceImpl implements LocalDataSource {
   Future<void> clearData() async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
     await box.clear();
+  }
+
+  @override
+  Future<bool> hasData() async {
+    final box = await Hive.openBox<FoodItemHiveModel>(boxName);
+    return box.isNotEmpty;
   }
 }

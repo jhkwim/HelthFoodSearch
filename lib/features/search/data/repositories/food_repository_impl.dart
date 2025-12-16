@@ -37,14 +37,7 @@ class FoodRepositoryImpl implements IFoodRepository {
 
   @override
   Future<Either<Failure, List<Ingredient>>> getSuggestedIngredients(String query) async {
-    // This is a simplified implementation. Real implementation would aggregate ingredients from DB.
-    // For now, it returns derived ingredients from food items that match the query.
     try {
-      // 1. Get all food items (or optimize to search distinct ingredients)
-      // Since Hive doesn't support distinct query easily, we fetch all or search by string
-      // A proper way would be to have a separate box for tokens/ingredients.
-      // For this MVP, let's search food items by string and extract ingredients
-      
       final foods = await localDataSource.searchFoodByName(query);
       
       final Set<String> ingredients = {};
@@ -65,19 +58,12 @@ class FoodRepositoryImpl implements IFoodRepository {
   @override
   Future<Either<Failure, void>> syncData(String apiKey, {Function(double)? onProgress}) async {
     try {
-      // 1. First fetch count to know how many to fetch
-      // API 1..1 call
       final initial = await remoteDataSource.fetchFoodData(apiKey, 1, 1);
       final totalCountStr = initial.data?.totalCount ?? '0';
       int totalCount = int.tryParse(totalCountStr) ?? 0;
 
       if (totalCount == 0) return const Right(null);
 
-      // 2. Clear old data? Or Update? Requirement says "clean/redownload" in Settings. 
-      // Sync might act as 'Update' or 'Full Download'. Let's assume Full Download for now as per requirement 2.1
-      // If we want incremental, we need logic. Given 2.2 loading bar, it implies a process.
-      
-      // We will loop. Max 1000 per request usually for public data.
       int batchSize = 1000;
       int fetched = 0;
       
@@ -108,6 +94,16 @@ class FoodRepositoryImpl implements IFoodRepository {
 
     } catch (e) {
       return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> hasData() async {
+    try {
+      final result = await localDataSource.hasData();
+      return Right(result);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
     }
   }
 }
