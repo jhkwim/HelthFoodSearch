@@ -11,12 +11,8 @@ class IngredientRefiner {
     // 1. Remove content within parentheses () and brackets []
     String refined = raw.replaceAll(_parenthesesPattern, '');
 
-    // 2. Remove specific keywords that might make the term too specific (Optional/Advanced)
-    // refined = refined.replaceAll('추출물', ''); 
-    // refined = refined.replaceAll('분말', '');
-    
-    // 3. Trim whitespace
-    refined = refined.trim();
+    // 2. Remove all whitespace to deduplicate "A B" and "AB"
+    refined = refined.replaceAll(RegExp(r'\s+'), '');
 
     return refined;
   }

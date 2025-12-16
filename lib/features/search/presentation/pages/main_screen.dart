@@ -78,34 +78,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               final isWide = constraints.maxWidth > 700;
 
               // Function to handle ingredient selection
-              void handleIngredientSelection(String ingredient) {
+              void handleIngredientSelection(List<String> ingredients) {
                 _tabController.animateTo(1); // Switch to Ingredient Tab
                 
                 final cubit = context.read<IngredientSearchCubit>();
-                cubit.addIngredient(ingredient);
+                cubit.addIngredients(ingredients);
                 cubit.search();
                 
-                if (isWide) {
-                  // In split view, maybe we want to keep the detail open? 
-                  // But usually user wants to see results of the new search.
-                  // Let's clear selected item to show the list on the left (or just standard behavior).
-                  // Actually, on split view, the left side changes to result list.
-                } else {
-                   // If mobile, pop detail screen if we are in it?
-                   // If we are calling this from DetailScreen which is pushed?
-                   // No, on mobile DetailScreen is pushed on top.
-                   // If this callback is passed to DetailScreen, we should probably pop first?
-                   // The callback is invoked. If DetailScreen is a separate route, we need to pop.
-                   // But if DetailScreen is part of the view (Split), it's fine.
-                   
-                   // Wait, on mobile, DetailScreen is pushed via GoRouter. 
-                   // Accessing this state from a pushed route is hard without a shared global state or passing callback deeply (which GoRouter extra makes tricky).
-                   // A cleaner way for Mobile:
-                   // DetailScreen wraps the 'Navigate to Ingredient' logic itself?
-                   // But MainScreen holds the TabController.
-                   
-                   // Let's support the Split View case first which is fully controlled here.
-                   // For Mobile (Pushed Route), we might need a different approach (e.g. GoRouter parameters).
+                if (!isWide) {
+                   // Logic for mobile is handled in _navigateToDetailMobile callback wrapper commonly.
                 }
               }
 
@@ -220,19 +201,16 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     );
   }
 
-  void _navigateToDetailMobile(BuildContext context, FoodItem item, Function(String) onIngredientSelected) {
-    // For mobile, we push the screen. But how to callback to here?
-    // We can pass the callback object if we use Navigator.push directly or GoRouter with extra object.
-    // GoRouter 'extra' can be complex object.
+  void _navigateToDetailMobile(BuildContext context, FoodItem item, Function(List<String>) onIngredientSelected) {
     context.push(
       '/detail', 
       extra: {
         'item': item,
-        'onIngredientSelected': (String ingredient) {
+        'onIngredientSelected': (List<String> ingredients) {
            // We need to pop first to go back to MainScreen
            context.pop();
            // Then Trigger callback
-           onIngredientSelected(ingredient);
+           onIngredientSelected(ingredients);
         }
       }
     );

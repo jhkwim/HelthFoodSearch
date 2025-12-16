@@ -55,9 +55,13 @@ class DownloadScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 48),
                   if (state is DataSyncInProgress) ...[
-                    LinearProgressIndicator(value: state.progress),
+                    LinearProgressIndicator(
+                      value: state.progress.clamp(0.0, 1.0),
+                      backgroundColor: Colors.grey[200],
+                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                    ),
                     const SizedBox(height: 16),
-                    Text('${(state.progress * 100).toInt()}% 완료'),
+                    Text('${(state.progress * 100).clamp(0, 100).toInt()}% 완료'),
                     const SizedBox(height: 24),
                     TextButton(
                       onPressed: () {

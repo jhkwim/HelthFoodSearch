@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/food_item.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final FoodItem item;
-  final Function(String)? onIngredientSelected;
+  final Function(List<String>)? onIngredientSelected;
 
   const DetailScreen({super.key, required this.item, this.onIngredientSelected});
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  final Set<String> _selectedIngredients = {};
+
+  void _toggleIngredient(String ingredient) {
+    setState(() {
+      if (_selectedIngredients.contains(ingredient)) {
+        _selectedIngredients.remove(ingredient);
+      } else {
+        _selectedIngredients.add(ingredient);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,89 +31,104 @@ class DetailScreen extends StatelessWidget {
         title: const Text('제품 상세 정보'),
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: SelectionArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header Section
+            // Header Section (Product Name)
             _buildHeader(context),
             const SizedBox(height: 24),
 
-            // 1. Basic Information (기본 정보) -> Table
+            // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
             _buildInfoCard(
               context,
               title: '기본 정보',
               icon: Icons.info_outline,
               child: _buildTable([
-                _InfoRow('제조사', item.bsshNm),
-                _InfoRow('신고번호', item.reportNo),
-                _InfoRow('허가일자', item.prmsDt),
-                _InfoRow('소비기한', item.pogDaycnt),
-                _InfoRow('성상', item.dispos),
-                _InfoRow('제품유형', item.prdlstCdnm),
+                _InfoRow('업소명', widget.item.bsshNm),
+                _InfoRow('신고번호', widget.item.reportNo),
+                _InfoRow('등록일자', widget.item.prmsDt),
+                _InfoRow('소비기한', widget.item.pogDaycnt),
+                _InfoRow('성상', widget.item.dispos),
+                _InfoRow('제품형태', widget.item.prdtShapCdNm),
               ]),
             ),
             const SizedBox(height: 16),
 
-            // 2. Functionality (주된 기능성) -> Highlighted
-            if (item.primaryFnclty.isNotEmpty)
+             // 3. Packaging (Material/Method)
+            _buildInfoCard(
+              context,
+              title: '포장 정보',
+              icon: Icons.inventory_2_outlined,
+              child: _buildTable([
+                _InfoRow('포장재질', widget.item.frmlcMtrqlt),
+                _InfoRow('포장방법', widget.item.frmlcMthd),
+              ]),
+            ),
+             const SizedBox(height: 16),
+
+            // 4. Intake (Method/Amount)
+            if (widget.item.ntkMthd.isNotEmpty) ...[
               _buildInfoCard(
                 context,
-                title: '주된 기능성',
+                title: '섭취량 및 섭취방법',
+                icon: Icons.restaurant_menu,
+                child: Text(widget.item.ntkMthd, style: const TextStyle(height: 1.5)),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // 5. Functionality Content
+            if (widget.item.primaryFnclty.isNotEmpty) ...[
+              _buildInfoCard(
+                context,
+                title: '기능성 내용',
                 icon: Icons.verified_user_outlined,
                 color: Theme.of(context).primaryColor.withOpacity(0.05),
                 child: Text(
-                  item.primaryFnclty,
+                  widget.item.primaryFnclty,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
                 ),
               ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
+            ],
 
-            // 3. Intake & Caution (섭취 및 주의사항)
-            _buildInfoCard(
+            // 6. Standards
+             if (widget.item.stdrStnd.isNotEmpty) ...[
+              _buildInfoCard(
+                context,
+                title: '기준 및 규격',
+                icon: Icons.gavel_outlined,
+                child: Text(widget.item.stdrStnd, style: const TextStyle(height: 1.5)),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // 7. Cautions & Storage
+             _buildInfoCard(
               context,
-              title: '섭취 및 보관',
-              icon: Icons.medication_outlined,
+              title: '주의사항 및 보관',
+              icon: Icons.warning_amber_rounded,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   if (item.ntkMthd.isNotEmpty) ...[
-                    _buildSubTitle('섭취 방법'),
-                    Text(item.ntkMthd, style: const TextStyle(height: 1.5)),
-                    const SizedBox(height: 16),
-                  ],
-                  if (item.iftknAtntMatrCn.isNotEmpty) ...[
+                   if (widget.item.iftknAtntMatrCn.isNotEmpty) ...[
                     _buildSubTitle('섭취 시 주의사항', color: Colors.red),
-                    Text(item.iftknAtntMatrCn, style: const TextStyle(height: 1.5, color: Colors.black87)),
+                    Text(widget.item.iftknAtntMatrCn, style: const TextStyle(height: 1.5, color: Colors.black87)),
                     const SizedBox(height: 16),
                   ],
-                  if (item.cstdyMthd.isNotEmpty) ...[
-                    _buildSubTitle('보관 방법'),
-                    Text(item.cstdyMthd, style: const TextStyle(height: 1.5)),
+                  if (widget.item.cstdyMthd.isNotEmpty) ...[
+                    _buildSubTitle('보존 및 유통기준'),
+                    Text(widget.item.cstdyMthd, style: const TextStyle(height: 1.5)),
                   ],
                 ],
               ),
             ),
              const SizedBox(height: 16),
-            
-            // 4. Detailed Specs (기준 규격 & 포장)
-             _buildInfoCard(
-              context,
-              title: '상세 정보',
-              icon: Icons.list_alt,
-              child: _buildTable([
-                _InfoRow('기준규격', item.stdrStnd),
-                _InfoRow('포장재질', item.frmlcMtrqlt),
-                _InfoRow('포장방법', item.frmlcMthd),
-                _InfoRow('어린이 인증', item.childCrtfcYn),
-                _InfoRow('생산종료', item.production),
-                _InfoRow('인허가번호', item.lcnsNo),
-              ]),
-            ),
-            const SizedBox(height: 16),
 
-            // 5. Ingredients (원료 정보)
+            // 8. Ingredients
              _buildInfoCard(
               context,
               title: '원료 정보',
@@ -104,40 +136,56 @@ class DetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('주원료 (클릭하여 검색)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey)),
+                   // Chip Selection (Keep this for functionality, even if order is specifically text lists below)
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('검색용 주요 원료', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                      if (widget.onIngredientSelected != null)
+                        Text('${_selectedIngredients.length}개 선택됨', style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
-                    children: item.mainIngredients.map((ing) {
+                    children: widget.item.mainIngredients.map((ing) {
+                      final isSelected = _selectedIngredients.contains(ing);
                       return ActionChip(
                         label: Text(ing),
                         onPressed: () {
-                          if (onIngredientSelected != null) {
-                             onIngredientSelected!(ing);
+                          if (widget.onIngredientSelected != null) {
+                             _toggleIngredient(ing);
                           }
                         },
-                        backgroundColor: Theme.of(context).cardColor,
-                        side: BorderSide(color: Theme.of(context).primaryColor.withOpacity(0.2)),
+                        avatar: isSelected ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
+                        backgroundColor: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                        side: BorderSide(
+                          color: isSelected ? Colors.transparent : Theme.of(context).primaryColor.withOpacity(0.2)
+                        ),
                       );
                     }).toList(),
                   ),
                   const Divider(height: 32),
                   
-                   if (item.indivRawmtrlNm.isNotEmpty) ...[
-                    _buildSubTitle('기능성 원재료'),
-                    Text(item.indivRawmtrlNm),
+                   if (widget.item.indivRawmtrlNm.isNotEmpty) ...[
+                    _buildSubTitle('기능성 원재료 정보'),
+                    _buildNumberedList(widget.item.indivRawmtrlNm),
                     const SizedBox(height: 16),
                   ],
-                  if (item.etcRawmtrlNm.isNotEmpty) ...[
-                    _buildSubTitle('기타 원재료'),
-                    Text(item.etcRawmtrlNm),
+                  if (widget.item.etcRawmtrlNm.isNotEmpty) ...[
+                    _buildSubTitle('기타 원재료 정보'),
+                    _buildNumberedList(widget.item.etcRawmtrlNm),
                     const SizedBox(height: 16),
                   ],
-                   if (item.capRawmtrlNm.isNotEmpty) ...[
-                    _buildSubTitle('캡슐 원재료'),
-                    Text(item.capRawmtrlNm),
-                    const SizedBox(height: 16),
+                   if (widget.item.capRawmtrlNm.isNotEmpty) ...[
+                    _buildSubTitle('캡슐 원재료 정보'),
+                    _buildNumberedList(widget.item.capRawmtrlNm),
+                     const SizedBox(height: 16),
                   ],
                   
                   // Expandable Full List
@@ -152,17 +200,29 @@ class DetailScreen extends StatelessWidget {
                           color: Colors.grey[50],
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(item.rawmtrlNm, style: const TextStyle(fontSize: 13, height: 1.5, color: Colors.black54)),
+                        child: _buildNumberedList(widget.item.rawmtrlNm),
                       )
                     ],
                   )
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 80), // Space for FAB
           ],
         ),
+        ),
       ),
+      floatingActionButton: _selectedIngredients.isNotEmpty
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                if (widget.onIngredientSelected != null) {
+                  widget.onIngredientSelected!(_selectedIngredients.toList());
+                }
+              },
+              icon: const Icon(Icons.search),
+              label: Text('${_selectedIngredients.length}개 원료로 검색'),
+            )
+          : null,
     );
   }
 
@@ -171,7 +231,7 @@ class DetailScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SelectableText(
-          item.prdlstNm,
+          widget.item.prdlstNm,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Colors.black87,
@@ -185,7 +245,7 @@ class DetailScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
-            '신고번호: ${item.reportNo}',
+            '최종수정일: ${widget.item.lastUpdtDtm}',
             style: TextStyle(color: Colors.grey[700], fontSize: 12),
           ),
         ),
@@ -268,6 +328,42 @@ class DetailScreen extends StatelessWidget {
           color: color ?? Colors.black87
         ),
       ),
+    );
+  }
+
+  Widget _buildNumberedList(String rawString) {
+    if (rawString.isEmpty) return const SizedBox.shrink();
+    
+    // Split by comma and filter empty
+    final list = rawString.split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    if (list.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(list.length, (index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${index + 1}. ',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black54),
+              ),
+              Expanded(
+                child: Text(
+                  list[index],
+                  style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

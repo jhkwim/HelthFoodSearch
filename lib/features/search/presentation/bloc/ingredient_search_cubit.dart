@@ -26,6 +26,21 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     emit(state.copyWith(selectedIngredients: newIngredients, searchResults: [], status: IngredientSearchStatus.initial));
   }
 
+  void addIngredients(List<String> ingredients) {
+    final newIngredients = List<String>.from(state.selectedIngredients);
+    bool changed = false;
+    for (final ing in ingredients) {
+      if (ing.trim().isNotEmpty && !newIngredients.contains(ing)) {
+        newIngredients.add(ing);
+        changed = true;
+      }
+    }
+    
+    if (changed) {
+      emit(state.copyWith(selectedIngredients: newIngredients, searchResults: [], status: IngredientSearchStatus.initial));
+    }
+  }
+
   void removeIngredient(String ingredient) {
     final newIngredients = List<String>.from(state.selectedIngredients)..remove(ingredient);
     emit(state.copyWith(selectedIngredients: newIngredients, searchResults: [], status: IngredientSearchStatus.initial));

@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/food_item.dart';
@@ -90,7 +91,9 @@ class FoodRepositoryImpl implements IFoodRepository {
         
         fetched = end;
         if (onProgress != null) {
-          onProgress(fetched / totalCount);
+          final progress = fetched / totalCount;
+          debugPrint('Sync Progress: $fetched / $totalCount = $progress');
+          onProgress(progress);
         }
       }
       
