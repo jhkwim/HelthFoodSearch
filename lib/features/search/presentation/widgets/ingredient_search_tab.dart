@@ -6,30 +6,35 @@ import '../../domain/entities/food_item.dart';
 import '../bloc/ingredient_search_cubit.dart';
 
 class IngredientSearchTab extends StatelessWidget {
-  const IngredientSearchTab({super.key});
+  final Function(FoodItem)? onItemSelected;
+
+  const IngredientSearchTab({super.key, this.onItemSelected});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<IngredientSearchCubit>(),
-      child: const _IngredientSearchContent(),
-    );
+    // Expect IngredientSearchCubit to be provided by parent (MainScreen)
+    return _IngredientSearchContent(onItemSelected: onItemSelected);
   }
 }
 
 class _IngredientSearchContent extends StatefulWidget {
-  const _IngredientSearchContent();
+  final Function(FoodItem)? onItemSelected;
+  const _IngredientSearchContent({this.onItemSelected});
 
   @override
   State<_IngredientSearchContent> createState() => _IngredientSearchContentState();
 }
 
-class _IngredientSearchContentState extends State<_IngredientSearchContent> {
+class _IngredientSearchContentState extends State<_IngredientSearchContent> with AutomaticKeepAliveClientMixin {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         Padding(
@@ -54,43 +59,16 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> {
                 },
               ),
               const SizedBox(height: 16),
-              // Autocomplete Input
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return Autocomplete<String>(
-                    optionsBuilder: (TextEditingValue textEditingValue) async {
-                      if (textEditingValue.text.isEmpty) {
-                        return const Iterable<String>.empty();
-                      }
-                      context.read<IngredientSearchCubit>().updateSuggestions(textEditingValue.text);
-                      // Introduce a small delay to allow Cubit to update state (Simplified)
-                      // In 'real' app, use raw Autocomplete or custom Overlay for Stream/Bloc based suggestions.
-                      // Here we just wait a bit or use hardcoded delay.
-                      // Actually, Autocomplete expects synchronous return or Future.
-                      // Let's rely on standard Autocomplete for local filtering, but we want DB suggestions.
-                      // Better approach: Use RawAutocomplete with optionsBuilder calling UseCase directly?
-                      // Or just TypeAheadField package (not added).
-                      // Let's implement a custom overlay or just Simple TextField with Suggestions below.
-                      return const Iterable<String>.empty(); 
-                    },
-                    // Replacing Autocomplete with Column + TextField + ListView for better Bloc control
-                    optionsViewBuilder: (context, onSelected, options) => const SizedBox.shrink(),
-                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) => const SizedBox.shrink(),
-                  );
-                },
-              ),
-              // Custom Autocomplete Implementation
+              // Search Field
                _buildSearchField(context),
             ],
           ),
         ),
-        // Suggestions or Results
+        // Results
         Expanded(
           child: BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
             builder: (context, state) {
-              // Priority: Suggestions (if typing) > Results (if searched)
-              
-              if (_focusNode.hasFocus && _controller.text.isNotEmpty && state.suggestions.isNotEmpty) {
+              if (state.suggestions.isNotEmpty && _focusNode.hasFocus && _controller.text.isNotEmpty) {
                  return ListView.builder(
                     itemCount: state.suggestions.length,
                     itemBuilder: (context, index) {
@@ -101,7 +79,6 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> {
                           context.read<IngredientSearchCubit>().addIngredient(suggestion.name);
                           _controller.clear();
                           context.read<IngredientSearchCubit>().updateSuggestions('');
-                          // Keep focus?
                         },
                       );
                     },
@@ -122,7 +99,16 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> {
                   separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final item = state.searchResults[index];
-                    return _FoodItemCard(item: item);
+                    return _FoodItemCard(
+                      item: item,
+                      onTap: () {
+                          if (widget.onItemSelected != null) {
+                            widget.onItemSelected!(item);
+                          } else {
+                            context.push('/detail', extra: item);
+                          }
+                      },
+                    );
                   },
                 );
               }
@@ -155,8 +141,8 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> {
                       onPressed: state.selectedIngredients.isEmpty
                           ? null
                           : () {
-                              context.read<IngredientSearchCubit>().search();
-                              _focusNode.unfocus();
+                               context.read<IngredientSearchCubit>().search();
+                               _focusNode.unfocus();
                             },
                       child: const Text('원료로 검색하기'),
                     ),
@@ -192,16 +178,15 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> {
 
 class _FoodItemCard extends StatelessWidget {
   final FoodItem item;
+  final VoidCallback onTap;
 
-  const _FoodItemCard({required this.item});
+  const _FoodItemCard({required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () {
-          context.push('/detail', extra: item);
-        },
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -210,8 +195,8 @@ class _FoodItemCard extends StatelessWidget {
             children: [
               Text(
                 item.prdlstNm,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontSize: 18,
                       color: Theme.of(context).primaryColor,
                     ),
               ),

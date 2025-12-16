@@ -5,11 +5,31 @@ import '../../../../core/di/injection.dart';
 import '../../domain/entities/food_item.dart';
 import '../bloc/search_cubit.dart';
 
-class ProductSearchTab extends StatelessWidget {
-  const ProductSearchTab({super.key});
+class ProductSearchTab extends StatefulWidget {
+  final Function(FoodItem)? onItemSelected;
+
+  const ProductSearchTab({super.key, this.onItemSelected});
+
+  @override
+  State<ProductSearchTab> createState() => _ProductSearchTabState();
+}
+
+class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepAliveClientMixin {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for KeepAlive
+    
     return BlocProvider(
       create: (context) => getIt<SearchCubit>(),
       child: Column(
@@ -18,12 +38,18 @@ class ProductSearchTab extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Builder(builder: (context) {
               return TextField(
-                decoration: const InputDecoration(
+                controller: _controller,
+                decoration: InputDecoration(
                   labelText: '제품명 검색',
                   hintText: '예: 비타민',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () => _controller.clear(),
+                  ),
                 ),
                 style: Theme.of(context).textTheme.bodyLarge,
+                textInputAction: TextInputAction.search, // Better mobile/keyboard UX
                 onSubmitted: (query) {
                   context.read<SearchCubit>().search(query);
                 },
@@ -47,7 +73,16 @@ class ProductSearchTab extends StatelessWidget {
                     separatorBuilder: (context, index) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final item = state.foods[index];
-                      return _FoodItemCard(item: item);
+                      return _FoodItemCard(
+                        item: item,
+                        onTap: () {
+                          if (widget.onItemSelected != null) {
+                            widget.onItemSelected!(item);
+                          } else {
+                            context.push('/detail', extra: item);
+                          }
+                        },
+                      );
                     },
                   );
                 }
@@ -63,16 +98,15 @@ class ProductSearchTab extends StatelessWidget {
 
 class _FoodItemCard extends StatelessWidget {
   final FoodItem item;
+  final VoidCallback onTap;
 
-  const _FoodItemCard({required this.item});
+  const _FoodItemCard({required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: () {
-          context.push('/detail', extra: item);
-        },
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -81,12 +115,13 @@ class _FoodItemCard extends StatelessWidget {
             children: [
               Text(
                 item.prdlstNm,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontSize: 18,
                       color: Theme.of(context).primaryColor,
                     ),
               ),
               const SizedBox(height: 8),
+              if (item.reportNo != null) // reportNo check? It's required in hive but...
               Text(
                 '신고번호: ${item.reportNo}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
