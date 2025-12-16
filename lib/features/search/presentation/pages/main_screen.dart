@@ -1,44 +1,307 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'; // Needed if accessing bloc? Actually SettingsCubit is just for navigation? No, just button.
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
-import '../../setting/presentation/bloc/settings_cubit.dart';
-import 'widgets/ingredient_search_tab.dart';
-import 'widgets/product_search_tab.dart';
+import '../../../setting/presentation/bloc/settings_cubit.dart';
+import '../bloc/data_sync_cubit.dart';
+import '../widgets/ingredient_search_tab.dart';
+import '../widgets/product_search_tab.dart';
 
-class MainScreen extends StatelessWidget {
+import '../../domain/entities/food_item.dart';
+import '../pages/detail_screen.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/di/injection.dart';
+import '../../domain/entities/food_item.dart';
+import '../bloc/ingredient_search_cubit.dart';
+import '../pages/detail_screen.dart';
+
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  FoodItem? _selectedItem;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onIngredientSelected(String ingredient) {
+    // 1. Switch to Ingredient Tab
+    _tabController.animateTo(1);
+    
+    // 2. Add ingredient to search and trigger search?
+    // Access IngredientSearchCubit from context? No, tabs have their own providers.
+    // Solution: We need a way to communicate this.
+    // Since we are inside MainScreen, we can access the Cubit if check where it is provided.
+    // The tabs provide their own Cubits internally. This is slightly problematic for external control.
+    // Ideally, the Cubit should be lifted up to MainScreen or accessed via a shared mechanism.
+    // For now, let's refactor the tabs to accept an initial search term or expose a controller?
+    // Or simpler: Lift the IngredientSearchCubit to MainScreen level so we can access it here.
+    
+    // Changing strategy: Lift IngredientSearchCubit to MainScreen level.
+    // We will do this via context.read if providers are moved up.
+    // But currently they are inside the tabs.
+    // Let's assume we will move the providers up in the build method below.
+    
+    // Wait, context.read won't work if the provider is created effectively 'below' this context in the widget tree if we blindly move it.
+    // But if we wrap MainScreen's body or Scaffold in the provider, we can access it.
+  }
+  
+  // Re-implementation with Cubit lifted up
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('건강기능식품 검색'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: '제품명 검색'),
-              Tab(text: '원료별 검색'),
-            ],
-            labelStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Large Text
-            indicatorColor: Colors.white,
-            indicatorWeight: 4,
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                context.push('/settings');
-              },
-            )
-          ],
-        ),
-        body: const TabBarView(
-          children: [
-            ProductSearchTab(),
-            IngredientSearchTab(),
-          ],
-        ),
+     return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => getIt<IngredientSearchCubit>()),
+        // SearchCubit is also used in ProductSearchTab, let's lift it too for consistency or leave it.
+        // ProductSearchTab creates it. Let's leave it for now unless needed.
+      ],
+      child: Builder(
+        builder: (context) {
+          // Now we can access IngredientSearchCubit
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 700;
+
+              // Function to handle ingredient selection
+              void handleIngredientSelection(String ingredient) {
+                _tabController.animateTo(1); // Switch to Ingredient Tab
+                
+                final cubit = context.read<IngredientSearchCubit>();
+                cubit.addIngredient(ingredient);
+                cubit.search();
+                
+                if (isWide) {
+                  // In split view, maybe we want to keep the detail open? 
+                  // But usually user wants to see results of the new search.
+                  // Let's clear selected item to show the list on the left (or just standard behavior).
+                  // Actually, on split view, the left side changes to result list.
+                } else {
+                   // If mobile, pop detail screen if we are in it?
+                   // If we are calling this from DetailScreen which is pushed?
+                   // No, on mobile DetailScreen is pushed on top.
+                   // If this callback is passed to DetailScreen, we should probably pop first?
+                   // The callback is invoked. If DetailScreen is a separate route, we need to pop.
+                   // But if DetailScreen is part of the view (Split), it's fine.
+                   
+                   // Wait, on mobile, DetailScreen is pushed via GoRouter. 
+                   // Accessing this state from a pushed route is hard without a shared global state or passing callback deeply (which GoRouter extra makes tricky).
+                   // A cleaner way for Mobile:
+                   // DetailScreen wraps the 'Navigate to Ingredient' logic itself?
+                   // But MainScreen holds the TabController.
+                   
+                   // Let's support the Split View case first which is fully controlled here.
+                   // For Mobile (Pushed Route), we might need a different approach (e.g. GoRouter parameters).
+                }
+              }
+
+              // Mobile / Narrow Layout
+              if (!isWide) {
+                return Scaffold(
+                  appBar: _buildAppBar(context, isWide: false),
+                  body: Column(
+                    children: [
+                      _buildSyncProgress(),
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            ProductSearchTab(
+                              onItemSelected: (item) => _navigateToDetailMobile(context, item, handleIngredientSelection),
+                            ),
+                            IngredientSearchTab(
+                              onItemSelected: (item) => _navigateToDetailMobile(context, item, handleIngredientSelection),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              // Desktop / Wide Layout (Split View)
+              return Scaffold(
+                appBar: _buildAppBar(context, isWide: true),
+                body: Column(
+                  children: [
+                    _buildSyncProgress(),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          // Left Panel: Search Tabs
+                          SizedBox(
+                            width: 400,
+                            child: Column(
+                              children: [
+                                Container(
+                                  color: Theme.of(context).cardColor,
+                                  child: TabBar(
+                                    controller: _tabController,
+                                    tabs: const [
+                                      Tab(text: '제품명 검색'),
+                                      Tab(text: '원료별 검색'),
+                                    ],
+                                    labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    indicatorWeight: 3,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: TabBarView(
+                                    controller: _tabController,
+                                    children: [
+                                      ProductSearchTab(
+                                        onItemSelected: (item) {
+                                          setState(() {
+                                            _selectedItem = item;
+                                          });
+                                        },
+                                      ),
+                                      IngredientSearchTab(
+                                        onItemSelected: (item) {
+                                          setState(() {
+                                            _selectedItem = item;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const VerticalDivider(width: 1),
+                          // Right Panel: Detail View
+                          Expanded(
+                            child: _selectedItem == null
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.touch_app_outlined, size: 64, color: Colors.grey[400]),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          '왼쪽 목록에서 제품을 선택하세요',
+                                          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : DetailScreen(
+                                    key: ValueKey(_selectedItem!.reportNo),
+                                    item: _selectedItem!,
+                                    onIngredientSelected: handleIngredientSelection, // Use callback
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        }
       ),
+    );
+  }
+
+  void _navigateToDetailMobile(BuildContext context, FoodItem item, Function(String) onIngredientSelected) {
+    // For mobile, we push the screen. But how to callback to here?
+    // We can pass the callback object if we use Navigator.push directly or GoRouter with extra object.
+    // GoRouter 'extra' can be complex object.
+    context.push(
+      '/detail', 
+      extra: {
+        'item': item,
+        'onIngredientSelected': (String ingredient) {
+           // We need to pop first to go back to MainScreen
+           context.pop();
+           // Then Trigger callback
+           onIngredientSelected(ingredient);
+        }
+      }
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context, {required bool isWide}) {
+    return AppBar(
+      title: const Text('건강기능식품 검색'),
+      centerTitle: false,
+      bottom: isWide
+          ? null
+          : TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(text: '제품명 검색'),
+                Tab(text: '원료별 검색'),
+              ],
+              labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              indicatorColor: Colors.white,
+              indicatorWeight: 4,
+            ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () {
+            context.push('/settings');
+          },
+        )
+      ],
+    );
+  }
+
+  // Helper widget to show progress
+  Widget _buildSyncProgress() {
+    return BlocBuilder<DataSyncCubit, DataSyncState>(
+      builder: (context, state) {
+        if (state is DataSyncInProgress) {
+          final percent = (state.progress * 100).toInt();
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '데이터 다운로드 중... ($percent%) - 검색 가능',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 }

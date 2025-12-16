@@ -4,8 +4,8 @@ import '../../../../core/error/failures.dart';
 import '../../domain/entities/food_item.dart';
 import '../../domain/entities/ingredient.dart';
 import '../../domain/repositories/i_food_repository.dart';
-import 'datasources/local_data_source.dart';
-import 'datasources/remote_data_source.dart';
+import 'package:health_food_search/features/search/data/datasources/local_data_source.dart';
+import 'package:health_food_search/features/search/data/datasources/remote_data_source.dart';
 import '../models/food_item_hive_model.dart';
 
 @LazySingleton(as: IFoodRepository)
@@ -62,12 +62,13 @@ class FoodRepositoryImpl implements IFoodRepository {
       final totalCountStr = initial.data?.totalCount ?? '0';
       int totalCount = int.tryParse(totalCountStr) ?? 0;
 
-      if (totalCount == 0) return const Right(null);
+      if (totalCount == 0) return Right(null);
+
+      // Clear existing data before starting full sync
+      await localDataSource.clearData();
 
       int batchSize = 1000;
       int fetched = 0;
-      
-      List<FoodItemHiveModel> batch = [];
       
       for (int i = 1; i <= totalCount; i += batchSize) {
         int end = i + batchSize - 1;
@@ -77,10 +78,14 @@ class FoodRepositoryImpl implements IFoodRepository {
         final rows = response.data?.row;
         
         if (rows != null) {
-          batch.addAll(rows.map((dto) {
+          final batch = rows.map((dto) {
               final entity = dto.toEntity();
               return FoodItemHiveModel.fromEntity(entity);
-          }).toList());
+          }).toList();
+          
+          if (batch.isNotEmpty) {
+             await localDataSource.cacheFoodItems(batch);
+          }
         }
         
         fetched = end;
@@ -88,8 +93,7 @@ class FoodRepositoryImpl implements IFoodRepository {
           onProgress(fetched / totalCount);
         }
       }
-
-      await localDataSource.cacheFoodItems(batch);
+      
       return const Right(null);
 
     } catch (e) {
