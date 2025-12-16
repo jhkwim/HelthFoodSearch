@@ -1,5 +1,12 @@
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:dartz/dartz.dart' show Either; // or just dartz
+import '../../../../core/di/injection.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/usecases/get_raw_materials_usecase.dart';
 import '../../domain/entities/food_item.dart';
+import '../../../../core/utils/ingredient_refiner.dart';
 
 class DetailScreen extends StatefulWidget {
   final FoodItem item;
@@ -13,6 +20,18 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   final Set<String> _selectedIngredients = {};
+
+  List<String> _getCombinedIngredients() {
+    final Set<String> combined = {...widget.item.mainIngredients};
+    
+    // Parse indivRawmtrlNm and add
+    if (widget.item.indivRawmtrlNm.isNotEmpty) {
+      final refinedIndiv = IngredientRefiner.refineAll(widget.item.indivRawmtrlNm);
+      combined.addAll(refinedIndiv);
+    }
+    
+    return combined.toList();
+  }
 
   void _toggleIngredient(String ingredient) {
     setState(() {
@@ -70,41 +89,41 @@ class _DetailScreenState extends State<DetailScreen> {
              const SizedBox(height: 16),
 
             // 4. Intake (Method/Amount)
-            if (widget.item.ntkMthd.isNotEmpty) ...[
-              _buildInfoCard(
-                context,
-                title: '섭취량 및 섭취방법',
-                icon: Icons.restaurant_menu,
-                child: Text(widget.item.ntkMthd, style: const TextStyle(height: 1.5)),
+            _buildInfoCard(
+              context,
+              title: '섭취량 및 섭취방법',
+              icon: Icons.restaurant_menu,
+              child: Text(
+                widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd, 
+                style: const TextStyle(height: 1.5)
               ),
-              const SizedBox(height: 16),
-            ],
+            ),
+            const SizedBox(height: 16),
 
             // 5. Functionality Content
-            if (widget.item.primaryFnclty.isNotEmpty) ...[
-              _buildInfoCard(
-                context,
-                title: '기능성 내용',
-                icon: Icons.verified_user_outlined,
-                color: Theme.of(context).primaryColor.withOpacity(0.05),
-                child: Text(
-                  widget.item.primaryFnclty,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
-                ),
+            _buildInfoCard(
+              context,
+              title: '기능성 내용',
+              icon: Icons.verified_user_outlined,
+              color: Theme.of(context).primaryColor.withOpacity(0.05),
+              child: Text(
+                widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
               ),
-              const SizedBox(height: 16),
-            ],
+            ),
+            const SizedBox(height: 16),
 
             // 6. Standards
-             if (widget.item.stdrStnd.isNotEmpty) ...[
-              _buildInfoCard(
-                context,
-                title: '기준 및 규격',
-                icon: Icons.gavel_outlined,
-                child: Text(widget.item.stdrStnd, style: const TextStyle(height: 1.5)),
+            _buildInfoCard(
+              context,
+              title: '기준 및 규격',
+              icon: Icons.gavel_outlined,
+              child: Text(
+                widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
+                style: const TextStyle(height: 1.5)
               ),
-              const SizedBox(height: 16),
-            ],
+            ),
+            const SizedBox(height: 16),
 
             // 7. Cautions & Storage
              _buildInfoCard(
@@ -114,15 +133,18 @@ class _DetailScreenState extends State<DetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   if (widget.item.iftknAtntMatrCn.isNotEmpty) ...[
                     _buildSubTitle('섭취 시 주의사항', color: Colors.red),
-                    Text(widget.item.iftknAtntMatrCn, style: const TextStyle(height: 1.5, color: Colors.black87)),
+                    Text(
+                      widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
+                      style: const TextStyle(height: 1.5, color: Colors.black87)
+                    ),
                     const SizedBox(height: 16),
-                  ],
-                  if (widget.item.cstdyMthd.isNotEmpty) ...[
+                  
                     _buildSubTitle('보존 및 유통기준'),
-                    Text(widget.item.cstdyMthd, style: const TextStyle(height: 1.5)),
-                  ],
+                    Text(
+                      widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
+                      style: const TextStyle(height: 1.5)
+                    ),
                 ],
               ),
             ),
@@ -136,11 +158,11 @@ class _DetailScreenState extends State<DetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   // Chip Selection (Keep this for functionality, even if order is specifically text lists below)
+                   // Combined Chip Selection
                    Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('검색용 주요 원료', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                      const Text('기능성 원재료 정보', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
                       if (widget.onIngredientSelected != null)
                         Text('${_selectedIngredients.length}개 선택됨', style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
                     ],
@@ -149,7 +171,9 @@ class _DetailScreenState extends State<DetailScreen> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
-                    children: widget.item.mainIngredients.map((ing) {
+                    children: _getCombinedIngredients().asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final ing = entry.value;
                       final isSelected = _selectedIngredients.contains(ing);
                       return ActionChip(
                         label: Text(ing),
@@ -158,7 +182,15 @@ class _DetailScreenState extends State<DetailScreen> {
                              _toggleIngredient(ing);
                           }
                         },
-                        avatar: isSelected ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
+                        avatar: isSelected 
+                          ? const Icon(Icons.check, size: 16, color: Colors.white)
+                          : CircleAvatar(
+                              backgroundColor: Colors.grey[300],
+                              child: Text(
+                                '${index + 1}',
+                                style: const TextStyle(fontSize: 10, color: Colors.black87),
+                              ),
+                            ),
                         backgroundColor: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
                         labelStyle: TextStyle(
                           color: isSelected ? Colors.white : Colors.black87,
@@ -172,11 +204,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                   const Divider(height: 32),
                   
-                   if (widget.item.indivRawmtrlNm.isNotEmpty) ...[
-                    _buildSubTitle('기능성 원재료 정보'),
-                    _buildNumberedList(widget.item.indivRawmtrlNm),
-                    const SizedBox(height: 16),
-                  ],
                   if (widget.item.etcRawmtrlNm.isNotEmpty) ...[
                     _buildSubTitle('기타 원재료 정보'),
                     _buildNumberedList(widget.item.etcRawmtrlNm),
@@ -185,27 +212,32 @@ class _DetailScreenState extends State<DetailScreen> {
                    if (widget.item.capRawmtrlNm.isNotEmpty) ...[
                     _buildSubTitle('캡슐 원재료 정보'),
                     _buildNumberedList(widget.item.capRawmtrlNm),
-                     const SizedBox(height: 16),
                   ],
-                  
-                  // Expandable Full List
-                  ExpansionTile(
-                    title: const Text('전체 원료 목록 보기', style: TextStyle(fontSize: 14)),
-                    tilePadding: EdgeInsets.zero,
-                     children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: _buildNumberedList(widget.item.rawmtrlNm),
-                      )
-                    ],
-                  )
                 ],
               ),
+            ),
+            const SizedBox(height: 16),
+            
+            // C003 Raw Materials Section (Separate Card)
+            FutureBuilder<Either<Failure, List<String>?>>(
+              future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return snapshot.data?.fold(
+                    (l) => const SizedBox(), 
+                    (r) {
+                      if (r == null || r.isEmpty) return const SizedBox();
+                      return _buildInfoCard(
+                        context, 
+                        title: '품목제조신고 원재료', 
+                        icon: Icons.science_outlined,
+                        child: _buildBulletList(r),
+                      );
+                    }
+                  ) ?? const SizedBox();
+                }
+                return const Center(child: CircularProgressIndicator());
+              },
             ),
             const SizedBox(height: 80), // Space for FAB
           ],
@@ -235,18 +267,6 @@ class _DetailScreenState extends State<DetailScreen> {
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            '최종수정일: ${widget.item.lastUpdtDtm}',
-            style: TextStyle(color: Colors.grey[700], fontSize: 12),
           ),
         ),
       ],
@@ -340,6 +360,15 @@ class _DetailScreenState extends State<DetailScreen> {
         .where((e) => e.isNotEmpty)
         .toList();
 
+    return _buildListContent(list);
+  }
+
+  Widget _buildRawMaterialList(List<String> list) {
+    if (list.isEmpty) return const SizedBox.shrink();
+    return _buildListContent(list);
+  }
+
+  Widget _buildListContent(List<String> list) {
     if (list.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -364,6 +393,30 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         );
       }),
+    );
+  }
+  Widget _buildBulletList(List<String> list) {
+    if (list.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: list.map((item) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('•  ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black54)),
+              Expanded(
+                child: Text(
+                  item,
+                  style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

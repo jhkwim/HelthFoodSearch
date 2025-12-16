@@ -20,6 +20,8 @@ import '../../features/search/domain/repositories/i_food_repository.dart'
     as _i424;
 import '../../features/search/domain/usecases/check_data_existence_usecase.dart'
     as _i938;
+import '../../features/search/domain/usecases/get_raw_materials_usecase.dart'
+    as _i806;
 import '../../features/search/domain/usecases/get_suggested_ingredients_usecase.dart'
     as _i918;
 import '../../features/search/domain/usecases/search_food_by_ingredients_usecase.dart'
@@ -72,6 +74,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i91.RemoteDataSource>(),
           gh<_i688.LocalDataSource>(),
         ));
+    gh.lazySingleton<_i806.GetRawMaterialsUseCase>(
+        () => _i806.GetRawMaterialsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i938.CheckDataExistenceUseCase>(
         () => _i938.CheckDataExistenceUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i918.GetSuggestedIngredientsUseCase>(() =>
