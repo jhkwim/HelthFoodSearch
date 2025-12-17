@@ -1,0 +1,113 @@
+name: Build All Platforms
+
+on:
+  push:
+    branches: [ "release" ]
+  workflow_dispatch:
+
+jobs:
+  # 1. Web Build & Deploy
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Build Web
+        run: |
+          # Extract repository name for base-href (e.g., /health_food_search/)
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          flutter config --enable-web
+          flutter pub get
+          flutter build web --release --base-href "/$REPO_NAME/"
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+
+  # 2. Android Build
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Build APK
+        run: |
+          flutter pub get
+          flutter build apk --release
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  # 3. Windows Build
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Build Windows
+        run: |
+          flutter config --enable-windows-desktop
+          flutter pub get
+          flutter build windows --release
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app-release
+          path: build/windows/x64/runner/Release
+
+  # 4. macOS Build (Unsigned / Ad-hoc)
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Build macOS
+        run: |
+          flutter config --enable-macos-desktop
+          flutter pub get
+          flutter build macos --release
+      - name: Compress App
+        run: cd build/macos/Build/Products/Release && zip -r macos-app.zip health_food_search.app
+      - name: Upload macOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app-release
+          path: build/macos/Build/Products/Release/macos-app.zip
+
+  # 5. iOS Build (Unsigned / Simulator mainly)
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Build iOS (No Codesign)
+        run: |
+          flutter pub get
+          flutter build ios --release --no-codesign
+      - name: Compress Payload
+        run: |
+          mkdir Payload
+          mv build/ios/iphoneos/Runner.app Payload/
+          zip -r ios-app-unsigned.ipa Payload
+      - name: Upload iOS IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-app-unsigned
+          path: ios-app-unsigned.ipa
