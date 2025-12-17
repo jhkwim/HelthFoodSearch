@@ -120,9 +120,7 @@ class _DetailScreenState extends State<DetailScreen> {
         elevation: 0,
       ),
       body: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: SelectionArea(
+                child: SelectionArea(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(24),
                       child: Column(
@@ -310,7 +308,6 @@ class _DetailScreenState extends State<DetailScreen> {
                       ),
                     ),
                   ),
-                ),
               ),
       floatingActionButton: _selectedIngredients.isNotEmpty
           ? FloatingActionButton.extended(

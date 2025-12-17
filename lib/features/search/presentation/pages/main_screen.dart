@@ -114,9 +114,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               return Scaffold(
                 appBar: _buildAppBar(context, isWide: true),
                 body: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1366),
-                    child: Column(
+                  child: Column(
                     children: [
                       _buildSyncProgress(),
                       Expanded(
@@ -194,7 +192,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         ),
                       ],
                     ),
-                  ),
                 ),
               );
             },
