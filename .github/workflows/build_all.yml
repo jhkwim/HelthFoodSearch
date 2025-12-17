@@ -3,6 +3,7 @@ name: Build All Platforms
 on:
   push:
     branches: [ "release" ]
+    tags: [ "v*" ]
   workflow_dispatch:
 
 jobs:
@@ -62,11 +63,14 @@ jobs:
           flutter config --enable-windows-desktop
           flutter pub get
           flutter build windows --release
+      - name: Compress Windows Build
+        run: |
+          powershell Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath windows-app.zip
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
         with:
           name: windows-app-release
-          path: build/windows/x64/runner/Release
+          path: windows-app.zip
 
   # 4. macOS Build (Unsigned / Ad-hoc)
   build-macos:
@@ -106,8 +110,45 @@ jobs:
           mkdir Payload
           mv build/ios/iphoneos/Runner.app Payload/
           zip -r ios-app-unsigned.ipa Payload
-      - name: Upload iOS IPA
-        uses: actions/upload-artifact@v4
-        with:
           name: ios-app-unsigned
           path: ios-app-unsigned.ipa
+
+  # 6. Create GitHub Release
+  create-release:
+    needs: [build-android, build-windows, build-macos, build-ios]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-app-release
+      
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-app-release
+      
+      - name: Download macOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-app-release
+      
+      - name: Download iOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-app-unsigned
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app-release.apk
+            windows-app.zip
+            macos-app.zip
+            ios-app-unsigned.ipa
+          generate_release_notes: true
+          draft: false
+          prerelease: false
