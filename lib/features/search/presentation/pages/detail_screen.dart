@@ -22,16 +22,11 @@ class _DetailScreenState extends State<DetailScreen> {
   final Set<String> _selectedIngredients = {};
 
   List<String> _getCombinedIngredients() {
-    final Set<String> combined = {...widget.item.mainIngredients};
-    
-    // Parse indivRawmtrlNm and add
-    if (widget.item.indivRawmtrlNm.isNotEmpty) {
-      final refinedIndiv = IngredientRefiner.refineAll(widget.item.indivRawmtrlNm);
-      combined.addAll(refinedIndiv);
-    }
-    
-    return combined.toList();
+    // Only show RAWMTRL_NM in the main list
+    return widget.item.mainIngredients;
   }
+
+  int _selectedTabIndex = 0;
 
   void _toggleIngredient(String ingredient) {
     setState(() {
@@ -43,6 +38,80 @@ class _DetailScreenState extends State<DetailScreen> {
     });
   }
 
+  Widget _buildIngredientTabs() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Custom Tab Bar
+        Container(
+          height: 36,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              _buildTabItem(0, '기능성 원료'),
+              _buildTabItem(1, '기타 원자재'),
+              _buildTabItem(2, '복합/캡슐'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Tab Content
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: _buildTabUniqueContent(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabItem(int index, String label) {
+    final isSelected = _selectedTabIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedTabIndex = index),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 2, offset: const Offset(0, 1))] : null,
+          ),
+          margin: const EdgeInsets.all(2),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? Theme.of(context).primaryColor : Colors.grey[600],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabUniqueContent() {
+    switch (_selectedTabIndex) {
+      case 0:
+        return widget.item.indivRawmtrlNm.isEmpty 
+          ? const Text('-', style: TextStyle(color: Colors.grey)) 
+          : _buildNumberedList(widget.item.indivRawmtrlNm);
+      case 1:
+        return widget.item.etcRawmtrlNm.isEmpty 
+          ? const Text('-', style: TextStyle(color: Colors.grey)) 
+          : _buildNumberedList(widget.item.etcRawmtrlNm);
+      case 2:
+        return widget.item.capRawmtrlNm.isEmpty 
+          ? const Text('-', style: TextStyle(color: Colors.grey)) 
+          : _buildNumberedList(widget.item.capRawmtrlNm);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,411 +120,198 @@ class _DetailScreenState extends State<DetailScreen> {
         elevation: 0,
       ),
       body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 900;
-              
-              if (isWide) {
-                return SelectionArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: SelectionArea(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Header Section (Product Name)
                         _buildHeader(context),
                         const SizedBox(height: 24),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Left Column
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  _buildInfoCard(
-                                    context,
-                                    title: '기본 정보',
-                                    icon: Icons.info_outline,
-                                    child: _buildTable([
-                                      _InfoRow('업소명', widget.item.bsshNm),
-                                      _InfoRow('신고번호', widget.item.reportNo),
-                                      _InfoRow('등록일자', widget.item.prmsDt),
-                                      _InfoRow('소비기한', widget.item.pogDaycnt),
-                                      _InfoRow('성상', widget.item.dispos),
-                                      _InfoRow('제품형태', widget.item.prdtShapCdNm),
-                                    ]),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildInfoCard(
-                                    context,
-                                    title: '포장 정보',
-                                    icon: Icons.inventory_2_outlined,
-                                    child: _buildTable([
-                                      _InfoRow('포장재질', widget.item.frmlcMtrqlt),
-                                      _InfoRow('포장방법', widget.item.frmlcMthd),
-                                    ]),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildInfoCard(
-                                    context,
-                                    title: '섭취량 및 섭취방법',
-                                    icon: Icons.restaurant_menu,
-                                    child: Text(
-                                      widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd, 
-                                      style: const TextStyle(height: 1.5)
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildInfoCard(
-                                    context,
-                                    title: '기준 및 규격',
-                                    icon: Icons.gavel_outlined,
-                                    child: Text(
-                                      widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
-                                      style: const TextStyle(height: 1.5)
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            // Right Column
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  _buildInfoCard(
-                                    context,
-                                    title: '기능성 내용',
-                                    icon: Icons.verified_user_outlined,
-                                    color: Theme.of(context).primaryColor.withOpacity(0.05),
-                                    child: Text(
-                                      widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
-                                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildInfoCard(
-                                    context,
-                                    title: '주의사항 및 보관',
-                                    icon: Icons.warning_amber_rounded,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                          _buildSubTitle('섭취 시 주의사항', color: Colors.red),
-                                          Text(
-                                            widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
-                                            style: const TextStyle(height: 1.5, color: Colors.black87)
-                                          ),
-                                          const SizedBox(height: 16),
-                                        
-                                          _buildSubTitle('보존 및 유통기준'),
-                                          Text(
-                                            widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
-                                            style: const TextStyle(height: 1.5)
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildInfoCard(
-                                    context,
-                                    title: '원료 정보',
-                                    icon: Icons.grass,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                         // Combined Chip Selection
-                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Text('기능성 원재료 정보', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
-                                            if (widget.onIngredientSelected != null)
-                                              Text('${_selectedIngredients.length}개 선택됨', style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 4,
-                                          children: _getCombinedIngredients().asMap().entries.map((entry) {
-                                            final index = entry.key;
-                                            final ing = entry.value;
-                                            final isSelected = _selectedIngredients.contains(ing);
-                                            return ActionChip(
-                                              label: Text(ing),
-                                              onPressed: () {
-                                                if (widget.onIngredientSelected != null) {
-                                                   _toggleIngredient(ing);
-                                                }
-                                              },
-                                              avatar: isSelected 
-                                                ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                                : CircleAvatar(
-                                                    backgroundColor: Colors.grey[300],
-                                                    child: Text(
-                                                      '${index + 1}',
-                                                      style: const TextStyle(fontSize: 10, color: Colors.black87),
-                                                    ),
-                                                  ),
-                                              backgroundColor: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
-                                              labelStyle: TextStyle(
-                                                color: isSelected ? Colors.white : Colors.black87,
-                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                              ),
-                                              side: BorderSide(
-                                                color: isSelected ? Colors.transparent : Theme.of(context).primaryColor.withOpacity(0.2)
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                        const Divider(height: 32),
-                                        
-                                        if (widget.item.etcRawmtrlNm.isNotEmpty) ...[
-                                          _buildSubTitle('기타 원재료 정보'),
-                                          _buildNumberedList(widget.item.etcRawmtrlNm),
-                                          const SizedBox(height: 16),
-                                        ],
-                                         if (widget.item.capRawmtrlNm.isNotEmpty) ...[
-                                          _buildSubTitle('캡슐 원재료 정보'),
-                                          _buildNumberedList(widget.item.capRawmtrlNm),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  // C003 Raw Materials Section (Separate Card)
-                                  FutureBuilder<Either<Failure, List<String>?>>(
-                                    future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState == ConnectionState.done) {
-                                        return snapshot.data?.fold(
-                                          (l) => const SizedBox(), 
-                                          (r) {
-                                            if (r == null || r.isEmpty) return const SizedBox();
-                                            return _buildInfoCard(
-                                              context, 
-                                              title: '품목제조신고 원재료', 
-                                              icon: Icons.science_outlined,
-                                              child: _buildBulletList(r),
-                                            );
-                                          }
-                                        ) ?? const SizedBox();
-                                      }
-                                      return const Center(child: CircularProgressIndicator());
-                                    },
-                                  ),
-                                  const SizedBox(height: 80),
-                                ],
-                              ),
-                            ),
-                          ],
+
+                        // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
+                        _buildInfoCard(
+                          context,
+                          title: '기본 정보',
+                          icon: Icons.info_outline,
+                          child: _buildTable([
+                            _InfoRow('업소명', widget.item.bsshNm),
+                            _InfoRow('신고번호', widget.item.reportNo),
+                            _InfoRow('등록일자', widget.item.prmsDt),
+                            _InfoRow('소비기한', widget.item.pogDaycnt),
+                            _InfoRow('성상', widget.item.dispos),
+                            _InfoRow('제품형태', widget.item.prdtShapCdNm),
+                          ]),
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              }
+                        const SizedBox(height: 16),
 
-              // Mobile Layout (Original)
-              return SelectionArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Header Section (Product Name)
-                    _buildHeader(context),
-                    const SizedBox(height: 24),
+                         // 3. Packaging (Material/Method)
+                        _buildInfoCard(
+                          context,
+                          title: '포장 정보',
+                          icon: Icons.inventory_2_outlined,
+                          child: _buildTable([
+                            _InfoRow('포장재질', widget.item.frmlcMtrqlt),
+                            _InfoRow('포장방법', widget.item.frmlcMthd),
+                          ]),
+                        ),
+                         const SizedBox(height: 16),
 
-                    // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
-                    _buildInfoCard(
-                      context,
-                      title: '기본 정보',
-                      icon: Icons.info_outline,
-                      child: _buildTable([
-                        _InfoRow('업소명', widget.item.bsshNm),
-                        _InfoRow('신고번호', widget.item.reportNo),
-                        _InfoRow('등록일자', widget.item.prmsDt),
-                        _InfoRow('소비기한', widget.item.pogDaycnt),
-                        _InfoRow('성상', widget.item.dispos),
-                        _InfoRow('제품형태', widget.item.prdtShapCdNm),
-                      ]),
-                    ),
-                    const SizedBox(height: 16),
+                        // 4. Intake (Method/Amount)
+                        _buildInfoCard(
+                          context,
+                          title: '섭취량 및 섭취방법',
+                          icon: Icons.restaurant_menu,
+                          child: Text(
+                            widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd, 
+                            style: const TextStyle(height: 1.5)
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                     // 3. Packaging (Material/Method)
-                    _buildInfoCard(
-                      context,
-                      title: '포장 정보',
-                      icon: Icons.inventory_2_outlined,
-                      child: _buildTable([
-                        _InfoRow('포장재질', widget.item.frmlcMtrqlt),
-                        _InfoRow('포장방법', widget.item.frmlcMthd),
-                      ]),
-                    ),
-                     const SizedBox(height: 16),
+                        // 5. Functionality Content
+                        _buildInfoCard(
+                          context,
+                          title: '기능성 내용',
+                          icon: Icons.verified_user_outlined,
+                          color: Theme.of(context).primaryColor.withOpacity(0.05),
+                          child: Text(
+                            widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                    // 4. Intake (Method/Amount)
-                    _buildInfoCard(
-                      context,
-                      title: '섭취량 및 섭취방법',
-                      icon: Icons.restaurant_menu,
-                      child: Text(
-                        widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd, 
-                        style: const TextStyle(height: 1.5)
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                        // 6. Standards
+                        _buildInfoCard(
+                          context,
+                          title: '기준 및 규격',
+                          icon: Icons.gavel_outlined,
+                          child: Text(
+                            widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
+                            style: const TextStyle(height: 1.5)
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                    // 5. Functionality Content
-                    _buildInfoCard(
-                      context,
-                      title: '기능성 내용',
-                      icon: Icons.verified_user_outlined,
-                      color: Theme.of(context).primaryColor.withOpacity(0.05),
-                      child: Text(
-                        widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 6. Standards
-                    _buildInfoCard(
-                      context,
-                      title: '기준 및 규격',
-                      icon: Icons.gavel_outlined,
-                      child: Text(
-                        widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
-                        style: const TextStyle(height: 1.5)
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // 7. Cautions & Storage
-                     _buildInfoCard(
-                      context,
-                      title: '주의사항 및 보관',
-                      icon: Icons.warning_amber_rounded,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                            _buildSubTitle('섭취 시 주의사항', color: Colors.red),
-                            Text(
-                              widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
-                              style: const TextStyle(height: 1.5, color: Colors.black87)
-                            ),
-                            const SizedBox(height: 16),
-                          
-                            _buildSubTitle('보존 및 유통기준'),
-                            Text(
-                              widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
-                              style: const TextStyle(height: 1.5)
-                            ),
-                        ],
-                      ),
-                    ),
-                     const SizedBox(height: 16),
-
-                    // 8. Ingredients
-                     _buildInfoCard(
-                      context,
-                      title: '원료 정보',
-                      icon: Icons.grass,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                           // Combined Chip Selection
-                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // 7. Cautions & Storage
+                         _buildInfoCard(
+                          context,
+                          title: '주의사항 및 보관',
+                          icon: Icons.warning_amber_rounded,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('기능성 원재료 정보', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
-                              if (widget.onIngredientSelected != null)
-                                Text('${_selectedIngredients.length}개 선택됨', style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                                _buildSubTitle('섭취 시 주의사항', color: Colors.red),
+                                Text(
+                                  widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
+                                  style: const TextStyle(height: 1.5, color: Colors.black87)
+                                ),
+                                const SizedBox(height: 16),
+                              
+                                _buildSubTitle('보존 및 유통기준'),
+                                Text(
+                                  widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
+                                  style: const TextStyle(height: 1.5)
+                                ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: _getCombinedIngredients().asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final ing = entry.value;
-                              final isSelected = _selectedIngredients.contains(ing);
-                              return ActionChip(
-                                label: Text(ing),
-                                onPressed: () {
-                                  if (widget.onIngredientSelected != null) {
-                                     _toggleIngredient(ing);
-                                  }
-                                },
-                                avatar: isSelected 
-                                  ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                  : CircleAvatar(
-                                      backgroundColor: Colors.grey[300],
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: const TextStyle(fontSize: 10, color: Colors.black87),
-                                      ),
+                        ),
+                         const SizedBox(height: 16),
+
+                        // 8. Ingredients
+                        // 8. Ingredients
+                        _buildInfoCard(
+                          context,
+                          title: '원료 정보',
+                          icon: Icons.grass,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                               // 8.1 Primary: Raw Materials (Searchable)
+                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('원재료 정보 (검색 가능)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                                  if (widget.onIngredientSelected != null)
+                                    Text('${_selectedIngredients.length}개 선택됨', style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: _getCombinedIngredients().asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final ing = entry.value;
+                                  final isSelected = _selectedIngredients.contains(ing);
+                                  return ActionChip(
+                                    label: Text(ing),
+                                    onPressed: () {
+                                      if (widget.onIngredientSelected != null) {
+                                         _toggleIngredient(ing);
+                                      }
+                                    },
+                                    avatar: isSelected 
+                                      ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                      : CircleAvatar(
+                                          backgroundColor: Colors.grey[300],
+                                          child: Text(
+                                            '${index + 1}',
+                                            style: const TextStyle(fontSize: 10, color: Colors.black87),
+                                          ),
+                                        ),
+                                    backgroundColor: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
+                                    labelStyle: TextStyle(
+                                      color: isSelected ? Colors.white : Colors.black87,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                     ),
-                                backgroundColor: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
-                                labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.black87,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                ),
-                                side: BorderSide(
-                                  color: isSelected ? Colors.transparent : Theme.of(context).primaryColor.withOpacity(0.2)
-                                ),
-                              );
-                            }).toList(),
+                                    side: BorderSide(
+                                      color: isSelected ? Colors.transparent : Theme.of(context).primaryColor.withOpacity(0.2)
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              const Divider(height: 32),
+                              
+                              // 8.2 Secondary: Detail Tabs (Functional, Etc, Capsule)
+                              _buildIngredientTabs(),
+                            ],
                           ),
-                          const Divider(height: 32),
-                          
-                          if (widget.item.etcRawmtrlNm.isNotEmpty) ...[
-                            _buildSubTitle('기타 원재료 정보'),
-                            _buildNumberedList(widget.item.etcRawmtrlNm),
-                            const SizedBox(height: 16),
-                          ],
-                           if (widget.item.capRawmtrlNm.isNotEmpty) ...[
-                            _buildSubTitle('캡슐 원재료 정보'),
-                            _buildNumberedList(widget.item.capRawmtrlNm),
-                          ],
-                        ],
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        // C003 Raw Materials Section (Separate Card)
+                        FutureBuilder<Either<Failure, List<String>?>>(
+                          future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              return snapshot.data?.fold(
+                                (l) => const SizedBox(), 
+                                (r) {
+                                  if (r == null || r.isEmpty) return const SizedBox();
+                                  return _buildInfoCard(
+                                    context, 
+                                    title: '품목제조신고 원재료', 
+                                    icon: Icons.science_outlined,
+                                    child: _buildBulletList(r),
+                                  );
+                                }
+                              ) ?? const SizedBox();
+                            }
+                            return const Center(child: CircularProgressIndicator());
+                          },
+                        ),
+                        const SizedBox(height: 80), // Space for FAB
+                      ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    
-                    // C003 Raw Materials Section (Separate Card)
-                    FutureBuilder<Either<Failure, List<String>?>>(
-                      future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          return snapshot.data?.fold(
-                            (l) => const SizedBox(), 
-                            (r) {
-                              if (r == null || r.isEmpty) return const SizedBox();
-                              return _buildInfoCard(
-                                context, 
-                                title: '품목제조신고 원재료', 
-                                icon: Icons.science_outlined,
-                                child: _buildBulletList(r),
-                              );
-                            }
-                          ) ?? const SizedBox();
-                        }
-                        return const Center(child: CircularProgressIndicator());
-                      },
-                    ),
-                    const SizedBox(height: 80), // Space for FAB
-                  ],
                   ),
                 ),
-              );
-            }
-          ),
-        ),
-      ),
+              ),
       floatingActionButton: _selectedIngredients.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: () {
@@ -575,10 +431,7 @@ class _DetailScreenState extends State<DetailScreen> {
     return _buildListContent(list);
   }
 
-  Widget _buildRawMaterialList(List<String> list) {
-    if (list.isEmpty) return const SizedBox.shrink();
-    return _buildListContent(list);
-  }
+
 
   Widget _buildListContent(List<String> list) {
     if (list.isEmpty) return const SizedBox.shrink();
