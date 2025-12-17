@@ -30,7 +30,10 @@ class AppTheme {
         onSurface: textPrimary,
       ),
 
-      textTheme: GoogleFonts.notoSansKrTextTheme().apply(
+      fontFamily: 'Pretendard',
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(fontSize: 14), // Base size standard
+      ).apply(
         bodyColor: textPrimary,
         displayColor: textPrimary,
       ),
