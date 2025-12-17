@@ -178,19 +178,41 @@ class _FoodItemCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               if (item.reportNo != null)
-              Text(
-                '신고번호: ${item.reportNo}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[600],
-                    ),
-              ),
-              const SizedBox(height: 8),
+              if (item.reportNo != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '신고번호: ${item.reportNo}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ),
+              const SizedBox(height: 12),
               if (item.mainIngredients.isNotEmpty)
-                Text(
-                  '주원료: ${item.mainIngredients.take(3).join(", ")}${item.mainIngredients.length > 3 ? "..." : ""}',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                RichText(
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.black87,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: '주원료: ',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                      ),
+                      TextSpan(
+                        text: '${item.mainIngredients.take(3).join(", ")}${item.mainIngredients.length > 3 ? "..." : ""}',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
             ],
           ),

@@ -180,7 +180,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           color: Theme.of(context).primaryColor.withOpacity(0.05),
                           child: Text(
                             widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -390,8 +390,8 @@ class _DetailScreenState extends State<DetailScreen> {
               child: Text(
                 row.label,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700], // Darker grey for better legibility
+                      fontWeight: FontWeight.w600, // Slightly bolder
                     ),
               ),
             ),

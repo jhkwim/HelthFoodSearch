@@ -301,11 +301,25 @@ class _FoodItemCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               if (item.mainIngredients.isNotEmpty)
-                Text(
-                  '주원료: ${item.mainIngredients.take(5).join(", ")}',
-                  style: Theme.of(context).textTheme.bodyMedium,
+              if (item.mainIngredients.isNotEmpty)
+                RichText(
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.black87,
+                    ),
+                    children: [
+                      const TextSpan(
+                        text: '주원료: ',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                      ),
+                      TextSpan(
+                        text: item.mainIngredients.take(5).join(", "),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
             ],
           ),
