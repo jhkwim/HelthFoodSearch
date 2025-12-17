@@ -74,14 +74,14 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
                       final isGrid = constraints.maxWidth > 480;
                       
                       if (isGrid) {
-                        final crossAxisCount = (constraints.maxWidth / 250).floor().clamp(2, 2);
+                        final crossAxisCount = (constraints.maxWidth / 250).floor().clamp(2, 6);
                         return GridView.builder(
                           padding: const EdgeInsets.all(16),
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.8, // Taller card to fit Content
+                            childAspectRatio: 1.05, // Optimized ratio (Square-ish) to reduce vertical whitespace
                           ),
                           itemCount: state.foods.length,
                           itemBuilder: (context, index) {
