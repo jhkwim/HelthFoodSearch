@@ -34,52 +34,57 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
             appBar: AppBar(
               title: const Text('API 설정'),
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      '식품안전나라 API 키를 입력해주세요.',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
+            body: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          '식품안전나라 API 키를 입력해주세요.',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          '공공데이터포털에서 발급받은 키가 필요합니다.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 48),
+                        TextFormField(
+                          controller: _controller,
+                          decoration: const InputDecoration(
+                            labelText: 'API 인증키',
+                            hintText: '인증키를 입력하세요',
+                            prefixIcon: Icon(Icons.vpn_key),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '키를 입력해주세요';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 32),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              context.read<SettingsCubit>().saveApiKey(_controller.text.trim());
+                            }
+                          },
+                          child: state is SettingsLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('저장하고 시작하기'),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      '공공데이터포털에서 발급받은 키가 필요합니다.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 48),
-                    TextFormField(
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        labelText: 'API 인증키',
-                        hintText: '인증키를 입력하세요',
-                        prefixIcon: Icon(Icons.vpn_key),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '키를 입력해주세요';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<SettingsCubit>().saveApiKey(_controller.text.trim());
-                        }
-                      },
-                      child: state is SettingsLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('저장하고 시작하기'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

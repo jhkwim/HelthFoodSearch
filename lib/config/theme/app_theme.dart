@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Emerald Palette (Reference: Tailwind Emerald)
@@ -16,7 +17,6 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Pretendard',
       brightness: Brightness.light,
       primaryColor: primaryColor,
       scaffoldBackgroundColor: background,
@@ -28,6 +28,11 @@ class AppTheme {
         background: background,
         onPrimary: Colors.white,
         onSurface: textPrimary,
+      ),
+
+      textTheme: GoogleFonts.notoSansKrTextTheme().apply(
+        bodyColor: textPrimary,
+        displayColor: textPrimary,
       ),
 
       appBarTheme: const AppBarTheme(
@@ -102,20 +107,6 @@ class AppTheme {
         labelStyle: const TextStyle(color: textPrimary),
         secondaryLabelStyle: const TextStyle(color: Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-        displayMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-        displaySmall: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-        headlineMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-        titleLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-        titleMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
-        bodyLarge: TextStyle(color: textPrimary),
-        bodyMedium: TextStyle(color: textSecondary),
-      ).apply(
-        bodyColor: textPrimary,
-        displayColor: textPrimary,
       ),
     );
   }
