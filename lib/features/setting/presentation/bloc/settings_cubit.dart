@@ -7,6 +7,7 @@ import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/get_settings_usecase.dart';
 import '../../domain/usecases/save_api_key_usecase.dart';
 import '../../domain/usecases/save_text_scale_usecase.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 part 'settings_state.dart';
 
@@ -25,11 +26,24 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> checkSettings() async {
     emit(SettingsLoading());
     final result = await getSettingsUseCase(NoParams());
+    
+    String version = '';
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      version = packageInfo.version;
+    } catch (e) {
+      debugPrint('Error getting package info: $e');
+    }
+
     result.fold(
       (failure) => emit(SettingsError(failure.message)),
       (settings) {
-        // Emit loaded even if API key is missing, but flag it
-        emit(SettingsLoaded(settings, isApiKeyMissing: settings.apiKey == null || settings.apiKey!.isEmpty));
+        // Emit loaded with version info
+        emit(SettingsLoaded(
+          settings, 
+          isApiKeyMissing: settings.apiKey == null || settings.apiKey!.isEmpty,
+          appVersion: version,
+        ));
       },
     );
   }

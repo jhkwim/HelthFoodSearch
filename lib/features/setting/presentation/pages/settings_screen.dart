@@ -17,11 +17,13 @@ class SettingsScreen extends StatelessWidget {
           builder: (context, state) {
             final apiKey = (state is SettingsLoaded) ? state.settings.apiKey : '';
             final isLargeText = (state is SettingsLoaded) ? state.settings.textScale > 1.0 : false;
+            final appVersion = (state is SettingsLoaded) ? state.appVersion : '';
             
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 _buildSectionTitle(context, '화면 설정'),
+// ... (I only need to replace the variable extraction and the Text widget at the bottom, but replace_file_content works on contiguous blocks. I should do 2 replacements if they are far apart)
                 Card(
                   child: SwitchListTile(
                     secondary: const Icon(Icons.format_size),
@@ -108,11 +110,11 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 _buildSectionTitle(context, '앱 정보'),
-                const Card(
+                Card(
                   child: ListTile(
                     leading: Icon(Icons.info),
                     title: Text('버전'),
-                    subtitle: Text('1.0.1'),
+                    subtitle: Text(appVersion.isEmpty ? 'Loading...' : appVersion),
                   ),
                 ),
               ],

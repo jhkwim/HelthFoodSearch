@@ -14,11 +14,15 @@ class SettingsLoading extends SettingsState {}
 class SettingsLoaded extends SettingsState {
   final AppSettings settings;
   final bool isApiKeyMissing;
+  final String appVersion;
 
-  const SettingsLoaded(this.settings, {this.isApiKeyMissing = false});
+  const SettingsLoaded(this.settings, {
+    this.isApiKeyMissing = false,
+    this.appVersion = '',
+  });
 
   @override
-  List<Object?> get props => [settings, isApiKeyMissing];
+  List<Object?> get props => [settings, isApiKeyMissing, appVersion];
 }
 
 class SettingsError extends SettingsState {
