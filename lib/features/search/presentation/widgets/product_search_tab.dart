@@ -166,52 +166,59 @@ class _FoodItemCard extends StatelessWidget {
              mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (item.reportNo != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    '신고번호: ${item.reportNo}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ),
               Text(
                 item.prdlstNm,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontSize: 18,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                       color: Theme.of(context).primaryColor,
+                      height: 1.2,
                     ),
               ),
-              const SizedBox(height: 8),
-              if (item.reportNo != null)
-              if (item.reportNo != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    '신고번호: ${item.reportNo}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
               const SizedBox(height: 12),
               if (item.mainIngredients.isNotEmpty)
-                RichText(
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black87,
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: RichText(
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.black87,
+                          height: 1.5,
+                        ),
+                        children: [
+                          const TextSpan(
+                            text: '주원료: ',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                          ),
+                          TextSpan(
+                            text: '${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
                     ),
-                    children: [
-                      const TextSpan(
-                        text: '주원료: ',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-                      ),
-                      TextSpan(
-                        text: '${item.mainIngredients.take(3).join(", ")}${item.mainIngredients.length > 3 ? "..." : ""}',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
                   ),
                 ),
             ],
