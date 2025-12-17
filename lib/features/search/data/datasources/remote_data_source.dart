@@ -19,7 +19,7 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   Future<FoodResponseDto> fetchFoodData(String apiKey, int start, int end) async {
     try {
       final response = await dio.get(
-        'http://openapi.foodsafetykorea.go.kr/api/$apiKey/I0030/json/$start/$end',
+        'https://openapi.foodsafetykorea.go.kr/api/$apiKey/I0030/json/$start/$end',
       );
 
       if (response.statusCode == 200) {
@@ -36,7 +36,7 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   Future<RawMaterialResponseDto> fetchRawMaterials(String apiKey, int start, int end) async {
     try {
       final response = await dio.get(
-        'http://openapi.foodsafetykorea.go.kr/api/$apiKey/C003/json/$start/$end',
+        'https://openapi.foodsafetykorea.go.kr/api/$apiKey/C003/json/$start/$end',
       );
 
       if (response.statusCode == 200) {
