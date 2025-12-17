@@ -1,17 +1,17 @@
-# Changelog
+# 변경 이력 (Changelog)
 
 ## [1.0.2] - 2025-12-17
 
-### Added
-- **UI Design**: Applied `Pretendard` font for improved typography and modern aesthetics.
-- **Data Info**: Added display of stored data count and size in Settings.
-- **Legibility**: Enhanced visibility of "Report Number" and "Main Ingredients" in search result cards.
+### 추가됨 (Added)
+- **UI 디자인**: `Pretendard` 폰트를 적용하여 타이포그래피와 심미성을 개선했습니다.
+- **데이터 정보**: 설정 화면에 저장된 데이터의 개수와 용량을 표시하는 기능을 추가했습니다.
+- **가독성**: 검색 결과 카드에서 "신고번호"와 "주원료"의 시인성을 강화했습니다.
 
-### Changed
-- **UX**: Reordered search result card layout to `[Meta(Report#)] -> [Title] -> [Content]` for better scannability.
-- **Detail Screen**: Improved text contrast for labels and standardized font sizes.
-- **Search**: Changed aspect ratio of grid items to prevent text overflow.
+### 변경됨 (Changed)
+- **UX**: 정보 파악이 쉽도록 검색 결과 카드의 레이아웃을 `[신고번호(상단)] -> [제품명] -> [내용]` 순서로 재배치했습니다.
+- **상세 화면**: 라벨 텍스트의 명암비를 높이고 폰트 크기를 표준화했습니다.
+- **검색**: 텍스트 잘림 방지를 위해 그리드 아이템의 비율을 조정했습니다.
 
-### Fixed
-- **Bug**: Fixed `RenderFlex overflow` error in Grid View by adjusting card aspect ratio.
-- **Bug**: Fixed `RenderFlex unbounded height` error in List View by removing improper `Expanded` usage.
+### 수정됨 (Fixed)
+- **버그**: 그리드 뷰에서 카드의 가로세로 비율을 조정하여 레이아웃 깨짐(RenderFlex overflow) 현상을 수정했습니다.
+- **버그**: 리스트 뷰에서 잘못된 `Expanded` 사용으로 인한 무한 높이 오류(unbounded height)를 수정했습니다.
