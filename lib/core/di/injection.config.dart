@@ -95,7 +95,7 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i778.SyncDataUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i924.SearchFoodByNameUseCase>(
         () => _i924.SearchFoodByNameUseCase(gh<_i424.IFoodRepository>()));
-    gh.factory<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(
+    gh.lazySingleton<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(
           gh<_i778.SyncDataUseCase>(),
           gh<_i938.CheckDataExistenceUseCase>(),
           gh<_i940.GetSettingsUseCase>(),

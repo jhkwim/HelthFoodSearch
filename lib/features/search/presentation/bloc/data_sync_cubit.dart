@@ -11,7 +11,7 @@ import '../../domain/usecases/get_storage_info_usecase.dart';
 
 part 'data_sync_state.dart';
 
-@injectable
+@lazySingleton
 class DataSyncCubit extends Cubit<DataSyncState> {
   final SyncDataUseCase syncDataUseCase;
   final CheckDataExistenceUseCase checkDataExistenceUseCase;

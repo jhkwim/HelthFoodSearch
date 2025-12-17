@@ -11,12 +11,7 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        // SettingsCubit is now global in main.dart
-        BlocProvider(create: (context) => getIt<DataSyncCubit>()),
-      ],
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(title: const Text('설정')),
         body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
@@ -124,8 +119,7 @@ class SettingsScreen extends StatelessWidget {
             );
           },
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
