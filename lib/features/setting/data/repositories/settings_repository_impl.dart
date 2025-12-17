@@ -13,12 +13,14 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   SettingsRepositoryImpl() : settingsBox = Hive.box('settings');
 
   static const String apiKeyKey = 'API_KEY';
+  static const String textScaleKey = 'TEXT_SCALE';
 
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {
     try {
       final apiKey = settingsBox.get(apiKeyKey) as String?;
-      return Right(AppSettings(apiKey: apiKey));
+      final textScale = settingsBox.get(textScaleKey, defaultValue: 1.0) as double;
+      return Right(AppSettings(apiKey: apiKey, textScale: textScale));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -40,6 +42,16 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> clearData() async {
     try {
       await settingsBox.clear();
+      return Right(null);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveTextScale(double scale) async {
+    try {
+      await settingsBox.put(textScaleKey, scale);
       return Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));

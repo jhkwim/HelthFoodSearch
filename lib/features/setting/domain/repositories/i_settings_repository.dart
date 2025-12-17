@@ -8,4 +8,6 @@ abstract class ISettingsRepository {
   Future<Either<Failure, void>> saveApiKey(String apiKey);
   
   Future<Either<Failure, void>> clearData();
+  
+  Future<Either<Failure, void>> saveTextScale(double scale);
 }

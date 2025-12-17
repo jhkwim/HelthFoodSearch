@@ -1,78 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:health_food_search/core/di/injection.dart';
-import 'package:health_food_search/features/setting/presentation/bloc/settings_cubit.dart';
-import 'package:health_food_search/features/search/presentation/bloc/data_sync_cubit.dart';
+import '../../setting/presentation/bloc/settings_cubit.dart';
+import '../../search/presentation/bloc/data_sync_cubit.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Check initial state after first frame to avoid "Setstate during build" or Context issues
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkInitialState();
+    });
+  }
+
+  void _checkInitialState() {
+    if (!mounted) return;
+    final settingsState = context.read<SettingsCubit>().state;
+    if (settingsState is SettingsLoaded) {
+      _handleSettingsLoaded(settingsState);
+    }
+  }
+
+  void _handleSettingsLoaded(SettingsLoaded state) {
+     if (state.isApiKeyMissing) {
+        context.go('/api_key');
+      } else {
+        context.read<DataSyncCubit>().checkData();
+      }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => getIt<SettingsCubit>()..checkSettings()),
-        BlocProvider(create: (context) => getIt<DataSyncCubit>()),
+    // Removed MultiBlocProvider as Cubits are provided in main.dart
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<SettingsCubit, SettingsState>(
+          listener: (context, state) {
+            if (state is SettingsLoaded) {
+              _handleSettingsLoaded(state);
+            } else if (state is SettingsError) {
+               ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Settings Error: ${state.message}')),
+              );
+            }
+          },
+        ),
+        BlocListener<DataSyncCubit, DataSyncState>(
+          listener: (context, state) {
+            if (state is DataSyncSuccess) {
+              context.go('/main');
+            } else if (state is DataSyncNeeded) {
+              context.go('/download');
+            } else if (state is DataSyncError) {
+               ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Data Check Error: ${state.message}')),
+              );
+            }
+          },
+        ),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<SettingsCubit, SettingsState>(
-            listener: (context, state) {
-              if (state is SettingsLoaded) {
-                if (state.isApiKeyMissing) {
-                  context.go('/api_key');
-                } else {
-                  // Check data existence if API key is present
-                  context.read<DataSyncCubit>().checkData();
-                }
-              } else if (state is SettingsError) {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Settings Error: ${state.message}')),
-                );
-              }
-            },
-          ),
-          BlocListener<DataSyncCubit, DataSyncState>(
-            listener: (context, state) {
-              if (state is DataSyncSuccess) {
-                // Has data
-                context.go('/main');
-              } else if (state is DataSyncNeeded) {
-                // No data
-                context.go('/download');
-              } else if (state is DataSyncError) {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Data Check Error: ${state.message}')),
-                );
-              }
-            },
-          ),
-        ],
-        child: Scaffold(
-          backgroundColor: Theme.of(context).primaryColor,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.health_and_safety,
-                  size: 100,
-                  color: Colors.white,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  '건강기능식품 검색',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: Colors.white,
-                      ),
-                ),
-                const SizedBox(height: 24),
-                const CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ],
-            ),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.health_and_safety,
+                size: 100,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                '건강기능식품 검색',
+                style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(
+                color: Colors.white,
+              ),
+            ],
           ),
         ),
       ),

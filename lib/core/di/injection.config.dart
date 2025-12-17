@@ -41,6 +41,8 @@ import '../../features/setting/domain/usecases/get_settings_usecase.dart'
     as _i940;
 import '../../features/setting/domain/usecases/save_api_key_usecase.dart'
     as _i152;
+import '../../features/setting/domain/usecases/save_text_scale_usecase.dart'
+    as _i775;
 import '../../features/setting/presentation/bloc/settings_cubit.dart' as _i291;
 import 'register_module.dart' as _i291;
 
@@ -66,9 +68,12 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i940.GetSettingsUseCase(gh<_i990.ISettingsRepository>()));
     gh.factory<_i152.SaveApiKeyUseCase>(
         () => _i152.SaveApiKeyUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i775.SaveTextScaleUseCase>(
+        () => _i775.SaveTextScaleUseCase(gh<_i990.ISettingsRepository>()));
     gh.factory<_i291.SettingsCubit>(() => _i291.SettingsCubit(
           gh<_i940.GetSettingsUseCase>(),
           gh<_i152.SaveApiKeyUseCase>(),
+          gh<_i775.SaveTextScaleUseCase>(),
         ));
     gh.lazySingleton<_i424.IFoodRepository>(() => _i64.FoodRepositoryImpl(
           gh<_i91.RemoteDataSource>(),
@@ -76,14 +81,14 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i806.GetRawMaterialsUseCase>(
         () => _i806.GetRawMaterialsUseCase(gh<_i424.IFoodRepository>()));
+    gh.lazySingleton<_i337.SearchFoodByIngredientsUseCase>(() =>
+        _i337.SearchFoodByIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i938.CheckDataExistenceUseCase>(
         () => _i938.CheckDataExistenceUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i918.GetSuggestedIngredientsUseCase>(() =>
         _i918.GetSuggestedIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i778.SyncDataUseCase>(
         () => _i778.SyncDataUseCase(gh<_i424.IFoodRepository>()));
-    gh.factory<_i337.SearchFoodByIngredientsUseCase>(() =>
-        _i337.SearchFoodByIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i924.SearchFoodByNameUseCase>(
         () => _i924.SearchFoodByNameUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(

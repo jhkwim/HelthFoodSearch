@@ -50,6 +50,12 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     emit(state.copyWith(selectedIngredients: newIngredients));
     search();
   }
+
+  void replaceIngredients(List<String> ingredients) {
+    // Replace the entire list and trigger search
+    emit(state.copyWith(selectedIngredients: ingredients));
+    search();
+  }
   
   void setSearchType(IngredientSearchType type) {
     emit(state.copyWith(searchType: type));

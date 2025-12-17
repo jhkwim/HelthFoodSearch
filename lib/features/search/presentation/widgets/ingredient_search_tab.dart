@@ -40,6 +40,14 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
   bool get wantKeepAlive => true;
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     return Column(

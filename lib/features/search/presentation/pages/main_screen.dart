@@ -77,7 +77,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 _tabController.animateTo(1); // Switch to Ingredient Tab
                 
                 final cubit = context.read<IngredientSearchCubit>();
-                cubit.addIngredients(ingredients);
+                cubit.replaceIngredients(ingredients);
                 cubit.search();
                 
                 if (!isWide) {

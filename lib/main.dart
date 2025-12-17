@@ -8,6 +8,8 @@ import 'config/routes/app_router.dart';
 import 'config/theme/app_theme.dart';
 import 'core/di/injection.dart';
 
+import 'features/setting/presentation/bloc/settings_cubit.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -28,12 +30,30 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => getIt<DataSyncCubit>()),
+        BlocProvider(create: (context) => getIt<SettingsCubit>()..checkSettings()),
       ],
-      child: MaterialApp.router(
-        title: '건강기능식품 검색',
-        theme: AppTheme.lightTheme,
-        routerConfig: appRouter,
-        debugShowCheckedModeBanner: false,
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          double textScale = 1.0;
+          if (state is SettingsLoaded) {
+            textScale = state.settings.textScale;
+          }
+          
+          return MaterialApp.router(
+            title: '건강기능식품 검색',
+            theme: AppTheme.lightTheme,
+            routerConfig: appRouter,
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(textScale),
+                ),
+                child: child!,
+              );
+            },
+          );
+        },
       ),
     );
   }

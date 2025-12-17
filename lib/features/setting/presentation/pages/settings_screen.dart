@@ -12,18 +12,32 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => getIt<SettingsCubit>()..checkSettings()),
-        BlocProvider(create: (context) => getIt<DataSyncCubit>()), // For checking/clearing data
+        // SettingsCubit is now global in main.dart
+        BlocProvider(create: (context) => getIt<DataSyncCubit>()),
       ],
       child: Scaffold(
         appBar: AppBar(title: const Text('설정')),
         body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
             final apiKey = (state is SettingsLoaded) ? state.settings.apiKey : '';
+            final isLargeText = (state is SettingsLoaded) ? state.settings.textScale > 1.0 : false;
             
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                _buildSectionTitle(context, '화면 설정'),
+                Card(
+                  child: SwitchListTile(
+                    secondary: const Icon(Icons.format_size),
+                    title: const Text('큰 글씨 모드'),
+                    subtitle: const Text('앱 전체 글씨를 크게 봅니다.'),
+                    value: isLargeText,
+                    onChanged: (value) {
+                      context.read<SettingsCubit>().toggleLargeText(value);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
                 _buildSectionTitle(context, 'API 설정'),
                 Card(
                   child: ListTile(
@@ -46,7 +60,6 @@ class SettingsScreen extends StatelessWidget {
                         title: const Text('데이터 다시 받기'),
                         subtitle: const Text('서버에서 최신 데이터를 받아옵니다.'),
                         onTap: () {
-                          // Allow re-download. Go to download screen.
                           context.push('/download');
                         },
                       ),
@@ -69,13 +82,6 @@ class SettingsScreen extends StatelessWidget {
                            );
                            
                            if (confirm == true && context.mounted) {
-                             // Assuming we have a clear function in repository, 
-                             // but DataSyncCubit doesn't expose it directly yet.
-                             // We might need to add clearData to DataSyncCubit or SettingsCubit?
-                             // Requirement said "Settings screen to delete/download".
-                             // Let's assume re-download overwrites or clears.
-                             // For explicit delete, we would need a method.
-                             // For now, let's just show a snackbar saying "Use Re-download to refresh".
                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('데이터 다시 받기를 수행하면 데이터가 갱신됩니다.')));
                            }
                         },
@@ -89,7 +95,7 @@ class SettingsScreen extends StatelessWidget {
                   child: ListTile(
                     leading: Icon(Icons.info),
                     title: Text('버전'),
-                    subtitle: Text('1.0.0'),
+                    subtitle: Text('1.0.1'),
                   ),
                 ),
               ],
