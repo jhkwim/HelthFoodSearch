@@ -1,5 +1,7 @@
 # health_food_search
 
+[![Release Build](https://github.com/jhkwim/HelthFoodSearch/actions/workflows/build_all.yml/badge.svg?branch=release)](https://github.com/jhkwim/HelthFoodSearch/actions/workflows/build_all.yml)
+
 A new Flutter project.
 
 ## Getting Started
