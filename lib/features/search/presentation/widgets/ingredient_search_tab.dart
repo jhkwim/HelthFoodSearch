@@ -165,7 +165,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
-                          childAspectRatio: 1.05, // Optimized ratio to reduce vertical whitespace
+                          mainAxisExtent: 240, // Fixed height for consistent look regardless of width
                         ),
                         itemCount: state.searchResults.length,
                         itemBuilder: (context, index) {

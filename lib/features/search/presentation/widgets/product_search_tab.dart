@@ -81,7 +81,7 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 1.05, // Optimized ratio (Square-ish) to reduce vertical whitespace
+                            mainAxisExtent: 240, // Fixed height for consistent look regardless of width
                           ),
                           itemCount: state.foods.length,
                           itemBuilder: (context, index) {
