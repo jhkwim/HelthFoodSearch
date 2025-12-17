@@ -7,19 +7,25 @@ import '../bloc/ingredient_search_cubit.dart';
 
 class IngredientSearchTab extends StatelessWidget {
   final Function(FoodItem)? onItemSelected;
+  final String? selectedReportNo;
 
-  const IngredientSearchTab({super.key, this.onItemSelected});
+  const IngredientSearchTab({super.key, this.onItemSelected, this.selectedReportNo});
 
   @override
   Widget build(BuildContext context) {
     // Expect IngredientSearchCubit to be provided by parent (MainScreen)
-    return _IngredientSearchContent(onItemSelected: onItemSelected);
+    return _IngredientSearchContent(
+      onItemSelected: onItemSelected,
+      selectedReportNo: selectedReportNo,
+    );
   }
 }
 
 class _IngredientSearchContent extends StatefulWidget {
   final Function(FoodItem)? onItemSelected;
-  const _IngredientSearchContent({this.onItemSelected});
+  final String? selectedReportNo;
+
+  const _IngredientSearchContent({this.onItemSelected, this.selectedReportNo});
 
   @override
   State<_IngredientSearchContent> createState() => _IngredientSearchContentState();
@@ -93,20 +99,58 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
                 if (state.searchResults.isEmpty) {
                   return const Center(child: Text('조건에 맞는 제품이 없습니다.'));
                 }
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.searchResults.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = state.searchResults[index];
-                    return _FoodItemCard(
-                      item: item,
-                      onTap: () {
-                          if (widget.onItemSelected != null) {
-                            widget.onItemSelected!(item);
-                          } else {
-                            context.push('/detail', extra: item);
-                          }
+                
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isGrid = constraints.maxWidth > 500;
+                    
+                    if (isGrid) {
+                      final crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 4);
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 1.5,
+                        ),
+                        itemCount: state.searchResults.length,
+                        itemBuilder: (context, index) {
+                          final item = state.searchResults[index];
+                          final isSelected = item.reportNo == widget.selectedReportNo;
+                          return _FoodItemCard(
+                            item: item,
+                            isSelected: isSelected,
+                            onTap: () {
+                              if (widget.onItemSelected != null) {
+                                widget.onItemSelected!(item);
+                              } else {
+                                context.push('/detail', extra: item);
+                              }
+                            },
+                          );
+                        },
+                      );
+                    }
+
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.searchResults.length,
+                      separatorBuilder: (context, index) => const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final item = state.searchResults[index];
+                        final isSelected = item.reportNo == widget.selectedReportNo;
+                        return _FoodItemCard(
+                          item: item,
+                          isSelected: isSelected,
+                          onTap: () {
+                            if (widget.onItemSelected != null) {
+                              widget.onItemSelected!(item);
+                            } else {
+                              context.push('/detail', extra: item);
+                            }
+                          },
+                        );
                       },
                     );
                   },
@@ -179,24 +223,37 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
 class _FoodItemCard extends StatelessWidget {
   final FoodItem item;
   final VoidCallback onTap;
+  final bool isSelected;
 
-  const _FoodItemCard({required this.item, required this.onTap});
+  const _FoodItemCard({required this.item, required this.onTap, this.isSelected = false});
 
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: isSelected ? 4 : 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: isSelected 
+          ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
+          : BorderSide.none,
+      ),
+      color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.05) : null,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 item.prdlstNm,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontSize: 18,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       color: Theme.of(context).primaryColor,
                     ),
               ),
@@ -205,7 +262,7 @@ class _FoodItemCard extends StatelessWidget {
                 Text(
                   '주원료: ${item.mainIngredients.take(5).join(", ")}',
                   style: Theme.of(context).textTheme.bodyMedium,
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
             ],

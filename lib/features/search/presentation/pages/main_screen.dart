@@ -118,15 +118,18 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               // Desktop / Wide Layout (Split View)
               return Scaffold(
                 appBar: _buildAppBar(context, isWide: true),
-                body: Column(
-                  children: [
-                    _buildSyncProgress(),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          // Left Panel: Search Tabs
-                          SizedBox(
-                            width: 400,
+                body: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Column(
+                      children: [
+                        _buildSyncProgress(),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              // Left Panel: Search Tabs
+                          Expanded(
+                            flex: 4,
                             child: Column(
                               children: [
                                 Container(
@@ -146,6 +149,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                     controller: _tabController,
                                     children: [
                                       ProductSearchTab(
+                                        selectedReportNo: _selectedItem?.reportNo,
                                         onItemSelected: (item) {
                                           setState(() {
                                             _selectedItem = item;
@@ -153,6 +157,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                         },
                                       ),
                                       IngredientSearchTab(
+                                        selectedReportNo: _selectedItem?.reportNo,
                                         onItemSelected: (item) {
                                           setState(() {
                                             _selectedItem = item;
@@ -168,30 +173,33 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           const VerticalDivider(width: 1),
                           // Right Panel: Detail View
                           Expanded(
-                            child: _selectedItem == null
-                                ? Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.touch_app_outlined, size: 64, color: Colors.grey[400]),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          '왼쪽 목록에서 제품을 선택하세요',
-                                          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                            flex: 6,
+                                child: _selectedItem == null
+                                    ? Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.touch_app_outlined, size: 64, color: Colors.grey[400]),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              '왼쪽 목록에서 제품을 선택하세요',
+                                              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  )
-                                : DetailScreen(
-                                    key: ValueKey(_selectedItem!.reportNo),
-                                    item: _selectedItem!,
-                                    onIngredientSelected: handleIngredientSelection, // Use callback
-                                  ),
+                                      )
+                                    : DetailScreen(
+                                        key: ValueKey(_selectedItem!.reportNo),
+                                        item: _selectedItem!,
+                                        onIngredientSelected: handleIngredientSelection, // Use callback
+                                      ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },
