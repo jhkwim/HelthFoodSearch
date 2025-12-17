@@ -196,29 +196,24 @@ class _FoodItemCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               if (item.mainIngredients.isNotEmpty)
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: RichText(
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                      text: TextSpan(
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.black87,
-                          height: 1.5,
-                        ),
-                        children: [
-                          const TextSpan(
-                            text: '주원료: ',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-                          ),
-                          TextSpan(
-                            text: '${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
+                RichText(
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.black87,
+                      height: 1.5,
                     ),
+                    children: [
+                      const TextSpan(
+                        text: '주원료: ',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                      ),
+                      TextSpan(
+                        text: '${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
                   ),
                 ),
             ],
