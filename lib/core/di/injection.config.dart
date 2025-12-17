@@ -22,6 +22,8 @@ import '../../features/search/domain/usecases/check_data_existence_usecase.dart'
     as _i938;
 import '../../features/search/domain/usecases/get_raw_materials_usecase.dart'
     as _i806;
+import '../../features/search/domain/usecases/get_storage_info_usecase.dart'
+    as _i940;
 import '../../features/search/domain/usecases/get_suggested_ingredients_usecase.dart'
     as _i918;
 import '../../features/search/domain/usecases/search_food_by_ingredients_usecase.dart'
@@ -79,6 +81,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i91.RemoteDataSource>(),
           gh<_i688.LocalDataSource>(),
         ));
+    gh.lazySingleton<_i940.GetStorageInfoUseCase>(
+        () => _i940.GetStorageInfoUseCase(gh<_i424.IFoodRepository>()));
     gh.lazySingleton<_i806.GetRawMaterialsUseCase>(
         () => _i806.GetRawMaterialsUseCase(gh<_i424.IFoodRepository>()));
     gh.lazySingleton<_i337.SearchFoodByIngredientsUseCase>(() =>
@@ -95,6 +99,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i778.SyncDataUseCase>(),
           gh<_i938.CheckDataExistenceUseCase>(),
           gh<_i940.GetSettingsUseCase>(),
+          gh<_i940.GetStorageInfoUseCase>(),
         ));
     gh.factory<_i548.IngredientSearchCubit>(() => _i548.IngredientSearchCubit(
           gh<_i337.SearchFoodByIngredientsUseCase>(),

@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
+import 'package:universal_io/io.dart';
 import '../../../../core/enums/ingredient_search_type.dart';
 import '../../../../core/error/failures.dart';
+import '../../domain/entities/storage_info.dart';
 import '../models/food_item_hive_model.dart';
 import '../models/raw_material_hive_model.dart';
 
@@ -14,6 +17,7 @@ abstract class LocalDataSource {
   Future<List<String>?> getRawMaterials(String reportNo);
   Future<void> clearData();
   Future<bool> hasData();
+  Future<StorageInfo> getStorageInfo();
 }
 
 @LazySingleton(as: LocalDataSource)
@@ -126,5 +130,25 @@ class LocalDataSourceImpl implements LocalDataSource {
   Future<bool> hasData() async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
     return box.isNotEmpty;
+  }
+
+  @override
+  Future<StorageInfo> getStorageInfo() async {
+    final box = await Hive.openBox<FoodItemHiveModel>(boxName);
+    final count = box.length;
+    int size = -1;
+
+    try {
+      if (!kIsWeb && box.path != null) {
+        final file = File(box.path!);
+        if (await file.exists()) {
+          size = await file.length();
+        }
+      }
+    } catch (e) {
+      // Ignore errors for size calculation
+    }
+
+    return StorageInfo(count: count, sizeBytes: size);
   }
 }

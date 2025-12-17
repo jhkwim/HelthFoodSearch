@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import 'package:health_food_search/features/search/presentation/bloc/data_sync_cubit.dart';
+import 'package:intl/intl.dart';
 import '../bloc/settings_cubit.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -53,40 +54,61 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 _buildSectionTitle(context, '데이터 관리'),
                 Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.cloud_download),
-                        title: const Text('데이터 다시 받기'),
-                        subtitle: const Text('서버에서 최신 데이터를 받아옵니다.'),
-                        onTap: () {
-                          context.push('/download');
-                        },
-                      ),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.delete_forever, color: Colors.red),
-                        title: const Text('데이터 삭제', style: TextStyle(color: Colors.red)),
-                        subtitle: const Text('저장된 모든 데이터를 삭제합니다.'),
-                        onTap: () async {
-                           final confirm = await showDialog<bool>(
-                             context: context,
-                             builder: (context) => AlertDialog(
-                               title: const Text('데이터 삭제'),
-                               content: const Text('정말 삭제하시겠습니까?'),
-                               actions: [
-                                 TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('취소')),
-                                 TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('삭제')),
-                               ],
-                             ),
-                           );
-                           
-                           if (confirm == true && context.mounted) {
-                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('데이터 다시 받기를 수행하면 데이터가 갱신됩니다.')));
-                           }
-                        },
-                      ),
-                    ],
+                  child: BlocBuilder<DataSyncCubit, DataSyncState>(
+                    builder: (context, dataState) {
+                      String subTitle = '서버에서 최신 데이터를 받아옵니다.';
+                      if (dataState is DataSyncSuccess && dataState.storageInfo != null) {
+                        final info = dataState.storageInfo!;
+                        final countStr = NumberFormat('#,###').format(info.count);
+                        
+                        if (info.sizeBytes > 0) {
+                          final mb = (info.sizeBytes / (1024 * 1024)).toStringAsFixed(1);
+                          subTitle = '저장된 데이터: $countStr 건 ($mb MB)';
+                        } else {
+                          subTitle = '저장된 데이터: $countStr 건';
+                        }
+                      }
+
+                      return Column(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.cloud_download),
+                            title: const Text('데이터 다시 받기'),
+                            subtitle: Text(subTitle),
+                            onTap: () {
+                              context.push('/download');
+                            },
+                          ),
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(Icons.delete_forever, color: Colors.red),
+                            title: const Text('데이터 삭제', style: TextStyle(color: Colors.red)),
+                            subtitle: const Text('저장된 모든 데이터를 삭제합니다.'),
+                            onTap: () async {
+                               final confirm = await showDialog<bool>(
+                                 context: context,
+                                 builder: (context) => AlertDialog(
+                                   title: const Text('데이터 삭제'),
+                                   content: const Text('정말 삭제하시겠습니까?'),
+                                   actions: [
+                                     TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('취소')),
+                                     TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('삭제')),
+                                   ],
+                                 ),
+                               );
+                               
+                               if (confirm == true && context.mounted) {
+                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('데이터 다시 받기를 수행하면 데이터가 갱신됩니다.')));
+                                 // Ideally trigger clear here via DataSyncCubit (missing clear method exposure?)
+                                 // DataSyncCubit only has syncData. 
+                                 // Ideally we should add clearData to DataSyncCubit too. But user didn't ask explicitly.
+                                 // The current code just shows snackbar. I will leave it as is.
+                               }
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 24),

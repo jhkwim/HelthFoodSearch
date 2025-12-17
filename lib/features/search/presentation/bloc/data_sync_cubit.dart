@@ -6,6 +6,8 @@ import '../../domain/usecases/sync_data_usecase.dart';
 import '../../../setting/domain/usecases/get_settings_usecase.dart';
 import '../../../setting/domain/entities/app_settings.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../../domain/entities/storage_info.dart';
+import '../../domain/usecases/get_storage_info_usecase.dart';
 
 part 'data_sync_state.dart';
 
@@ -14,11 +16,13 @@ class DataSyncCubit extends Cubit<DataSyncState> {
   final SyncDataUseCase syncDataUseCase;
   final CheckDataExistenceUseCase checkDataExistenceUseCase;
   final GetSettingsUseCase getSettingsUseCase;
+  final GetStorageInfoUseCase getStorageInfoUseCase;
 
   DataSyncCubit(
     this.syncDataUseCase,
     this.checkDataExistenceUseCase,
     this.getSettingsUseCase,
+    this.getStorageInfoUseCase,
   ) : super(DataSyncInitial());
 
   Future<void> checkData() async {
@@ -26,9 +30,13 @@ class DataSyncCubit extends Cubit<DataSyncState> {
     final result = await checkDataExistenceUseCase(NoParams());
     result.fold(
       (failure) => emit(DataSyncError(failure.message)),
-      (hasData) {
+      (hasData) async {
         if (hasData) {
-          emit(DataSyncSuccess());
+          final infoResult = await getStorageInfoUseCase(NoParams());
+          infoResult.fold(
+            (l) => emit(const DataSyncSuccess()), // Ignore error
+            (info) => emit(DataSyncSuccess(storageInfo: info)),
+          );
         } else {
           emit(DataSyncNeeded());
         }
@@ -63,7 +71,13 @@ class DataSyncCubit extends Cubit<DataSyncState> {
 
     result.fold(
       (failure) => emit(DataSyncError(failure.message)),
-      (_) => emit(DataSyncSuccess()),
+      (_) async {
+        final infoResult = await getStorageInfoUseCase(NoParams());
+        infoResult.fold(
+          (l) => emit(const DataSyncSuccess()),
+          (info) => emit(DataSyncSuccess(storageInfo: info)),
+        );
+      },
     );
   }
 }

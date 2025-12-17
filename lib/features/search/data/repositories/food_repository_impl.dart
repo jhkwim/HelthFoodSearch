@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/enums/ingredient_search_type.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/food_item.dart';
+import '../../domain/entities/storage_info.dart';
 import '../../domain/entities/ingredient.dart';
 import '../../domain/repositories/i_food_repository.dart';
 import 'package:health_food_search/features/search/data/datasources/local_data_source.dart';
@@ -173,9 +174,19 @@ class FoodRepositoryImpl implements IFoodRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> hasData() async {
+  Future<Either<Failure, bool>> checkDataExistence() async {
     try {
       final result = await localDataSource.hasData();
+      return Right(result);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, StorageInfo>> getStorageInfo() async {
+    try {
+      final result = await localDataSource.getStorageInfo();
       return Right(result);
     } catch (e) {
       return Left(CacheFailure(e.toString()));

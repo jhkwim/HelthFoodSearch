@@ -2,16 +2,17 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
+import '../entities/storage_info.dart';
 import '../repositories/i_food_repository.dart';
 
-@injectable
-class CheckDataExistenceUseCase implements UseCase<bool, NoParams> {
+@lazySingleton
+class GetStorageInfoUseCase implements UseCase<StorageInfo, NoParams> {
   final IFoodRepository repository;
 
-  CheckDataExistenceUseCase(this.repository);
+  GetStorageInfoUseCase(this.repository);
 
   @override
-  Future<Either<Failure, bool>> call(NoParams params) {
-    return repository.checkDataExistence();
+  Future<Either<Failure, StorageInfo>> call(NoParams params) {
+    return repository.getStorageInfo();
   }
 }

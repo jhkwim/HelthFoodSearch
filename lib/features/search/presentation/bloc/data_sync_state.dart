@@ -19,7 +19,12 @@ class DataSyncInProgress extends DataSyncState {
   List<Object> get props => [progress];
 }
 
-class DataSyncSuccess extends DataSyncState {}
+class DataSyncSuccess extends DataSyncState {
+  final StorageInfo? storageInfo;
+  const DataSyncSuccess({this.storageInfo});
+  @override
+  List<Object> get props => [if (storageInfo != null) storageInfo!];
+}
 
 class DataSyncError extends DataSyncState {
   final String message;
