@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/enums/ingredient_search_type.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/food_item.dart';
 import '../../domain/entities/ingredient.dart';
@@ -28,9 +29,9 @@ class FoodRepositoryImpl implements IFoodRepository {
   }
 
   @override
-  Future<Either<Failure, List<FoodItem>>> searchFoodByIngredients(List<String> ingredients, {bool matchAll = false}) async {
+  Future<Either<Failure, List<FoodItem>>> searchFoodByIngredients(List<String> ingredients, {IngredientSearchType type = IngredientSearchType.include}) async {
     try {
-      final results = await localDataSource.searchFoodByIngredients(ingredients, matchAll: matchAll);
+      final results = await localDataSource.searchFoodByIngredients(ingredients, type: type);
       return Right(results.map((e) => e.toEntity()).toList());
     } catch (e) {
       return Left(CacheFailure(e.toString()));
@@ -116,10 +117,10 @@ class FoodRepositoryImpl implements IFoodRepository {
             final rows = response.data?.row;
             
             if (rows != null) {
-              final Map<String, List<String>> aggregated = {};
+              final Map<String, Set<String>> aggregated = {};
               for (var dto in rows) {
                 if (!aggregated.containsKey(dto.reportNo)) {
-                  aggregated[dto.reportNo] = [];
+                  aggregated[dto.reportNo] = {};
                 }
                 aggregated[dto.reportNo]!.add(dto.rawMtrlNm);
               }
@@ -127,7 +128,7 @@ class FoodRepositoryImpl implements IFoodRepository {
               final batch = aggregated.entries.map((e) {
                 return RawMaterialHiveModel(
                   reportNo: e.key, 
-                  rawMtrlNms: e.value
+                  rawMtrlNms: e.value.toList()
                 );
               }).toList();
               

@@ -10,12 +10,7 @@ import '../widgets/product_search_tab.dart';
 import '../../domain/entities/food_item.dart';
 import '../pages/detail_screen.dart';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/di/injection.dart';
-import '../../domain/entities/food_item.dart';
 import '../bloc/ingredient_search_cubit.dart';
-import '../pages/detail_screen.dart';
-
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -120,60 +115,60 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 appBar: _buildAppBar(context, isWide: true),
                 body: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
+                    constraints: const BoxConstraints(maxWidth: 1366),
                     child: Column(
-                      children: [
-                        _buildSyncProgress(),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              // Left Panel: Search Tabs
-                          Expanded(
-                            flex: 4,
-                            child: Column(
-                              children: [
-                                Container(
-                                  color: Theme.of(context).cardColor,
-                                  child: TabBar(
-                                    controller: _tabController,
-                                    tabs: const [
-                                      Tab(text: '제품명 검색'),
-                                      Tab(text: '원료별 검색'),
-                                    ],
-                                    labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                    indicatorWeight: 3,
+                    children: [
+                      _buildSyncProgress(),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            // Left Panel: Search Tabs
+                            Expanded(
+                              flex: 5,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    color: Theme.of(context).cardColor,
+                                    child: TabBar(
+                                      controller: _tabController,
+                                      tabs: const [
+                                        Tab(text: '제품명 검색'),
+                                        Tab(text: '원료별 검색'),
+                                      ],
+                                      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      indicatorWeight: 3,
+                                    ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: TabBarView(
-                                    controller: _tabController,
-                                    children: [
-                                      ProductSearchTab(
-                                        selectedReportNo: _selectedItem?.reportNo,
-                                        onItemSelected: (item) {
-                                          setState(() {
-                                            _selectedItem = item;
-                                          });
-                                        },
-                                      ),
-                                      IngredientSearchTab(
-                                        selectedReportNo: _selectedItem?.reportNo,
-                                        onItemSelected: (item) {
-                                          setState(() {
-                                            _selectedItem = item;
-                                          });
-                                        },
-                                      ),
-                                    ],
+                                  Expanded(
+                                    child: TabBarView(
+                                      controller: _tabController,
+                                      children: [
+                                        ProductSearchTab(
+                                          selectedReportNo: _selectedItem?.reportNo,
+                                          onItemSelected: (item) {
+                                            setState(() {
+                                              _selectedItem = item;
+                                            });
+                                          },
+                                        ),
+                                        IngredientSearchTab(
+                                          selectedReportNo: _selectedItem?.reportNo,
+                                          onItemSelected: (item) {
+                                            setState(() {
+                                              _selectedItem = item;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          const VerticalDivider(width: 1),
-                          // Right Panel: Detail View
-                          Expanded(
-                            flex: 6,
+                            const VerticalDivider(width: 1),
+                            // Right Panel: Detail View
+                            Expanded(
+                              flex: 7,
                                 child: _selectedItem == null
                                     ? Center(
                                         child: Column(

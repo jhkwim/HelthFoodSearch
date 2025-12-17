@@ -6,7 +6,7 @@ class IngredientSearchState extends Equatable {
   final List<String> selectedIngredients;
   final List<FoodItem> searchResults;
   final List<Ingredient> suggestions;
-  final bool matchAll;
+  final IngredientSearchType searchType;
   final IngredientSearchStatus status;
   final String? errorMessage;
 
@@ -14,7 +14,7 @@ class IngredientSearchState extends Equatable {
     this.selectedIngredients = const [],
     this.searchResults = const [],
     this.suggestions = const [],
-    this.matchAll = false,
+    this.searchType = IngredientSearchType.include,
     this.status = IngredientSearchStatus.initial,
     this.errorMessage,
   });
@@ -23,7 +23,7 @@ class IngredientSearchState extends Equatable {
     List<String>? selectedIngredients,
     List<FoodItem>? searchResults,
     List<Ingredient>? suggestions,
-    bool? matchAll,
+    IngredientSearchType? searchType,
     IngredientSearchStatus? status,
     String? errorMessage,
   }) {
@@ -31,12 +31,12 @@ class IngredientSearchState extends Equatable {
       selectedIngredients: selectedIngredients ?? this.selectedIngredients,
       searchResults: searchResults ?? this.searchResults,
       suggestions: suggestions ?? this.suggestions,
-      matchAll: matchAll ?? this.matchAll,
+      searchType: searchType ?? this.searchType,
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
-  List<Object?> get props => [selectedIngredients, searchResults, suggestions, matchAll, status, errorMessage];
+  List<Object?> get props => [selectedIngredients, searchResults, suggestions, searchType, status, errorMessage];
 }

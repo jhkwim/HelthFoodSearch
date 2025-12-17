@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import '../../../../core/enums/ingredient_search_type.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/food_item.dart';
@@ -23,7 +24,9 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     if (state.selectedIngredients.contains(ingredient)) return;
     
     final newIngredients = List<String>.from(state.selectedIngredients)..add(ingredient);
-    emit(state.copyWith(selectedIngredients: newIngredients, searchResults: [], status: IngredientSearchStatus.initial));
+    // Optimistic update of ingredients list, then search
+    emit(state.copyWith(selectedIngredients: newIngredients));
+    search();
   }
 
   void addIngredients(List<String> ingredients) {
@@ -37,17 +40,20 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     }
     
     if (changed) {
-      emit(state.copyWith(selectedIngredients: newIngredients, searchResults: [], status: IngredientSearchStatus.initial));
+       emit(state.copyWith(selectedIngredients: newIngredients));
+       search();
     }
   }
 
   void removeIngredient(String ingredient) {
     final newIngredients = List<String>.from(state.selectedIngredients)..remove(ingredient);
-    emit(state.copyWith(selectedIngredients: newIngredients, searchResults: [], status: IngredientSearchStatus.initial));
+    emit(state.copyWith(selectedIngredients: newIngredients));
+    search();
   }
   
-  void toggleMatchAll(bool value) {
-    emit(state.copyWith(matchAll: value));
+  void setSearchType(IngredientSearchType type) {
+    emit(state.copyWith(searchType: type));
+    search();
   }
 
   Future<void> search() async {
@@ -58,7 +64,7 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     final result = await searchFoodByIngredientsUseCase(
       SearchFoodByIngredientsParams(
         ingredients: state.selectedIngredients,
-        matchAll: state.matchAll,
+        type: state.searchType,
       ),
     );
 

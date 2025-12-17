@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/enums/ingredient_search_type.dart';
 import '../../../../core/error/failures.dart';
 import '../models/food_item_hive_model.dart';
 import '../models/raw_material_hive_model.dart';
@@ -9,7 +10,7 @@ abstract class LocalDataSource {
   Future<void> cacheRawMaterials(List<RawMaterialHiveModel> items);
   Future<List<FoodItemHiveModel>> getFoodItems();
   Future<List<FoodItemHiveModel>> searchFoodByName(String query);
-  Future<List<FoodItemHiveModel>> searchFoodByIngredients(List<String> ingredients, {bool matchAll = false});
+  Future<List<FoodItemHiveModel>> searchFoodByIngredients(List<String> ingredients, {IngredientSearchType type = IngredientSearchType.include});
   Future<List<String>?> getRawMaterials(String reportNo);
   Future<void> clearData();
   Future<bool> hasData();
@@ -72,13 +73,36 @@ class LocalDataSourceImpl implements LocalDataSource {
   }
 
   @override
-  Future<List<FoodItemHiveModel>> searchFoodByIngredients(List<String> ingredients, {bool matchAll = false}) async {
+  Future<List<FoodItemHiveModel>> searchFoodByIngredients(List<String> ingredients, {IngredientSearchType type = IngredientSearchType.include}) async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
     return box.values.where((item) {
-      if (matchAll) {
-        return ingredients.every((ing) => item.mainIngredients.any((main) => main.contains(ing)));
+      if (ingredients.isEmpty) return false;
+
+      if (type == IngredientSearchType.include) {
+        // 1. Include Mode: Item must contain ALL queried ingredients.
+        // (AND logic for query items)
+        return ingredients.every((ing) => 
+          item.mainIngredients.any((main) => main.contains(ing))
+        );
       } else {
-        return ingredients.any((ing) => item.mainIngredients.any((main) => main.contains(ing)));
+        // 2. Exclusive Mode: Item must contain ONLY the queried ingredients.
+        // Logic: Set Equality (Item == Query)
+        // a) Item must contain ALL queried ingredients.
+        // b) Item must NOT contain any ingredient NOT in query.
+        
+        if (item.mainIngredients.isEmpty) return false;
+
+        // Condition A: All query ingredients must be present in item
+        bool hasAllQuery = ingredients.every((ing) => 
+          item.mainIngredients.any((main) => main.contains(ing))
+        );
+        if (!hasAllQuery) return false;
+
+        // Condition B: All item ingredients must be covered by query
+        bool hasOnlyQuery = item.mainIngredients.every((main) => 
+          ingredients.any((ing) => main.contains(ing))
+        );
+        return hasOnlyQuery;
       }
     }).toList();
   }
