@@ -1,0 +1,225 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Korean (`ko`).
+class AppLocalizationsKo extends AppLocalizations {
+  AppLocalizationsKo([String locale = 'ko']) : super(locale);
+
+  @override
+  String get appTitle => '건강기능식품 검색';
+
+  @override
+  String get navProductSearch => '제품명 검색';
+
+  @override
+  String get navIngredientSearch => '원료별 검색';
+
+  @override
+  String get searchHintProduct => '제품명을 입력하세요';
+
+  @override
+  String get searchHintIngredient => '원료명을 입력하세요';
+
+  @override
+  String get searchEmptyGuide => '왼쪽 목록에서 제품을 선택하세요';
+
+  @override
+  String get settingsTitle => '설정';
+
+  @override
+  String get settingsDisplaySection => '화면 설정';
+
+  @override
+  String get settingsLargeText => '큰 글씨 모드';
+
+  @override
+  String get settingsLargeTextDesc => '앱 전체 글씨를 크게 봅니다.';
+
+  @override
+  String get settingsApiSection => 'API 설정';
+
+  @override
+  String get settingsApiKey => 'API 키';
+
+  @override
+  String get settingsDataSection => '데이터 관리';
+
+  @override
+  String get settingsDataRefresh => '데이터 다시 받기';
+
+  @override
+  String get settingsDataRefreshDesc => '서버에서 최신 데이터를 받아옵니다.';
+
+  @override
+  String settingsDataSaved(String count) {
+    return '저장된 데이터: $count 건';
+  }
+
+  @override
+  String settingsDataSavedWithSize(String count, String size) {
+    return '저장된 데이터: $count 건 ($size MB)';
+  }
+
+  @override
+  String get settingsDataDelete => '데이터 삭제';
+
+  @override
+  String get settingsDataDeleteDesc => '저장된 모든 데이터를 삭제합니다.';
+
+  @override
+  String get settingsDataDeleteConfirmTitle => '데이터 삭제';
+
+  @override
+  String get settingsDataDeleteConfirmContent => '정말 삭제하시겠습니까?';
+
+  @override
+  String get settingsDataDeleteCancel => '취소';
+
+  @override
+  String get settingsDataDeleteConfirm => '삭제';
+
+  @override
+  String get settingsDataRefreshNotice => '데이터 다시 받기를 수행하면 데이터가 갱신됩니다.';
+
+  @override
+  String get settingsAppInfoSection => '앱 정보';
+
+  @override
+  String get settingsVersion => '버전';
+
+  @override
+  String get settingsLoading => '로딩 중...';
+
+  @override
+  String get settingsNotSet => '설정되지 않음';
+
+  @override
+  String syncProgress(String percent) {
+    return '데이터 다운로드 중... ($percent%) - 검색 가능';
+  }
+
+  @override
+  String get searchProductHintExample => '예: 비타민';
+
+  @override
+  String get searchProductEmpty => '검색 결과가 없습니다.';
+
+  @override
+  String get searchProductInitial => '제품명을 입력하여 검색하세요.';
+
+  @override
+  String get searchIngredientLabel => '원료 추가';
+
+  @override
+  String get searchIngredientHintExample => '원료명 입력 (예: 홍삼)';
+
+  @override
+  String get searchModeLabel => '검색 모드:';
+
+  @override
+  String get searchModeInclude => '포함 검색 (+α)';
+
+  @override
+  String get searchModeExclusive => '전용 검색 (Only)';
+
+  @override
+  String get searchIngredientEmptyResult => '조건에 맞는 제품이 없습니다.';
+
+  @override
+  String get searchIngredientInitial => '원료를 추가하면 자동으로 검색됩니다.';
+
+  @override
+  String errorOccurred(String message) {
+    return '오류 발생: $message';
+  }
+
+  @override
+  String metaReportNo(String reportNo) {
+    return '신고번호: $reportNo';
+  }
+
+  @override
+  String get metaMainIngredients => '주원료: ';
+
+  @override
+  String get detailTitle => '제품 상세 정보';
+
+  @override
+  String get detailTabFuncRaw => '기능성 원료';
+
+  @override
+  String get detailTabEtcRaw => '기타 원자재';
+
+  @override
+  String get detailTabCapRaw => '복합/캡슐';
+
+  @override
+  String get detailSectionBasic => '기본 정보';
+
+  @override
+  String get detailLabelCompany => '업소명';
+
+  @override
+  String get detailLabelReportNo => '신고번호';
+
+  @override
+  String get detailLabelRegDate => '등록일자';
+
+  @override
+  String get detailLabelExpireDate => '소비기한';
+
+  @override
+  String get detailLabelAppearance => '성상';
+
+  @override
+  String get detailLabelForm => '제품형태';
+
+  @override
+  String get detailSectionPacking => '포장 정보';
+
+  @override
+  String get detailLabelPackMaterial => '포장재질';
+
+  @override
+  String get detailLabelPackMethod => '포장방법';
+
+  @override
+  String get detailSectionIntake => '섭취량 및 섭취방법';
+
+  @override
+  String get detailSectionFunc => '기능성 내용';
+
+  @override
+  String get detailSectionStandard => '기준 및 규격';
+
+  @override
+  String get detailSectionCaution => '주의사항 및 보관';
+
+  @override
+  String get detailLabelCautionIntake => '섭취 시 주의사항';
+
+  @override
+  String get detailLabelCautionStorage => '보존 및 유통기준';
+
+  @override
+  String get detailSectionIngredients => '원료 정보';
+
+  @override
+  String get detailLabelRawMaterialsSearchable => '원재료 정보 (검색 가능)';
+
+  @override
+  String detailSelectedCount(int count) {
+    return '$count개 선택됨';
+  }
+
+  @override
+  String get detailSectionRawMaterialsReport => '품목제조신고 원재료';
+
+  @override
+  String detailFabSearchWithIngredients(int count) {
+    return '$count개 원료로 검색';
+  }
+}

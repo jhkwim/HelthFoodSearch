@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'features/search/data/models/food_item_hive_model.dart';
@@ -40,7 +42,16 @@ class MyApp extends StatelessWidget {
           }
           
           return MaterialApp.router(
-            title: '건강기능식품 검색',
+            onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('ko'),
+            ],
             theme: AppTheme.lightTheme,
             routerConfig: appRouter,
             debugShowCheckedModeBanner: false,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; // Needed if accessing bloc? Actually SettingsCubit is just for navigation? No, just button.
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
-import '../../../setting/presentation/bloc/settings_cubit.dart';
 import '../bloc/data_sync_cubit.dart';
 import '../widgets/ingredient_search_tab.dart';
 import '../widgets/product_search_tab.dart';
@@ -129,9 +129,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                     color: Theme.of(context).cardColor,
                                     child: TabBar(
                                       controller: _tabController,
-                                      tabs: const [
-                                        Tab(text: '제품명 검색'),
-                                        Tab(text: '원료별 검색'),
+                                      tabs: [
+                                        Tab(text: AppLocalizations.of(context)!.navProductSearch),
+                                        Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
                                       ],
                                       labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                       indicatorWeight: 3,
@@ -175,7 +175,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                             Icon(Icons.touch_app_outlined, size: 64, color: Colors.grey[400]),
                                             const SizedBox(height: 16),
                                             Text(
-                                              '왼쪽 목록에서 제품을 선택하세요',
+                                              AppLocalizations.of(context)!.searchEmptyGuide,
                                               style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                                             ),
                                           ],
@@ -218,15 +218,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   PreferredSizeWidget _buildAppBar(BuildContext context, {required bool isWide}) {
     return AppBar(
-      title: const Text('건강기능식품 검색'),
+      title: Text(AppLocalizations.of(context)!.appTitle),
       centerTitle: false,
       bottom: isWide
           ? null
           : TabBar(
               controller: _tabController,
-              tabs: const [
-                Tab(text: '제품명 검색'),
-                Tab(text: '원료별 검색'),
+              tabs: [
+                Tab(text: AppLocalizations.of(context)!.navProductSearch),
+                Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
               ],
               labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               indicatorColor: Colors.white,
@@ -266,7 +266,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    '데이터 다운로드 중... ($percent%) - 검색 가능',
+                    AppLocalizations.of(context)!.syncProgress(percent.toString()),
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold,

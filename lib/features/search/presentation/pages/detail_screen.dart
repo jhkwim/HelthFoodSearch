@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dartz/dartz.dart' show Either; // or just dartz
 import '../../../../core/di/injection.dart';
@@ -51,9 +52,9 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           child: Row(
             children: [
-              _buildTabItem(0, '기능성 원료'),
-              _buildTabItem(1, '기타 원자재'),
-              _buildTabItem(2, '복합/캡슐'),
+              _buildTabItem(0, AppLocalizations.of(context)!.detailTabFuncRaw),
+              _buildTabItem(1, AppLocalizations.of(context)!.detailTabEtcRaw),
+              _buildTabItem(2, AppLocalizations.of(context)!.detailTabCapRaw),
             ],
           ),
         ),
@@ -116,7 +117,7 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('제품 상세 정보'),
+        title: Text(AppLocalizations.of(context)!.detailTitle),
         elevation: 0,
       ),
       body: Center(
@@ -131,37 +132,40 @@ class _DetailScreenState extends State<DetailScreen> {
                         const SizedBox(height: 24),
 
                         // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
+                        // 2. Basic Info
                         _buildInfoCard(
                           context,
-                          title: '기본 정보',
+                          title: AppLocalizations.of(context)!.detailSectionBasic,
                           icon: Icons.info_outline,
                           child: _buildTable([
-                            _InfoRow('업소명', widget.item.bsshNm),
-                            _InfoRow('신고번호', widget.item.reportNo),
-                            _InfoRow('등록일자', widget.item.prmsDt),
-                            _InfoRow('소비기한', widget.item.pogDaycnt),
-                            _InfoRow('성상', widget.item.dispos),
-                            _InfoRow('제품형태', widget.item.prdtShapCdNm),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelCompany, widget.item.bsshNm),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelReportNo, widget.item.reportNo),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelRegDate, widget.item.prmsDt),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelExpireDate, widget.item.pogDaycnt),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelAppearance, widget.item.dispos),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelForm, widget.item.prdtShapCdNm),
                           ]),
                         ),
                         const SizedBox(height: 16),
 
                          // 3. Packaging (Material/Method)
+                         // 3. Packaging
                         _buildInfoCard(
                           context,
-                          title: '포장 정보',
+                          title: AppLocalizations.of(context)!.detailSectionPacking,
                           icon: Icons.inventory_2_outlined,
                           child: _buildTable([
-                            _InfoRow('포장재질', widget.item.frmlcMtrqlt),
-                            _InfoRow('포장방법', widget.item.frmlcMthd),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelPackMaterial, widget.item.frmlcMtrqlt),
+                            _InfoRow(AppLocalizations.of(context)!.detailLabelPackMethod, widget.item.frmlcMthd),
                           ]),
                         ),
                          const SizedBox(height: 16),
 
                         // 4. Intake (Method/Amount)
+                        // 4. Intake
                         _buildInfoCard(
                           context,
-                          title: '섭취량 및 섭취방법',
+                          title: AppLocalizations.of(context)!.detailSectionIntake,
                           icon: Icons.restaurant_menu,
                           child: Text(
                             widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd, 
@@ -171,9 +175,10 @@ class _DetailScreenState extends State<DetailScreen> {
                         const SizedBox(height: 16),
 
                         // 5. Functionality Content
+                        // 5. Functionality
                         _buildInfoCard(
                           context,
-                          title: '기능성 내용',
+                          title: AppLocalizations.of(context)!.detailSectionFunc,
                           icon: Icons.verified_user_outlined,
                           color: Theme.of(context).primaryColor.withOpacity(0.05),
                           child: Text(
@@ -184,9 +189,10 @@ class _DetailScreenState extends State<DetailScreen> {
                         const SizedBox(height: 16),
 
                         // 6. Standards
+                        // 6. Standards
                         _buildInfoCard(
                           context,
-                          title: '기준 및 규격',
+                          title: AppLocalizations.of(context)!.detailSectionStandard,
                           icon: Icons.gavel_outlined,
                           child: Text(
                             widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
@@ -196,21 +202,22 @@ class _DetailScreenState extends State<DetailScreen> {
                         const SizedBox(height: 16),
 
                         // 7. Cautions & Storage
+                        // 7. Cautions
                          _buildInfoCard(
                           context,
-                          title: '주의사항 및 보관',
+                          title: AppLocalizations.of(context)!.detailSectionCaution,
                           icon: Icons.warning_amber_rounded,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                                _buildSubTitle('섭취 시 주의사항', color: Colors.red),
+                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionIntake, color: Colors.red),
                                 Text(
                                   widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
                                   style: const TextStyle(height: 1.5, color: Colors.black87)
                                 ),
                                 const SizedBox(height: 16),
                               
-                                _buildSubTitle('보존 및 유통기준'),
+                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionStorage),
                                 Text(
                                   widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
                                   style: const TextStyle(height: 1.5)
@@ -222,20 +229,21 @@ class _DetailScreenState extends State<DetailScreen> {
 
                         // 8. Ingredients
                         // 8. Ingredients
+                        // 8. Ingredients
                         _buildInfoCard(
                           context,
-                          title: '원료 정보',
+                          title: AppLocalizations.of(context)!.detailSectionIngredients,
                           icon: Icons.grass,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               // 8.1 Primary: Raw Materials (Searchable)
+                               // 8.1 Primary
                                Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('원재료 정보 (검색 가능)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                                  Text(AppLocalizations.of(context)!.detailLabelRawMaterialsSearchable, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
                                   if (widget.onIngredientSelected != null)
-                                    Text('${_selectedIngredients.length}개 선택됨', style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                                    Text(AppLocalizations.of(context)!.detailSelectedCount(_selectedIngredients.length), style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -293,7 +301,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                   if (r == null || r.isEmpty) return const SizedBox();
                                   return _buildInfoCard(
                                     context, 
-                                    title: '품목제조신고 원재료', 
+                                    title: AppLocalizations.of(context)!.detailSectionRawMaterialsReport, 
                                     icon: Icons.science_outlined,
                                     child: _buildBulletList(r),
                                   );
@@ -317,7 +325,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 }
               },
               icon: const Icon(Icons.search),
-              label: Text('${_selectedIngredients.length}개 원료로 검색'),
+              label: Text(AppLocalizations.of(context)!.detailFabSearchWithIngredients(_selectedIngredients.length)),
             )
           : null,
     );

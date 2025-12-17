@@ -1,0 +1,129 @@
+{
+  "@@locale": "ko",
+  "appTitle": "건강기능식품 검색",
+  
+  "navProductSearch": "제품명 검색",
+  "navIngredientSearch": "원료별 검색",
+  "searchHintProduct": "제품명을 입력하세요",
+  "searchHintIngredient": "원료명을 입력하세요",
+  "searchEmptyGuide": "왼쪽 목록에서 제품을 선택하세요",
+
+  "settingsTitle": "설정",
+  "settingsDisplaySection": "화면 설정",
+  "settingsLargeText": "큰 글씨 모드",
+  "settingsLargeTextDesc": "앱 전체 글씨를 크게 봅니다.",
+  "settingsApiSection": "API 설정",
+  "settingsApiKey": "API 키",
+  "settingsDataSection": "데이터 관리",
+  "settingsDataRefresh": "데이터 다시 받기",
+  "settingsDataRefreshDesc": "서버에서 최신 데이터를 받아옵니다.",
+  "settingsDataSaved": "저장된 데이터: {count} 건",
+  "@settingsDataSaved": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDataSavedWithSize": "저장된 데이터: {count} 건 ({size} MB)",
+  "@settingsDataSavedWithSize": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDataDelete": "데이터 삭제",
+  "settingsDataDeleteDesc": "저장된 모든 데이터를 삭제합니다.",
+  "settingsDataDeleteConfirmTitle": "데이터 삭제",
+  "settingsDataDeleteConfirmContent": "정말 삭제하시겠습니까?",
+  "settingsDataDeleteCancel": "취소",
+  "settingsDataDeleteConfirm": "삭제",
+  "settingsDataRefreshNotice": "데이터 다시 받기를 수행하면 데이터가 갱신됩니다.",
+  "settingsAppInfoSection": "앱 정보",
+  "settingsVersion": "버전",
+  "settingsLoading": "로딩 중...",
+  "settingsNotSet": "설정되지 않음",
+  
+  "syncProgress": "데이터 다운로드 중... ({percent}%) - 검색 가능",
+  "@syncProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+
+  "searchProductHintExample": "예: 비타민",
+  "searchProductEmpty": "검색 결과가 없습니다.",
+  "searchProductInitial": "제품명을 입력하여 검색하세요.",
+  
+  "searchIngredientLabel": "원료 추가",
+  "searchIngredientHintExample": "원료명 입력 (예: 홍삼)",
+  "searchModeLabel": "검색 모드:",
+  "searchModeInclude": "포함 검색 (+α)",
+  "searchModeExclusive": "전용 검색 (Only)",
+  "searchIngredientEmptyResult": "조건에 맞는 제품이 없습니다.",
+  "searchIngredientInitial": "원료를 추가하면 자동으로 검색됩니다.",
+
+  "errorOccurred": "오류 발생: {message}",
+  "@errorOccurred": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "metaReportNo": "신고번호: {reportNo}",
+  "@metaReportNo": {
+    "placeholders": {
+      "reportNo": {
+        "type": "String"
+      }
+    }
+  },
+  "metaMainIngredients": "주원료: ",
+
+  "detailTitle": "제품 상세 정보",
+  "detailTabFuncRaw": "기능성 원료",
+  "detailTabEtcRaw": "기타 원자재",
+  "detailTabCapRaw": "복합/캡슐",
+  "detailSectionBasic": "기본 정보",
+  "detailLabelCompany": "업소명",
+  "detailLabelReportNo": "신고번호",
+  "detailLabelRegDate": "등록일자",
+  "detailLabelExpireDate": "소비기한",
+  "detailLabelAppearance": "성상",
+  "detailLabelForm": "제품형태",
+  "detailSectionPacking": "포장 정보",
+  "detailLabelPackMaterial": "포장재질",
+  "detailLabelPackMethod": "포장방법",
+  "detailSectionIntake": "섭취량 및 섭취방법",
+  "detailSectionFunc": "기능성 내용",
+  "detailSectionStandard": "기준 및 규격",
+  "detailSectionCaution": "주의사항 및 보관",
+  "detailLabelCautionIntake": "섭취 시 주의사항",
+  "detailLabelCautionStorage": "보존 및 유통기준",
+  "detailSectionIngredients": "원료 정보",
+  "detailLabelRawMaterialsSearchable": "원재료 정보 (검색 가능)",
+  "detailSelectedCount": "{count}개 선택됨",
+  "@detailSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailSectionRawMaterialsReport": "품목제조신고 원재료",
+  "detailFabSearchWithIngredients": "{count}개 원료로 검색",
+  "@detailFabSearchWithIngredients": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

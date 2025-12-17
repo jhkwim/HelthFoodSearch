@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 import '../../../../core/enums/ingredient_search_type.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/injection.dart';
+
 import '../../domain/entities/food_item.dart';
 import '../bloc/ingredient_search_cubit.dart';
 
@@ -68,18 +69,18 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
                 builder: (context, state) {
                   return Row(
                     children: [
-                      const Text('검색 모드:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(AppLocalizations.of(context)!.searchModeLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                       const SizedBox(width: 12),
                       _buildModeChip(
                         context, 
-                        label: '포함 검색 (+α)', 
+                        label: AppLocalizations.of(context)!.searchModeInclude, 
                         isSelected: state.searchType == IngredientSearchType.include,
                         onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
                       ),
                       const SizedBox(width: 8),
                       _buildModeChip(
                         context, 
-                        label: '전용 검색 (Only)', 
+                        label: AppLocalizations.of(context)!.searchModeExclusive, 
                         isSelected: state.searchType == IngredientSearchType.exclusive,
                         onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
                       ),
@@ -147,10 +148,10 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
               if (state.status == IngredientSearchStatus.loading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state.status == IngredientSearchStatus.error) {
-                return Center(child: Text('오류: ${state.errorMessage}'));
+                return Center(child: Text(AppLocalizations.of(context)!.errorOccurred(state.errorMessage ?? '')));
               } else if (state.status == IngredientSearchStatus.loaded) {
                 if (state.searchResults.isEmpty) {
-                  return const Center(child: Text('조건에 맞는 제품이 없습니다.'));
+                  return Center(child: Text(AppLocalizations.of(context)!.searchIngredientEmptyResult));
                 }
                 
                 return LayoutBuilder(
@@ -210,7 +211,8 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
                 );
               }
               
-              return const Center(child: Text('원료를 추가하면 자동으로 검색됩니다.'));
+              
+              return Center(child: Text(AppLocalizations.of(context)!.searchIngredientInitial));
             },
           ),
         ),
@@ -246,10 +248,10 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
     return TextField(
       controller: _controller,
       focusNode: _focusNode,
-      decoration: const InputDecoration(
-        labelText: '원료 추가',
-        hintText: '원료명 입력 (예: 홍삼)',
-        suffixIcon: Icon(Icons.add_circle_outline),
+      decoration: InputDecoration(
+        labelText: AppLocalizations.of(context)!.searchIngredientLabel,
+        hintText: AppLocalizations.of(context)!.searchIngredientHintExample,
+        suffixIcon: const Icon(Icons.add_circle_outline),
       ),
       onChanged: (value) {
         context.read<IngredientSearchCubit>().updateSuggestions(value);
@@ -289,8 +291,7 @@ class _FoodItemCard extends StatelessWidget {
              mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (item.reportNo != null)
-                Container(
+              Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -298,7 +299,7 @@ class _FoodItemCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '신고번호: ${item.reportNo}',
+                    AppLocalizations.of(context)!.metaReportNo(item.reportNo),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontSize: 11,
@@ -328,9 +329,9 @@ class _FoodItemCard extends StatelessWidget {
                       height: 1.5,
                     ),
                     children: [
-                      const TextSpan(
-                        text: '주원료: ',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                       TextSpan(
+                        text: AppLocalizations.of(context)!.metaMainIngredients,
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                       ),
                       TextSpan(
                         text: item.mainIngredients.take(5).join(", "),

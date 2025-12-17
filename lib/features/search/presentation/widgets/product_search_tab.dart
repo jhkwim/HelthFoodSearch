@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../domain/entities/food_item.dart';
 import '../bloc/search_cubit.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 
 class ProductSearchTab extends StatefulWidget {
   final Function(FoodItem)? onItemSelected;
@@ -38,11 +39,12 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Builder(builder: (context) {
+              final l10n = AppLocalizations.of(context)!;
               return TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  labelText: '제품명 검색',
-                  hintText: '예: 비타민',
+                  labelText: l10n.navProductSearch,
+                  hintText: l10n.searchProductHintExample,
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.clear),
@@ -63,10 +65,10 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
                 if (state is SearchLoading) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is SearchError) {
-                  return Center(child: Text('오류 발생: ${state.message}'));
+                  return Center(child: Text(AppLocalizations.of(context)!.errorOccurred(state.message)));
                 } else if (state is SearchLoaded) {
                   if (state.foods.isEmpty) {
-                    return const Center(child: Text('검색 결과가 없습니다.'));
+                    return Center(child: Text(AppLocalizations.of(context)!.searchProductEmpty));
                   }
 
                   return LayoutBuilder(
@@ -125,7 +127,8 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
                     },
                   );
                 }
-                return const Center(child: Text('제품명을 입력하여 검색하세요.'));
+
+                return Center(child: Text(AppLocalizations.of(context)!.searchProductInitial));
               },
             ),
           ),
@@ -166,8 +169,7 @@ class _FoodItemCard extends StatelessWidget {
              mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (item.reportNo != null)
-                Container(
+              Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -175,7 +177,7 @@ class _FoodItemCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    '신고번호: ${item.reportNo}',
+                    AppLocalizations.of(context)!.metaReportNo(item.reportNo),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                           fontSize: 11,
@@ -205,9 +207,9 @@ class _FoodItemCard extends StatelessWidget {
                       height: 1.5,
                     ),
                     children: [
-                      const TextSpan(
-                        text: '주원료: ',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                       TextSpan(
+                        text: AppLocalizations.of(context)!.metaMainIngredients,
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                       ),
                       TextSpan(
                         text: '${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',

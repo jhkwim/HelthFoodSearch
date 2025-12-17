@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/injection.dart';
+
 import 'package:health_food_search/features/search/presentation/bloc/data_sync_cubit.dart';
 import 'package:intl/intl.dart';
 import '../bloc/settings_cubit.dart';
@@ -11,8 +12,9 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-        appBar: AppBar(title: const Text('설정')),
+        appBar: AppBar(title: Text(l10n.settingsTitle)),
         body: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
             final apiKey = (state is SettingsLoaded) ? state.settings.apiKey : '';
@@ -22,13 +24,13 @@ class SettingsScreen extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _buildSectionTitle(context, '화면 설정'),
+                _buildSectionTitle(context, l10n.settingsDisplaySection),
 // ... (I only need to replace the variable extraction and the Text widget at the bottom, but replace_file_content works on contiguous blocks. I should do 2 replacements if they are far apart)
                 Card(
                   child: SwitchListTile(
                     secondary: const Icon(Icons.format_size),
-                    title: const Text('큰 글씨 모드'),
-                    subtitle: const Text('앱 전체 글씨를 크게 봅니다.'),
+                    title: Text(l10n.settingsLargeText),
+                    subtitle: Text(l10n.settingsLargeTextDesc),
                     value: isLargeText,
                     onChanged: (value) {
                       context.read<SettingsCubit>().toggleLargeText(value);
@@ -36,12 +38,12 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildSectionTitle(context, 'API 설정'),
+                _buildSectionTitle(context, l10n.settingsApiSection),
                 Card(
                   child: ListTile(
                     leading: const Icon(Icons.vpn_key),
-                    title: const Text('API 키'),
-                    subtitle: Text(apiKey ?? '설정되지 않음'),
+                    title: Text(l10n.settingsApiKey),
+                    subtitle: Text(apiKey ?? l10n.settingsNotSet),
                     trailing: const Icon(Icons.edit),
                     onTap: () {
                       context.push('/api_key');
@@ -49,20 +51,21 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildSectionTitle(context, '데이터 관리'),
+                const SizedBox(height: 24),
+                _buildSectionTitle(context, l10n.settingsDataSection),
                 Card(
                   child: BlocBuilder<DataSyncCubit, DataSyncState>(
                     builder: (context, dataState) {
-                      String subTitle = '서버에서 최신 데이터를 받아옵니다.';
+                      String subTitle = l10n.settingsDataRefreshDesc;
                       if (dataState is DataSyncSuccess && dataState.storageInfo != null) {
                         final info = dataState.storageInfo!;
                         final countStr = NumberFormat('#,###').format(info.count);
                         
                         if (info.sizeBytes > 0) {
                           final mb = (info.sizeBytes / (1024 * 1024)).toStringAsFixed(1);
-                          subTitle = '저장된 데이터: $countStr 건 ($mb MB)';
+                          subTitle = l10n.settingsDataSavedWithSize(countStr, mb);
                         } else {
-                          subTitle = '저장된 데이터: $countStr 건';
+                          subTitle = l10n.settingsDataSaved(countStr);
                         }
                       }
 
@@ -70,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
                         children: [
                           ListTile(
                             leading: const Icon(Icons.cloud_download),
-                            title: const Text('데이터 다시 받기'),
+                            title: Text(l10n.settingsDataRefresh),
                             subtitle: Text(subTitle),
                             onTap: () {
                               context.push('/download');
@@ -79,23 +82,23 @@ class SettingsScreen extends StatelessWidget {
                           const Divider(),
                           ListTile(
                             leading: const Icon(Icons.delete_forever, color: Colors.red),
-                            title: const Text('데이터 삭제', style: TextStyle(color: Colors.red)),
-                            subtitle: const Text('저장된 모든 데이터를 삭제합니다.'),
+                            title: Text(l10n.settingsDataDelete, style: const TextStyle(color: Colors.red)),
+                            subtitle: Text(l10n.settingsDataDeleteDesc),
                             onTap: () async {
                                final confirm = await showDialog<bool>(
                                  context: context,
                                  builder: (context) => AlertDialog(
-                                   title: const Text('데이터 삭제'),
-                                   content: const Text('정말 삭제하시겠습니까?'),
+                                   title: Text(l10n.settingsDataDeleteConfirmTitle),
+                                   content: Text(l10n.settingsDataDeleteConfirmContent),
                                    actions: [
-                                     TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('취소')),
-                                     TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('삭제')),
+                                     TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.settingsDataDeleteCancel)),
+                                     TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.settingsDataDeleteConfirm)),
                                    ],
                                  ),
                                );
                                
                                if (confirm == true && context.mounted) {
-                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('데이터 다시 받기를 수행하면 데이터가 갱신됩니다.')));
+                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.settingsDataRefreshNotice)));
                                  // Ideally trigger clear here via DataSyncCubit (missing clear method exposure?)
                                  // DataSyncCubit only has syncData. 
                                  // Ideally we should add clearData to DataSyncCubit too. But user didn't ask explicitly.
@@ -109,12 +112,12 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildSectionTitle(context, '앱 정보'),
+                _buildSectionTitle(context, l10n.settingsAppInfoSection),
                 Card(
                   child: ListTile(
-                    leading: Icon(Icons.info),
-                    title: Text('버전'),
-                    subtitle: Text(appVersion.isEmpty ? 'Loading...' : appVersion),
+                    leading: const Icon(Icons.info),
+                    title: Text(l10n.settingsVersion),
+                    subtitle: Text(appVersion.isEmpty ? l10n.settingsLoading : appVersion),
                   ),
                 ),
               ],
