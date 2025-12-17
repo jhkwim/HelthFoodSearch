@@ -79,16 +79,16 @@ class _DetailScreenState extends State<DetailScreen> {
             boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 2, offset: const Offset(0, 1))] : null,
           ),
           margin: const EdgeInsets.all(2),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected ? Theme.of(context).primaryColor : Colors.grey[600],
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: isSelected ? Theme.of(context).primaryColor : Colors.grey[600],
+                    fontSize: 13, // Slight adjustment if labelLarge is too big, but aim for consistency
+                  ),
             ),
           ),
-        ),
       ),
     );
   }
@@ -389,14 +389,19 @@ class _DetailScreenState extends State<DetailScreen> {
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
                 row.label,
-                style: const TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w500),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
                 row.value,
-                style: const TextStyle(color: Colors.black87, fontSize: 14),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.black87,
+                    ),
               ),
             ),
           ],
@@ -410,10 +415,9 @@ class _DetailScreenState extends State<DetailScreen> {
       padding: const EdgeInsets.only(bottom: 4),
       child: Text(
         text,
-        style: TextStyle(
-          fontWeight: FontWeight.bold, 
-          fontSize: 14, 
-          color: color ?? Colors.black87
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: color ?? Colors.black87,
         ),
       ),
     );
@@ -446,12 +450,18 @@ class _DetailScreenState extends State<DetailScreen> {
             children: [
               Text(
                 '${index + 1}. ',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black54),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
               ),
               Expanded(
                 child: Text(
                   list[index],
-                  style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        height: 1.5,
+                        color: Colors.black87,
+                      ),
                 ),
               ),
             ],
@@ -471,11 +481,18 @@ class _DetailScreenState extends State<DetailScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('•  ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black54)),
+              Text('•  ', 
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold, color: Colors.black54
+                )
+              ),
               Expanded(
                 child: Text(
                   item,
-                  style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    height: 1.5,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
             ],
