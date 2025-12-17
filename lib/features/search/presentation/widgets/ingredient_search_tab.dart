@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/enums/ingredient_search_type.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
@@ -43,34 +44,78 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
     super.build(context);
     return Column(
       children: [
-        Padding(
+        // 1. Top Control Area (Search + Options + Chips)
+        Container(
+          color: Colors.white,
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Tag Input Area
+              // Search Field
+              _buildSearchField(context),
+              const SizedBox(height: 12),
+              
+              // Search Mode Options (Row)
               BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
                 builder: (context, state) {
-                  return Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: state.selectedIngredients.map((ing) {
-                      return Chip(
-                        label: Text(ing),
-                        onDeleted: () {
-                          context.read<IngredientSearchCubit>().removeIngredient(ing);
-                        },
-                      );
-                    }).toList(),
+                  return Row(
+                    children: [
+                      const Text('검색 모드:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      const SizedBox(width: 12),
+                      _buildModeChip(
+                        context, 
+                        label: '포함 검색 (+α)', 
+                        isSelected: state.searchType == IngredientSearchType.include,
+                        onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildModeChip(
+                        context, 
+                        label: '전용 검색 (Only)', 
+                        isSelected: state.searchType == IngredientSearchType.exclusive,
+                        onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
+                      ),
+                    ],
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              // Search Field
-               _buildSearchField(context),
+              const SizedBox(height: 12),
+
+              // Selected Ingredients Chips
+              BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
+                builder: (context, state) {
+                  if (state.selectedIngredients.isEmpty) return const SizedBox.shrink();
+                  
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(height: 1),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: state.selectedIngredients.map((ing) {
+                          return Chip(
+                            label: Text(ing, style: const TextStyle(fontSize: 12)),
+                            onDeleted: () {
+                              context.read<IngredientSearchCubit>().removeIngredient(ing);
+                            },
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         ),
-        // Results
+        
+        const Divider(height: 1),
+
+        // 2. Results Area
         Expanded(
           child: BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
             builder: (context, state) {
@@ -102,17 +147,17 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
                 
                 return LayoutBuilder(
                   builder: (context, constraints) {
-                    final isGrid = constraints.maxWidth > 500;
+                    final isGrid = constraints.maxWidth > 480;
                     
                     if (isGrid) {
-                      final crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 4);
+                      final crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 4); // Adjusted width
                       return GridView.builder(
                         padding: const EdgeInsets.all(16),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
-                          childAspectRatio: 1.5,
+                          childAspectRatio: 1.6, // Adjusted aspect ratio (reduced height)
                         ),
                         itemCount: state.searchResults.length,
                         itemBuilder: (context, index) {
@@ -157,46 +202,35 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
                 );
               }
               
-              return const Center(child: Text('원료를 추가하고 검색하세요.'));
-            },
-          ),
-        ),
-        // Search Button and Options
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
-            builder: (context, state) {
-              return Column(
-                children: [
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: state.matchAll,
-                        onChanged: (value) {
-                          context.read<IngredientSearchCubit>().toggleMatchAll(value ?? false);
-                        },
-                      ),
-                      const Text('선택한 원료 모두 포함 (AND조건)'),
-                    ],
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: state.selectedIngredients.isEmpty
-                          ? null
-                          : () {
-                               context.read<IngredientSearchCubit>().search();
-                               _focusNode.unfocus();
-                            },
-                      child: const Text('원료로 검색하기'),
-                    ),
-                  ),
-                ],
-              );
+              return const Center(child: Text('원료를 추가하면 자동으로 검색됩니다.'));
             },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildModeChip(BuildContext context, {required String label, required bool isSelected, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).primaryColor : Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black87,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 12,
+          ),
+        ),
+      ),
     );
   }
 
@@ -230,14 +264,14 @@ class _FoodItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: isSelected ? 4 : 1,
+      elevation: isSelected ? 3 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: isSelected 
           ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
           : BorderSide.none,
       ),
-      color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.05) : null,
+      color: null,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),

@@ -71,17 +71,17 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
 
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      final isGrid = constraints.maxWidth > 500;
+                      final isGrid = constraints.maxWidth > 480;
                       
                       if (isGrid) {
-                        final crossAxisCount = (constraints.maxWidth / 300).floor().clamp(2, 4);
+                        final crossAxisCount = (constraints.maxWidth / 250).floor().clamp(2, 2);
                         return GridView.builder(
                           padding: const EdgeInsets.all(16),
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 1.5, // Adjust based on content
+                            childAspectRatio: 1.3, // Slightly taller for better fit
                           ),
                           itemCount: state.foods.length,
                           itemBuilder: (context, index) {
@@ -149,14 +149,14 @@ class _FoodItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: isSelected ? 4 : 1,
+      elevation: isSelected ? 3 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: isSelected 
           ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
           : BorderSide.none,
       ),
-      color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.05) : null,
+      color: null, // Clean look, no background color
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
