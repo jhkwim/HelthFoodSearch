@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => getIt<DataSyncCubit>()..checkData()),
+        BlocProvider(create: (context) => getIt<DataSyncCubit>()),
         BlocProvider(create: (context) => getIt<SettingsCubit>()..checkSettings()),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
