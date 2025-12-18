@@ -1,11 +1,11 @@
 {
-    "name": "health_food_search",
-    "short_name": "health_food_search",
+    "name": "건강기능식품 검색",
+    "short_name": "건강기능식품 검색",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#hex_code",
     "theme_color": "#hex_code",
-    "description": "A new Flutter project.",
+    "description": "건강기능식품 정보를 검색하고 성분을 분석하는 앱입니다.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
