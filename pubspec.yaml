@@ -1,5 +1,5 @@
 name: health_food_search
-description: "A new Flutter project."
+description: "건강기능식품 정보를 검색하고 성분을 분석하는 앱입니다."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.8
+version: 1.0.9
 
 environment:
   sdk: ^3.10.1
@@ -73,6 +73,7 @@ dev_dependencies:
   hive_generator: ^2.0.1
   injectable_generator: ^2.6.2
   json_serializable: ^6.8.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
