@@ -81,6 +81,19 @@ class SettingsScreen extends StatelessWidget {
                           ),
                           const Divider(),
                           ListTile(
+                            leading: const Icon(Icons.file_download),
+                            title: const Text('데이터 엑셀 내보내기'), // TODO: Localization
+                            subtitle: const Text('저장된 식품 정보를 엑셀 파일로 저장하거나 공유합니다.'),
+                            onTap: () {
+                              // Trigger export
+                              context.read<SettingsCubit>().exportData();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('엑셀 파일 생성 중...')),
+                              );
+                            },
+                          ),
+                          const Divider(),
+                          ListTile(
                             leading: const Icon(Icons.delete_forever, color: Colors.red),
                             title: Text(l10n.settingsDataDelete, style: const TextStyle(color: Colors.red)),
                             subtitle: Text(l10n.settingsDataDeleteDesc),

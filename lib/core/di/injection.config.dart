@@ -39,6 +39,8 @@ import '../../features/setting/data/repositories/settings_repository_impl.dart'
     as _i1025;
 import '../../features/setting/domain/repositories/i_settings_repository.dart'
     as _i990;
+import '../../features/setting/domain/usecases/export_food_data_usecase.dart'
+    as _i601;
 import '../../features/setting/domain/usecases/get_settings_usecase.dart'
     as _i940;
 import '../../features/setting/domain/usecases/save_api_key_usecase.dart'
@@ -46,6 +48,7 @@ import '../../features/setting/domain/usecases/save_api_key_usecase.dart'
 import '../../features/setting/domain/usecases/save_text_scale_usecase.dart'
     as _i775;
 import '../../features/setting/presentation/bloc/settings_cubit.dart' as _i291;
+import '../utils/excel_export_service.dart' as _i178;
 import 'register_module.dart' as _i291;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -61,6 +64,8 @@ extension GetItInjectableX on _i174.GetIt {
     );
     final registerModule = _$RegisterModule();
     gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
+    gh.lazySingleton<_i178.ExcelExportService>(
+        () => _i178.ExcelExportService());
     gh.lazySingleton<_i91.RemoteDataSource>(
         () => _i91.RemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i990.ISettingsRepository>(
@@ -72,14 +77,20 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i152.SaveApiKeyUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i775.SaveTextScaleUseCase>(
         () => _i775.SaveTextScaleUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i601.ExportFoodDataUseCase>(
+        () => _i601.ExportFoodDataUseCase(
+              gh<_i688.LocalDataSource>(),
+              gh<_i178.ExcelExportService>(),
+            ));
+    gh.lazySingleton<_i424.IFoodRepository>(() => _i64.FoodRepositoryImpl(
+          gh<_i91.RemoteDataSource>(),
+          gh<_i688.LocalDataSource>(),
+        ));
     gh.factory<_i291.SettingsCubit>(() => _i291.SettingsCubit(
           gh<_i940.GetSettingsUseCase>(),
           gh<_i152.SaveApiKeyUseCase>(),
           gh<_i775.SaveTextScaleUseCase>(),
-        ));
-    gh.lazySingleton<_i424.IFoodRepository>(() => _i64.FoodRepositoryImpl(
-          gh<_i91.RemoteDataSource>(),
-          gh<_i688.LocalDataSource>(),
+          gh<_i601.ExportFoodDataUseCase>(),
         ));
     gh.lazySingleton<_i940.GetStorageInfoUseCase>(
         () => _i940.GetStorageInfoUseCase(gh<_i424.IFoodRepository>()));
