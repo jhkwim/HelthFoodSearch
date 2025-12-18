@@ -1,5 +1,13 @@
 # 변경 이력 (Changelog)
 
+## [1.0.7] - 2025-12-18
+
+### 개선됨 (Improved)
+- **품질 관리 (QA)**: 개발 표준 가이드(Rule #8)에 따라 비즈니스 로직과 UI에 대한 테스트 코드를 작성했습니다.
+    - `IngredientSearchCubit` (단위 테스트)
+    - `FoodItemHiveModel` (데이터 모델 테스트)
+    - `SettingsScreen` (위젯/UI 테스트)
+
 ## [1.0.6] - 2025-12-17
 
 ### 고쳐짐 (Fixed)
