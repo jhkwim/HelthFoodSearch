@@ -26,6 +26,8 @@ import '../../features/search/domain/usecases/get_storage_info_usecase.dart'
     as _i940;
 import '../../features/search/domain/usecases/get_suggested_ingredients_usecase.dart'
     as _i918;
+import '../../features/search/domain/usecases/refine_local_data_usecase.dart'
+    as _i195;
 import '../../features/search/domain/usecases/search_food_by_ingredients_usecase.dart'
     as _i337;
 import '../../features/search/domain/usecases/search_food_by_name_usecase.dart'
@@ -86,12 +88,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i91.RemoteDataSource>(),
           gh<_i688.LocalDataSource>(),
         ));
-    gh.factory<_i291.SettingsCubit>(() => _i291.SettingsCubit(
-          gh<_i940.GetSettingsUseCase>(),
-          gh<_i152.SaveApiKeyUseCase>(),
-          gh<_i775.SaveTextScaleUseCase>(),
-          gh<_i601.ExportFoodDataUseCase>(),
-        ));
     gh.lazySingleton<_i940.GetStorageInfoUseCase>(
         () => _i940.GetStorageInfoUseCase(gh<_i424.IFoodRepository>()));
     gh.lazySingleton<_i806.GetRawMaterialsUseCase>(
@@ -100,12 +96,21 @@ extension GetItInjectableX on _i174.GetIt {
         _i337.SearchFoodByIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i938.CheckDataExistenceUseCase>(
         () => _i938.CheckDataExistenceUseCase(gh<_i424.IFoodRepository>()));
+    gh.factory<_i195.RefineLocalDataUseCase>(
+        () => _i195.RefineLocalDataUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i918.GetSuggestedIngredientsUseCase>(() =>
         _i918.GetSuggestedIngredientsUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i778.SyncDataUseCase>(
         () => _i778.SyncDataUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i924.SearchFoodByNameUseCase>(
         () => _i924.SearchFoodByNameUseCase(gh<_i424.IFoodRepository>()));
+    gh.factory<_i291.SettingsCubit>(() => _i291.SettingsCubit(
+          gh<_i940.GetSettingsUseCase>(),
+          gh<_i152.SaveApiKeyUseCase>(),
+          gh<_i775.SaveTextScaleUseCase>(),
+          gh<_i601.ExportFoodDataUseCase>(),
+          gh<_i195.RefineLocalDataUseCase>(),
+        ));
     gh.lazySingleton<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(
           gh<_i778.SyncDataUseCase>(),
           gh<_i938.CheckDataExistenceUseCase>(),

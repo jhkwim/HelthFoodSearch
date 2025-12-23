@@ -3,12 +3,13 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:health_food_search/core/usecases/usecase.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/usecases/export_food_data_usecase.dart';
 import '../../domain/usecases/get_settings_usecase.dart';
 import '../../domain/usecases/save_api_key_usecase.dart';
 import '../../domain/usecases/save_text_scale_usecase.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:health_food_search/features/search/domain/usecases/refine_local_data_usecase.dart';
 
 part 'settings_state.dart';
 
@@ -18,12 +19,14 @@ class SettingsCubit extends Cubit<SettingsState> {
   final SaveApiKeyUseCase saveApiKeyUseCase;
   final SaveTextScaleUseCase saveTextScaleUseCase;
   final ExportFoodDataUseCase exportFoodDataUseCase;
+  final RefineLocalDataUseCase refineLocalDataUseCase;
 
   SettingsCubit(
     this.getSettingsUseCase,
     this.saveApiKeyUseCase,
     this.saveTextScaleUseCase,
     this.exportFoodDataUseCase,
+    this.refineLocalDataUseCase,
   ) : super(SettingsInitial());
 
   Future<void> checkSettings() async {
@@ -72,27 +75,48 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   Future<void> exportData() async {
-    // Show loading? or maybe a snackbar effect.
-    // For now, let's keep the current state but maybe trigger a one-off event.
-    // Since this is a simple app, let's re-emit the current state but with a flag or just do it.
-    // Ideally we should have a separate state for 'Exporting' or 'ExportSuccess',
-    // but to fit in the current simple structure, we can just run it.
-    // If we emit SettingsLoading, the UI might flicker.
-    // Let's assume the UI shows a dialog or toast on completion.
-    // But we need to handle errors.
-
+    // ... (existing export logic) ...
     try {
       await exportFoodDataUseCase();
-      // On success, we could emit a specific state or just return.
-      // Since this is a side-effect, maybe a UI event stream is better, but Cubit is state-based.
-      // Let's emit a transient "ExportSuccess" state if possible, or just stay in Loaded.
-      // For simplicity in this interaction:
-      // We will assume the Service/UseCase handles the share sheet, so UI just needs to invoke.
-      // Error handling is important though.
     } catch (e) {
       emit(SettingsError('데이터 내보내기 실패: $e')); 
-      // After error, we might want to reload settings or restore state.
-      // checkSettings(); // Recover
+    }
+  }
+
+  Future<void> refineData() async {
+    final currentState = state;
+    if (currentState is! SettingsLoaded) return;
+
+    // Start
+    emit(SettingsLoaded(
+      currentState.settings,
+      isApiKeyMissing: currentState.isApiKeyMissing,
+      appVersion: currentState.appVersion,
+      refinementProgress: 0.0,
+    ));
+
+    try {
+      await for (final progress in refineLocalDataUseCase()) {
+        emit(SettingsLoaded(
+          currentState.settings,
+          isApiKeyMissing: currentState.isApiKeyMissing,
+          appVersion: currentState.appVersion,
+          refinementProgress: progress,
+        ));
+      }
+
+      // Finish (back to null progress)
+      emit(SettingsLoaded(
+        currentState.settings,
+        isApiKeyMissing: currentState.isApiKeyMissing,
+        appVersion: currentState.appVersion,
+        refinementProgress: null,
+      ));
+      
+      // Optionally show success message via side effect or snackbar managed by UI listener?
+      // For now, returning to idle state implies completion.
+    } catch (e) {
+      emit(SettingsError('데이터 재정제 실패: $e'));
     }
   }
 }

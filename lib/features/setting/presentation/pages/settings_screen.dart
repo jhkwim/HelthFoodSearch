@@ -15,8 +15,76 @@ class SettingsScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
         appBar: AppBar(title: Text(l10n.settingsTitle)),
-        body: BlocBuilder<SettingsCubit, SettingsState>(
-          builder: (context, state) {
+        body: BlocListener<SettingsCubit, SettingsState>(
+          listener: (context, state) {
+             if (state is SettingsLoaded) {
+                // Handle Progress Dialog
+                if (state.refinementProgress != null) {
+                  // Show dialog if not already shown (check barrier? hard to check)
+                  // Simplest way: check if we are already showing?
+                  // Better: The dialog itself subscribes. 
+                  // But how to trigger show?
+                  // Trigger show when progress goes from null to non-null.
+                  // But we don't have previous state here easily without listenWhen or distinct.
+                  // Just show it. Use a flag in State? 
+                  // Let's assume progress start = 0.0.
+                  if (state.refinementProgress == 0.0) {
+                     showDialog(
+                       context: context,
+                       barrierDismissible: false,
+                       builder: (_) => PopScope(
+                         canPop: false,
+                         child: AlertDialog(
+                           title: const Text('원재료 정제 중'),
+                           content: BlocBuilder<SettingsCubit, SettingsState>(
+                              builder: (context, dialogState) {
+                                double p = 0;
+                                if (dialogState is SettingsLoaded && dialogState.refinementProgress != null) {
+                                   p = dialogState.refinementProgress!;
+                                }
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                     LinearProgressIndicator(value: p),
+                                     const SizedBox(height: 10),
+                                     Text('${(p * 100).toInt()}%'),
+                                  ],
+                                );
+                              }
+                           ),
+                         ),
+                       ),
+                     );
+                  }
+                } else {
+                  // If progress is null, ensure dialog is closed.
+                  // This is tricky if we don't know if it's open.
+                  // Can use Navigator.of(context).pop() if we know we opened it.
+                  // A naive way: rely on the fact that 0.0 triggers open, and completion triggers close.
+                  // We need a way to know if we are the ones who opened it.
+                  // Or, just use a "Processing" overlay in the body stack instead of Dialog. Reference: "Stack overlay" is much robust.
+                  // But user wants "background processing" which usually implies non-blocking UI or at least minimal blocking.
+                  // Let's go with the Listener-pop approach check. 
+                  // If we just finished (null), pop. 
+                  // But listener fires for every progress update.
+                  // We need 'listenWhen'.
+                }
+             }
+          },
+          child: BlocConsumer<SettingsCubit, SettingsState>(
+             listenWhen: (previous, current) {
+                // Only listen for completion to pop
+                final wasRefining = (previous is SettingsLoaded && previous.refinementProgress != null);
+                final isRefining = (current is SettingsLoaded && current.refinementProgress != null);
+                return wasRefining && !isRefining;
+             },
+             listener: (context, state) {
+                Navigator.of(context).pop(); // Close dialog
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('원재료 재정제가 완료되었습니다.')),
+                );
+             },
+             builder: (context, state) {
             final apiKey = (state is SettingsLoaded) ? state.settings.apiKey : '';
             final isLargeText = (state is SettingsLoaded) ? state.settings.textScale > 1.0 : false;
             final appVersion = (state is SettingsLoaded) ? state.appVersion : '';
@@ -81,6 +149,15 @@ class SettingsScreen extends StatelessWidget {
                           ),
                           const Divider(),
                           ListTile(
+                            leading: const Icon(Icons.refresh, color: Colors.blue),
+                            title: const Text('데이터 재정제 (고급)'),
+                            subtitle: const Text('최신 규칙으로 원재료명을 다시 정리합니다.'),
+                            onTap: () {
+                              context.read<SettingsCubit>().refineData();
+                            },
+                          ),
+                          const Divider(),
+                          ListTile(
                             leading: const Icon(Icons.file_download),
                             title: const Text('데이터 엑셀 내보내기'), // TODO: Localization
                             subtitle: const Text('저장된 식품 정보를 엑셀 파일로 저장하거나 공유합니다.'),
@@ -135,7 +212,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ],
             );
-          },
+          }),
         ),
       );
   }
