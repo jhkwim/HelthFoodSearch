@@ -174,62 +174,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // 5. Functionality Content
-                        // 5. Functionality
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionFunc,
-                          icon: Icons.verified_user_outlined,
-                          color: Theme.of(context).primaryColor.withOpacity(0.05),
-                          child: Text(
-                            widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // 6. Standards
-                        // 6. Standards
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionStandard,
-                          icon: Icons.gavel_outlined,
-                          child: Text(
-                            widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
-                            style: const TextStyle(height: 1.5)
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // 7. Cautions & Storage
-                        // 7. Cautions
-                         _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionCaution,
-                          icon: Icons.warning_amber_rounded,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionIntake, color: Colors.red),
-                                Text(
-                                  widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
-                                  style: const TextStyle(height: 1.5, color: Colors.black87)
-                                ),
-                                const SizedBox(height: 16),
-                              
-                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionStorage),
-                                Text(
-                                  widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
-                                  style: const TextStyle(height: 1.5)
-                                ),
-                            ],
-                          ),
-                        ),
-                         const SizedBox(height: 16),
-
-                        // 8. Ingredients
-                        // 8. Ingredients
-                        // 8. Ingredients
+                        // 8. Ingredients (Moved here)
                         _buildInfoCard(
                           context,
                           title: AppLocalizations.of(context)!.detailSectionIngredients,
@@ -290,7 +235,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         ),
                         const SizedBox(height: 16),
                         
-                        // C003 Raw Materials Section (Async On-Demand)
+                        // C003 Raw Materials Section (Async On-Demand) (Moved here)
                         FutureBuilder<Either<Failure, List<String>?>>(
                           future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
                           builder: (context, snapshot) {
@@ -326,6 +271,62 @@ class _DetailScreenState extends State<DetailScreen> {
                             ));
                           },
                         ),
+                        const SizedBox(height: 16),
+
+                        // 5. Functionality Content
+                        // 5. Functionality
+                        _buildInfoCard(
+                          context,
+                          title: AppLocalizations.of(context)!.detailSectionFunc,
+                          icon: Icons.verified_user_outlined,
+                          color: Theme.of(context).primaryColor.withOpacity(0.05),
+                          child: Text(
+                            widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // 6. Standards
+                        // 6. Standards
+                        _buildInfoCard(
+                          context,
+                          title: AppLocalizations.of(context)!.detailSectionStandard,
+                          icon: Icons.gavel_outlined,
+                          child: Text(
+                            widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
+                            style: const TextStyle(height: 1.5)
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // 7. Cautions & Storage
+                        // 7. Cautions
+                         _buildInfoCard(
+                          context,
+                          title: AppLocalizations.of(context)!.detailSectionCaution,
+                          icon: Icons.warning_amber_rounded,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionIntake, color: Colors.red),
+                                Text(
+                                  widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
+                                  style: const TextStyle(height: 1.5, color: Colors.black87)
+                                ),
+                                const SizedBox(height: 16),
+                              
+                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionStorage),
+                                Text(
+                                  widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
+                                  style: const TextStyle(height: 1.5)
+                                ),
+                            ],
+                          ),
+                        ),
+                         const SizedBox(height: 16),
+
+
                         const SizedBox(height: 80), // Space for FAB
                       ],
                       ),
