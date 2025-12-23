@@ -290,15 +290,27 @@ class _DetailScreenState extends State<DetailScreen> {
                         ),
                         const SizedBox(height: 16),
                         
-                        // C003 Raw Materials Section (Separate Card)
+                        // C003 Raw Materials Section (Async On-Demand)
                         FutureBuilder<Either<Failure, List<String>?>>(
                           future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
-                              return snapshot.data?.fold(
+                            if (snapshot.hasData) {
+                              return snapshot.data!.fold(
                                 (l) => const SizedBox(), 
                                 (r) {
-                                  if (r == null || r.isEmpty) return const SizedBox();
+                                  if (r == null || r.isEmpty) {
+                                     // Fallback to I0030 if C003 is empty/failed
+                                     if (widget.item.rawmtrlNm.isNotEmpty) {
+                                        return _buildInfoCard(
+                                          context,
+                                          title: AppLocalizations.of(context)!.detailSectionRawMaterialsReport,
+                                          icon: Icons.science_outlined,
+                                          child: _buildNumberedList(widget.item.rawmtrlNm),
+                                        );
+                                     }
+                                     return const SizedBox();
+                                  }
+                                  
                                   return _buildInfoCard(
                                     context, 
                                     title: AppLocalizations.of(context)!.detailSectionRawMaterialsReport, 
@@ -306,9 +318,12 @@ class _DetailScreenState extends State<DetailScreen> {
                                     child: _buildBulletList(r),
                                   );
                                 }
-                              ) ?? const SizedBox();
+                              );
                             }
-                            return const Center(child: CircularProgressIndicator());
+                            return Center(child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ));
                           },
                         ),
                         const SizedBox(height: 80), // Space for FAB
@@ -431,13 +446,41 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _buildNumberedList(String rawString) {
     if (rawString.isEmpty) return const SizedBox.shrink();
     
-    // Split by comma and filter empty
-    final list = rawString.split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    // Use smart split to handle parentheses correctly
+    final list = _splitRawMaterials(rawString);
 
     return _buildListContent(list);
+  }
+
+  /// Splits a comma-separated string but ignores commas inside parentheses
+  List<String> _splitRawMaterials(String raw) {
+    List<String> result = [];
+    int parenDepth = 0;
+    StringBuffer buffer = StringBuffer();
+
+    for (int i = 0; i < raw.length; i++) {
+      String char = raw[i];
+      if (char == '(' || char == '[') {
+        parenDepth++;
+      } else if (char == ')' || char == ']') {
+        if (parenDepth > 0) parenDepth--;
+      }
+
+      if (char == ',' && parenDepth == 0) {
+        if (buffer.isNotEmpty) {
+          result.add(buffer.toString().trim());
+          buffer.clear();
+        }
+      } else {
+        buffer.write(char);
+      }
+    }
+    
+    if (buffer.isNotEmpty) {
+      result.add(buffer.toString().trim());
+    }
+
+    return result.where((e) => e.isNotEmpty).toList();
   }
 
 
