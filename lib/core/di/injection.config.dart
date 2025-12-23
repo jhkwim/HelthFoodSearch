@@ -41,14 +41,22 @@ import '../../features/setting/data/repositories/settings_repository_impl.dart'
     as _i1025;
 import '../../features/setting/domain/repositories/i_settings_repository.dart'
     as _i990;
+import '../../features/setting/domain/usecases/check_update_needed_usecase.dart'
+    as _i927;
 import '../../features/setting/domain/usecases/export_food_data_usecase.dart'
     as _i601;
+import '../../features/setting/domain/usecases/force_expire_sync_time_usecase.dart'
+    as _i318;
 import '../../features/setting/domain/usecases/get_settings_usecase.dart'
     as _i940;
 import '../../features/setting/domain/usecases/save_api_key_usecase.dart'
     as _i152;
+import '../../features/setting/domain/usecases/save_last_sync_time_usecase.dart'
+    as _i526;
 import '../../features/setting/domain/usecases/save_text_scale_usecase.dart'
     as _i775;
+import '../../features/setting/domain/usecases/save_update_interval_usecase.dart'
+    as _i75;
 import '../../features/setting/presentation/bloc/settings_cubit.dart' as _i291;
 import '../utils/excel_export_service.dart' as _i178;
 import 'register_module.dart' as _i291;
@@ -79,6 +87,14 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i152.SaveApiKeyUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i775.SaveTextScaleUseCase>(
         () => _i775.SaveTextScaleUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i927.CheckUpdateNeededUseCase>(
+        () => _i927.CheckUpdateNeededUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i526.SaveLastSyncTimeUseCase>(
+        () => _i526.SaveLastSyncTimeUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i75.SaveUpdateIntervalUseCase>(
+        () => _i75.SaveUpdateIntervalUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i318.ForceExpireSyncTimeUseCase>(() =>
+        _i318.ForceExpireSyncTimeUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i601.ExportFoodDataUseCase>(
         () => _i601.ExportFoodDataUseCase(
               gh<_i688.LocalDataSource>(),
@@ -110,12 +126,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i775.SaveTextScaleUseCase>(),
           gh<_i601.ExportFoodDataUseCase>(),
           gh<_i195.RefineLocalDataUseCase>(),
-        ));
-    gh.lazySingleton<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(
-          gh<_i778.SyncDataUseCase>(),
-          gh<_i938.CheckDataExistenceUseCase>(),
-          gh<_i940.GetSettingsUseCase>(),
-          gh<_i940.GetStorageInfoUseCase>(),
+          gh<_i75.SaveUpdateIntervalUseCase>(),
+          gh<_i318.ForceExpireSyncTimeUseCase>(),
         ));
     gh.factory<_i548.IngredientSearchCubit>(() => _i548.IngredientSearchCubit(
           gh<_i337.SearchFoodByIngredientsUseCase>(),
@@ -123,6 +135,14 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i77.SearchCubit>(
         () => _i77.SearchCubit(gh<_i924.SearchFoodByNameUseCase>()));
+    gh.lazySingleton<_i48.DataSyncCubit>(() => _i48.DataSyncCubit(
+          gh<_i778.SyncDataUseCase>(),
+          gh<_i938.CheckDataExistenceUseCase>(),
+          gh<_i940.GetSettingsUseCase>(),
+          gh<_i940.GetStorageInfoUseCase>(),
+          gh<_i526.SaveLastSyncTimeUseCase>(),
+          gh<_i927.CheckUpdateNeededUseCase>(),
+        ));
     return this;
   }
 }

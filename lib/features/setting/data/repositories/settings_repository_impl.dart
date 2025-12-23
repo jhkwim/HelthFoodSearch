@@ -14,13 +14,28 @@ class SettingsRepositoryImpl implements ISettingsRepository {
 
   static const String apiKeyKey = 'API_KEY';
   static const String textScaleKey = 'TEXT_SCALE';
+  static const String lastSyncTimeKey = 'LAST_SYNC_TIME';
+  static const String updateIntervalKey = 'UPDATE_INTERVAL';
 
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {
     try {
       final apiKey = settingsBox.get(apiKeyKey) as String?;
       final textScale = settingsBox.get(textScaleKey, defaultValue: 1.0) as double;
-      return Right(AppSettings(apiKey: apiKey, textScale: textScale));
+      final updateInterval = settingsBox.get(updateIntervalKey, defaultValue: 30) as int;
+      
+      DateTime? lastSyncTime;
+      final lastSyncStr = settingsBox.get(lastSyncTimeKey) as String?;
+      if (lastSyncStr != null) {
+        lastSyncTime = DateTime.tryParse(lastSyncStr);
+      }
+      
+      return Right(AppSettings(
+        apiKey: apiKey, 
+        textScale: textScale, 
+        lastSyncTime: lastSyncTime,
+        updateIntervalDays: updateInterval,
+      ));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -52,6 +67,26 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> saveTextScale(double scale) async {
     try {
       await settingsBox.put(textScaleKey, scale);
+      return Right(null);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveLastSyncTime(DateTime time) async {
+    try {
+      await settingsBox.put(lastSyncTimeKey, time.toIso8601String());
+      return Right(null);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveUpdateInterval(int days) async {
+    try {
+      await settingsBox.put(updateIntervalKey, days);
       return Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));

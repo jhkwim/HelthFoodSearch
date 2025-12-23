@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -139,6 +140,33 @@ class SettingsScreen extends StatelessWidget {
 
                       return Column(
                         children: [
+                          if (state is SettingsLoaded)
+                            Column(
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.timer_outlined),
+                                  title: const Text('업데이트 안내 주기'),
+                                  subtitle: const Text('데이터 업데이트 필요 여부를 체크하는 주기입니다.'),
+                                  trailing: DropdownButton<int>(
+                                    value: state.settings.updateIntervalDays,
+                                    onChanged: (int? newValue) {
+                                      if (newValue != null) {
+                                        context.read<SettingsCubit>().saveUpdateInterval(newValue);
+                                      }
+                                    },
+                                    underline: Container(),
+                                    items: const [
+                                      DropdownMenuItem(value: 15, child: Text('15일')),
+                                      DropdownMenuItem(value: 30, child: Text('30일')),
+                                      DropdownMenuItem(value: 45, child: Text('45일')),
+                                      DropdownMenuItem(value: 60, child: Text('60일')),
+                                      DropdownMenuItem(value: 90, child: Text('90일')),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(),
+                              ],
+                            ),
                           ListTile(
                             leading: const Icon(Icons.cloud_download),
                             title: Text(l10n.settingsDataRefresh),
@@ -210,6 +238,28 @@ class SettingsScreen extends StatelessWidget {
                     subtitle: Text(appVersion.isEmpty ? l10n.settingsLoading : appVersion),
                   ),
                 ),
+                
+                const SizedBox(height: 24),
+                if (!kReleaseMode) ...[ 
+                  _buildSectionTitle(context, '개발자 도구 (테스트용)'),
+                  Card(
+                    color: Colors.red[50],
+                    child: ListTile(
+                      leading: const Icon(Icons.bug_report, color: Colors.red),
+                      title: const Text('강제 업데이트 만료 처리'),
+                      subtitle: const Text('마지막 업데이트 시간을 30일 전으로 되돌립니다.\n앱 재시작 시 업데이트 팝업을 테스트할 수 있습니다.'),
+                      onTap: () async {
+                         await context.read<SettingsCubit>().forceExpireSyncTime();
+                         if (context.mounted) {
+                           ScaffoldMessenger.of(context).showSnackBar(
+                             const SnackBar(content: Text('업데이트 시간이 만료되었습니다. 앱을 재시작하세요.')),
+                           );
+                         }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
               ],
             );
           }),

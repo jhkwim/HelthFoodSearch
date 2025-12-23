@@ -10,4 +10,8 @@ abstract class ISettingsRepository {
   Future<Either<Failure, void>> clearData();
   
   Future<Either<Failure, void>> saveTextScale(double scale);
+  
+  Future<Either<Failure, void>> saveLastSyncTime(DateTime time);
+
+  Future<Either<Failure, void>> saveUpdateInterval(int days);
 }

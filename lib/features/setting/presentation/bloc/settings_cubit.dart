@@ -11,6 +11,9 @@ import '../../domain/usecases/save_api_key_usecase.dart';
 import '../../domain/usecases/save_text_scale_usecase.dart';
 import 'package:health_food_search/features/search/domain/usecases/refine_local_data_usecase.dart';
 
+import '../../domain/usecases/save_update_interval_usecase.dart';
+import '../../domain/usecases/force_expire_sync_time_usecase.dart';
+
 part 'settings_state.dart';
 
 @injectable
@@ -20,6 +23,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   final SaveTextScaleUseCase saveTextScaleUseCase;
   final ExportFoodDataUseCase exportFoodDataUseCase;
   final RefineLocalDataUseCase refineLocalDataUseCase;
+  final SaveUpdateIntervalUseCase saveUpdateIntervalUseCase;
+  final ForceExpireSyncTimeUseCase forceExpireSyncTimeUseCase;
 
   SettingsCubit(
     this.getSettingsUseCase,
@@ -27,6 +32,8 @@ class SettingsCubit extends Cubit<SettingsState> {
     this.saveTextScaleUseCase,
     this.exportFoodDataUseCase,
     this.refineLocalDataUseCase,
+    this.saveUpdateIntervalUseCase,
+    this.forceExpireSyncTimeUseCase,
   ) : super(SettingsInitial());
 
   Future<void> checkSettings() async {
@@ -116,8 +123,27 @@ class SettingsCubit extends Cubit<SettingsState> {
       // Optionally show success message via side effect or snackbar managed by UI listener?
       // For now, returning to idle state implies completion.
     } catch (e) {
+    } catch (e) {
       emit(SettingsError('데이터 재정제 실패: $e'));
     }
+  }
+
+  Future<void> saveUpdateInterval(int days) async {
+    emit(SettingsLoading());
+    final result = await saveUpdateIntervalUseCase(days);
+    result.fold(
+      (failure) => emit(SettingsError(failure.message)),
+      (_) => checkSettings(),
+    );
+  }
+
+  Future<void> forceExpireSyncTime() async {
+    emit(SettingsLoading());
+    final result = await forceExpireSyncTimeUseCase(NoParams());
+    result.fold(
+      (failure) => emit(SettingsError(failure.message)),
+      (_) => checkSettings(),
+    );
   }
 }
 

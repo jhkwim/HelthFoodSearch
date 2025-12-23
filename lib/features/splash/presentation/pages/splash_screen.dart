@@ -56,7 +56,34 @@ class _SplashScreenState extends State<SplashScreen> {
         BlocListener<DataSyncCubit, DataSyncState>(
           listener: (context, state) {
             if (state is DataSyncSuccess) {
-              context.go('/main');
+              if (state.updateNeeded) {
+                 showDialog(
+                   context: context,
+                   barrierDismissible: false,
+                   builder: (context) => AlertDialog(
+                     title: const Text('데이터 업데이트 필요'),
+                     content: const Text('마지막 업데이트로부터 30일이 지났습니다.\n최신 데이터로 업데이트하시겠습니까?'),
+                     actions: [
+                       TextButton(
+                         onPressed: () {
+                           Navigator.of(context).pop();
+                           context.go('/main');
+                         },
+                         child: const Text('나중에'),
+                       ),
+                       TextButton(
+                         onPressed: () {
+                           Navigator.of(context).pop();
+                           context.go('/download');
+                         },
+                         child: const Text('업데이트'),
+                       ),
+                     ],
+                   ),
+                 );
+              } else {
+                context.go('/main');
+              }
             } else if (state is DataSyncNeeded) {
               context.go('/download');
             } else if (state is DataSyncError) {
