@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/injection.dart';
+
 import '../../domain/entities/food_item.dart';
 import '../bloc/search_cubit.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
@@ -9,8 +9,14 @@ import 'package:health_food_search/l10n/app_localizations.dart';
 class ProductSearchTab extends StatefulWidget {
   final Function(FoodItem)? onItemSelected;
   final String? selectedReportNo;
+  final bool useSlivers;
 
-  const ProductSearchTab({super.key, this.onItemSelected, this.selectedReportNo});
+  const ProductSearchTab({
+    super.key, 
+    this.onItemSelected, 
+    this.selectedReportNo,
+    this.useSlivers = false,
+  });
 
   @override
   State<ProductSearchTab> createState() => _ProductSearchTabState();
@@ -32,49 +38,91 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
   Widget build(BuildContext context) {
     super.build(context); // Required for KeepAlive
     
-    return BlocProvider(
-      create: (context) => getIt<SearchCubit>(),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Builder(builder: (context) {
-              final l10n = AppLocalizations.of(context)!;
-              return TextField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  labelText: l10n.navProductSearch,
-                  hintText: l10n.searchProductHintExample,
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () => _controller.clear(),
-                  ),
+    // Use ancestor provider
+    return Builder(
+      builder: (context) {
+        return widget.useSlivers 
+          ? _buildSliverLayout(context)
+          : _buildStandardLayout(context);
+      }
+    );
+  }
+
+  // Mobile Layout (Slivers)
+  Widget _buildSliverLayout(BuildContext context) {
+    return CustomScrollView(
+      key: const PageStorageKey('ProductSearchTab'),
+      slivers: [
+        SliverOverlapInjector(
+          handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+        ),
+        // Search Field removed (Moved to Main Screen Header)
+        BlocBuilder<SearchCubit, SearchState>(
+          builder: (context, state) {
+            if (state is SearchLoading) {
+              return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
+            } else if (state is SearchError) {
+              return SliverFillRemaining(child: Center(child: Text(AppLocalizations.of(context)!.errorOccurred(state.message))));
+            } else if (state is SearchLoaded) {
+              if (state.foods.isEmpty) {
+                return SliverFillRemaining(child: Center(child: Text(AppLocalizations.of(context)!.searchProductEmpty)));
+              }
+              
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final item = state.foods[index];
+                    final isSelected = item.reportNo == widget.selectedReportNo;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: _FoodItemCard(
+                        item: item,
+                        isSelected: isSelected,
+                        onTap: () {
+                          if (widget.onItemSelected != null) {
+                            widget.onItemSelected!(item);
+                          } else {
+                            context.push('/detail', extra: item);
+                          }
+                        },
+                      ),
+                    );
+                  },
+                  childCount: state.foods.length,
                 ),
-                style: Theme.of(context).textTheme.bodyLarge,
-                textInputAction: TextInputAction.search, // Better mobile/keyboard UX
-                onSubmitted: (query) {
-                  context.read<SearchCubit>().search(query);
-                },
               );
-            }),
-          ),
-          Expanded(
-            child: BlocBuilder<SearchCubit, SearchState>(
-              builder: (context, state) {
-                if (state is SearchLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is SearchError) {
-                  return Center(child: Text(AppLocalizations.of(context)!.errorOccurred(state.message)));
-                } else if (state is SearchLoaded) {
-                  if (state.foods.isEmpty) {
+            }
+            return SliverFillRemaining(child: Center(child: Text(AppLocalizations.of(context)!.searchProductInitial)));
+          },
+        ),
+      ],
+    );
+  }
+
+  // Desktop/Tablet Layout (Standard Column)
+  Widget _buildStandardLayout(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: _buildSearchField(context),
+        ),
+        Expanded(
+          child: BlocBuilder<SearchCubit, SearchState>(
+            builder: (context, state) {
+              if (state is SearchLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is SearchError) {
+                return Center(child: Text(AppLocalizations.of(context)!.errorOccurred(state.message)));
+              } else if (state is SearchLoaded) {
+                 // Reuse existing grid/list logic for desktop
+                 if (state.foods.isEmpty) {
                     return Center(child: Text(AppLocalizations.of(context)!.searchProductEmpty));
                   }
 
                   return LayoutBuilder(
                     builder: (context, constraints) {
                       final isGrid = constraints.maxWidth > 480;
-                      
                       if (isGrid) {
                         final crossAxisCount = (constraints.maxWidth / 250).floor().clamp(2, 6);
                         return GridView.builder(
@@ -83,57 +131,71 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
                             crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            mainAxisExtent: 240, // Fixed height for consistent look regardless of width
+                            mainAxisExtent: 240,
                           ),
                           itemCount: state.foods.length,
                           itemBuilder: (context, index) {
-                            final item = state.foods[index];
-                            final isSelected = item.reportNo == widget.selectedReportNo;
-                            return _FoodItemCard(
-                              item: item,
-                              isSelected: isSelected,
-                              onTap: () {
-                                if (widget.onItemSelected != null) {
-                                  widget.onItemSelected!(item);
-                                } else {
-                                  context.push('/detail', extra: item);
-                                }
-                              },
-                            );
+                             final item = state.foods[index];
+                             final isSelected = item.reportNo == widget.selectedReportNo;
+                             return _FoodItemCard(
+                                item: item,
+                                isSelected: isSelected,
+                                onTap: () {
+                                  if (widget.onItemSelected != null) {
+                                    widget.onItemSelected!(item);
+                                  } else {
+                                    context.push('/detail', extra: item);
+                                  }
+                                },
+                             );
                           },
                         );
                       }
-
                       return ListView.separated(
                         padding: const EdgeInsets.all(16),
                         itemCount: state.foods.length,
                         separatorBuilder: (context, index) => const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final item = state.foods[index];
-                          final isSelected = item.reportNo == widget.selectedReportNo;
-                          return _FoodItemCard(
-                            item: item,
-                            isSelected: isSelected,
-                            onTap: () {
+                        itemBuilder: (context, index) => _FoodItemCard(
+                           item: state.foods[index],
+                           isSelected: state.foods[index].reportNo == widget.selectedReportNo,
+                           onTap: () {
                               if (widget.onItemSelected != null) {
-                                widget.onItemSelected!(item);
+                                widget.onItemSelected!(state.foods[index]);
                               } else {
-                                context.push('/detail', extra: item);
+                                context.push('/detail', extra: state.foods[index]);
                               }
-                            },
-                          );
-                        },
+                           },
+                        ),
                       );
                     },
                   );
-                }
-
-                return Center(child: Text(AppLocalizations.of(context)!.searchProductInitial));
-              },
-            ),
+              }
+              return Center(child: Text(AppLocalizations.of(context)!.searchProductInitial));
+            },
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchField(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return TextField(
+      controller: _controller,
+      decoration: InputDecoration(
+        labelText: l10n.navProductSearch,
+        hintText: l10n.searchProductHintExample,
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () => _controller.clear(),
+        ),
       ),
+      style: Theme.of(context).textTheme.bodyLarge,
+      textInputAction: TextInputAction.search,
+      onSubmitted: (query) {
+        context.read<SearchCubit>().search(query);
+      },
     );
   }
 }

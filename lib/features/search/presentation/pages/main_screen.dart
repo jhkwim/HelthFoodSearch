@@ -11,6 +11,11 @@ import '../../domain/entities/food_item.dart';
 import '../pages/detail_screen.dart';
 
 import '../bloc/ingredient_search_cubit.dart';
+import '../../../../core/utils/sliver_tab_bar_delegate.dart';
+
+import '../bloc/search_cubit.dart';
+import '../../../../core/enums/ingredient_search_type.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -19,6 +24,11 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
+  final TextEditingController _productSearchController = TextEditingController();
+  final TextEditingController _ingredientSearchController = TextEditingController();
+  final FocusNode _productFocusNode = FocusNode();
+  final FocusNode _ingredientFocusNode = FocusNode();
+  
   late TabController _tabController;
   FoodItem? _selectedItem;
 
@@ -26,48 +36,170 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabSelection);
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_handleTabSelection);
     _tabController.dispose();
+    _productSearchController.dispose();
+    _ingredientSearchController.dispose();
+    _productFocusNode.dispose();
+    _ingredientFocusNode.dispose();
     super.dispose();
   }
 
-  void _onIngredientSelected(String ingredient) {
-    // 1. Switch to Ingredient Tab
-    _tabController.animateTo(1);
-    
-    // 2. Add ingredient to search and trigger search?
-    // Access IngredientSearchCubit from context? No, tabs have their own providers.
-    // Solution: We need a way to communicate this.
-    // Since we are inside MainScreen, we can access the Cubit if check where it is provided.
-    // The tabs provide their own Cubits internally. This is slightly problematic for external control.
-    // Ideally, the Cubit should be lifted up to MainScreen or accessed via a shared mechanism.
-    // For now, let's refactor the tabs to accept an initial search term or expose a controller?
-    // Or simpler: Lift the IngredientSearchCubit to MainScreen level so we can access it here.
-    
-    // Changing strategy: Lift IngredientSearchCubit to MainScreen level.
-    // We will do this via context.read if providers are moved up.
-    // But currently they are inside the tabs.
-    // Let's assume we will move the providers up in the build method below.
-    
-    // Wait, context.read won't work if the provider is created effectively 'below' this context in the widget tree if we blindly move it.
-    // But if we wrap MainScreen's body or Scaffold in the provider, we can access it.
+  void _handleTabSelection() {
+    if (_tabController.indexIsChanging) {
+      setState(() {}); 
+    }
   }
-  
-  // Re-implementation with Cubit lifted up
+
+  PreferredSizeWidget _buildHeaderBottom(BuildContext context) {
+    if (_tabController.index == 0) {
+      // Product Search Header
+      return PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor, // Match background
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: TextField(
+            controller: _productSearchController,
+            focusNode: _productFocusNode,
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.navProductSearch,
+              hintText: AppLocalizations.of(context)!.searchProductHintExample,
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                   _productSearchController.clear();
+                   context.read<SearchCubit>().search('');
+                },
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            textInputAction: TextInputAction.search,
+            onSubmitted: (query) {
+              context.read<SearchCubit>().search(query);
+            },
+          ),
+        ),
+      );
+    } else {
+      // Ingredient Search Header
+      return PreferredSize(
+        preferredSize: const Size.fromHeight(120),
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+               TextField(
+                controller: _ingredientSearchController,
+                focusNode: _ingredientFocusNode,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.searchIngredientLabel,
+                  hintText: AppLocalizations.of(context)!.searchIngredientHintExample,
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.add_circle),
+                    onPressed: () {
+                       final val = _ingredientSearchController.text;
+                       if (val.isNotEmpty) {
+                          context.read<IngredientSearchCubit>().addIngredient(val);
+                          _ingredientSearchController.clear();
+                       }
+                    },
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                onChanged: (value) {
+                   context.read<IngredientSearchCubit>().updateSuggestions(value);
+                },
+                onSubmitted: (value) {
+                   context.read<IngredientSearchCubit>().addIngredient(value);
+                   _ingredientSearchController.clear();
+                },
+              ),
+              const SizedBox(height: 8),
+              // Search Options Row
+              BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      Text(AppLocalizations.of(context)!.searchModeLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 12),
+                      _buildModeChip(
+                        context, 
+                        label: AppLocalizations.of(context)!.searchModeInclude, 
+                        isSelected: state.searchType == IngredientSearchType.include,
+                        onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildModeChip(
+                        context, 
+                        label: AppLocalizations.of(context)!.searchModeExclusive, 
+                        isSelected: state.searchType == IngredientSearchType.exclusive,
+                        onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildModeChip(BuildContext context, {required String label, required bool isSelected, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).primaryColor : Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black87,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
      return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => getIt<IngredientSearchCubit>()),
-        // SearchCubit is also used in ProductSearchTab, let's lift it too for consistency or leave it.
-        // ProductSearchTab creates it. Let's leave it for now unless needed.
+        BlocProvider(create: (context) => getIt<SearchCubit>()),
       ],
       child: Builder(
         builder: (context) {
-          // Now we can access IngredientSearchCubit
           return LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 700;
@@ -79,36 +211,78 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 final cubit = context.read<IngredientSearchCubit>();
                 cubit.replaceIngredients(ingredients);
                 cubit.search();
-                
-                if (!isWide) {
-                   // Logic for mobile is handled in _navigateToDetailMobile callback wrapper commonly.
-                }
               }
 
-              // Mobile / Narrow Layout
-              if (!isWide) {
-                return Scaffold(
-                  appBar: _buildAppBar(context, isWide: false),
-                  body: Column(
-                    children: [
-                      _buildSyncProgress(),
-                      Expanded(
-                        child: TabBarView(
+                // Mobile / Narrow Layout
+                if (!isWide) {
+                  return Scaffold(
+                    body: SafeArea(
+                      top: true,
+                      bottom: false,
+                      child: NestedScrollView(
+                        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                          return <Widget>[
+                            SliverAppBar(
+                              title: Text(AppLocalizations.of(context)!.appTitle),
+                              centerTitle: false,
+                              floating: true,
+                              snap: true,
+                              pinned: false,
+                              bottom: _buildHeaderBottom(context), // Dynamic Search Area
+                              actions: [
+                                IconButton(
+                                  icon: const Icon(Icons.settings),
+                                  onPressed: () {
+                                    context.push('/settings');
+                                  },
+                                )
+                              ],
+                            ),
+                            
+                            // Progress bar needs to be visible
+                             SliverToBoxAdapter(child: _buildSyncProgress()),
+
+                            SliverOverlapAbsorber(
+                              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                              sliver: SliverPersistentHeader(
+                                delegate: SliverTabBarDelegate(
+                                  TabBar(
+                                    controller: _tabController,
+                                    tabs: [
+                                      Tab(text: AppLocalizations.of(context)!.navProductSearch),
+                                      Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
+                                    ],
+                                    labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    indicatorWeight: 4,
+                                  ),
+                                ),
+                                pinned: true,
+                              ),
+                            ),
+                          ];
+                        },
+                        body: TabBarView(
                           controller: _tabController,
                           children: [
                             ProductSearchTab(
+                              useSlivers: true,
                               onItemSelected: (item) => _navigateToDetailMobile(context, item, handleIngredientSelection),
                             ),
                             IngredientSearchTab(
+                              useSlivers: true,
                               onItemSelected: (item) => _navigateToDetailMobile(context, item, handleIngredientSelection),
+                              onSuggestionSelected: () {
+                                _ingredientSearchController.clear();
+                                _ingredientFocusNode.unfocus();
+                                context.read<IngredientSearchCubit>().updateSuggestions('');
+                              },
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                );
-              }
+                    ),
+                  );
+                }
 
               // Desktop / Wide Layout (Split View)
               return Scaffold(
@@ -155,6 +329,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                             setState(() {
                                               _selectedItem = item;
                                             });
+                                          },
+                                          onSuggestionSelected: () {
+                                            _ingredientSearchController.clear();
+                                            // Desktop might not need unfocus, but good for consistency or if using touch
+                                            _ingredientSearchController.clear();
+                                            context.read<IngredientSearchCubit>().updateSuggestions('');
                                           },
                                         ),
                                       ],
@@ -229,7 +409,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
               ],
               labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              indicatorColor: Colors.white,
+              // indicatorColor: Colors.white, // Removed to fix invisible indicator on white background
               indicatorWeight: 4,
             ),
       actions: [
