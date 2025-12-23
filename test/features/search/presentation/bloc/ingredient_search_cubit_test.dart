@@ -91,15 +91,16 @@ void main() {
         const FoodItem(
           reportNo: '1',
           prdlstNm: 'Test Food',
+          rawmtrlNm: 'Raw Material A',
           mainIngredients: ['A'],
-          functionality: 'Good',
-          company: 'Test Co',
-          guaranteePeriod: '2025',
-          features: '',
+          bsshNm: 'Test Co',
+          prmsDt: '20240101',
+          primaryFnclty: 'Good',
+          pogDaycnt: '2025',
           dispos: '',
-          servingSize: '',
-          cautions: '',
-          standard: '',
+          ntkMthd: '',
+          iftknAtntMatrCn: '',
+          stdrStnd: '',
         )
       ];
 

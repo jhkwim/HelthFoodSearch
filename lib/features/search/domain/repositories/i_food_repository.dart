@@ -13,6 +13,7 @@ abstract class IFoodRepository {
   Future<Either<Failure, List<Ingredient>>> getSuggestedIngredients(String query);
   
   Future<Either<Failure, void>> syncData(String apiKey, {Function(double)? onProgress});
+  Stream<double> refineLocalData();
   
 
   Future<Either<Failure, bool>> checkDataExistence();

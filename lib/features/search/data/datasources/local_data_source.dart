@@ -10,6 +10,7 @@ import '../models/raw_material_hive_model.dart';
 
 abstract class LocalDataSource {
   Future<void> cacheFoodItems(List<FoodItemHiveModel> items);
+  Future<void> updateFoodItems(List<FoodItemHiveModel> items);
   Future<void> cacheRawMaterials(List<RawMaterialHiveModel> items);
   Future<List<FoodItemHiveModel>> getFoodItems();
   Future<List<FoodItemHiveModel>> searchFoodByName(String query);
@@ -18,6 +19,8 @@ abstract class LocalDataSource {
   Future<void> clearData();
   Future<bool> hasData();
   Future<StorageInfo> getStorageInfo();
+  /// Searches for unique main ingredients directly.
+  Future<List<String>> searchIngredients(String query);
 }
 
 @LazySingleton(as: LocalDataSource)
@@ -32,6 +35,12 @@ class LocalDataSourceImpl implements LocalDataSource {
       for (var item in items) item.reportNo: item
     };
     await box.putAll(map);
+  }
+
+  @override
+  Future<void> updateFoodItems(List<FoodItemHiveModel> items) async {
+    // Re-use cacheFoodItems since putAll overwrites by key (reportNo)
+    await cacheFoodItems(items);
   }
 
   @override
@@ -150,5 +159,29 @@ class LocalDataSourceImpl implements LocalDataSource {
     }
 
     return StorageInfo(count: count, sizeBytes: size);
+  }
+
+  @override
+  Future<List<String>> searchIngredients(String query) async {
+    final box = await Hive.openBox<FoodItemHiveModel>(boxName);
+    final Set<String> matches = {};
+    
+    // Iterate all values. 
+    // Optimization: Stop after N matches? 
+    // The user wants suggestions, so 20-50 is enough.
+    // But we need to be diverse.
+    // Let's iterate all (30k is fast) and dedupe.
+    
+    for (var item in box.values) {
+      for (var ing in item.mainIngredients) {
+        if (ing.contains(query)) {
+          matches.add(ing);
+          if (matches.length >= 50) break; // Limit internal collection
+        }
+      }
+      if (matches.length >= 50) break;
+    }
+    
+    return matches.toList();
   }
 }
