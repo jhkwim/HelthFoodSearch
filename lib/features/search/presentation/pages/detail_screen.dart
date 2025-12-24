@@ -464,11 +464,17 @@ class _DetailScreenState extends State<DetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SelectableText(
-          widget.item.prdlstNm,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).textTheme.headlineMedium?.color,
+        Hero(
+          tag: 'food_title_${widget.item.reportNo}',
+          child: Material(
+            color: Colors.transparent,
+            child: Text(
+              widget.item.prdlstNm,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.headlineMedium?.color,
+              ),
+            ),
           ),
         ),
       ],
