@@ -28,6 +28,8 @@ class ProductSearchTab extends StatefulWidget {
 class _ProductSearchTabState extends State<ProductSearchTab>
     with AutomaticKeepAliveClientMixin {
   final TextEditingController _controller = TextEditingController();
+  final Set<String> _shownItems = {};
+  List<FoodItem>? _lastFoods;
 
   @override
   bool get wantKeepAlive => true;
@@ -93,7 +95,16 @@ class _ProductSearchTabState extends State<ProductSearchTab>
 
               return SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
+                  if (state.foods != _lastFoods) {
+                    _shownItems.clear();
+                    _lastFoods = state.foods;
+                  }
+
                   final item = state.foods[index];
+                  final shouldAnimate =
+                      !_shownItems.contains(item.reportNo) && index < 12;
+                  if (shouldAnimate) _shownItems.add(item.reportNo);
+
                   final isSelected = item.reportNo == widget.selectedReportNo;
                   return Padding(
                     padding: const EdgeInsets.symmetric(
@@ -102,6 +113,7 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                     ),
                     child: StaggeredListItem(
                       index: index,
+                      shouldAnimate: shouldAnimate,
                       child: _FoodItemCard(
                         item: item,
                         isSelected: isSelected,
@@ -209,8 +221,21 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                           final item = state.foods[index];
                           final isSelected =
                               item.reportNo == widget.selectedReportNo;
+                          if (state.foods != _lastFoods) {
+                            _shownItems.clear();
+                            _lastFoods = state.foods;
+                          }
+
+                          final shouldAnimate =
+                              !_shownItems.contains(item.reportNo) &&
+                              index < 12;
+                          if (shouldAnimate) {
+                            _shownItems.add(item.reportNo);
+                          }
+
                           return StaggeredListItem(
                             index: index,
+                            shouldAnimate: shouldAnimate,
                             child: _FoodItemCard(
                               item: item,
                               isSelected: isSelected,
@@ -232,26 +257,41 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                       itemCount: state.foods.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 16),
-                      itemBuilder: (context, index) => StaggeredListItem(
-                        index: index,
-                        child: _FoodItemCard(
-                          item: state.foods[index],
-                          isSelected:
-                              state.foods[index].reportNo ==
-                              widget.selectedReportNo,
-                          highlightQuery: state.query,
-                          onTap: () {
-                            if (widget.onItemSelected != null) {
-                              widget.onItemSelected!(state.foods[index]);
-                            } else {
-                              context.push(
-                                '/detail',
-                                extra: state.foods[index],
-                              );
-                            }
-                          },
-                        ),
-                      ),
+                      itemBuilder: (context, index) {
+                        if (state.foods != _lastFoods) {
+                          _shownItems.clear();
+                          _lastFoods = state.foods;
+                        }
+
+                        final item = state.foods[index];
+                        final shouldAnimate =
+                            !_shownItems.contains(item.reportNo) && index < 12;
+                        if (shouldAnimate) {
+                          _shownItems.add(item.reportNo);
+                        }
+
+                        return StaggeredListItem(
+                          index: index,
+                          shouldAnimate: shouldAnimate,
+                          child: _FoodItemCard(
+                            item: item,
+                            isSelected:
+                                state.foods[index].reportNo ==
+                                widget.selectedReportNo,
+                            highlightQuery: state.query,
+                            onTap: () {
+                              if (widget.onItemSelected != null) {
+                                widget.onItemSelected!(state.foods[index]);
+                              } else {
+                                context.push(
+                                  '/detail',
+                                  extra: state.foods[index],
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                 );

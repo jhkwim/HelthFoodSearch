@@ -38,5 +38,12 @@ class IngredientSearchState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [selectedIngredients, searchResults, suggestions, searchType, status, errorMessage];
+  List<Object?> get props => [
+    selectedIngredients,
+    searchResults,
+    suggestions,
+    searchType,
+    status,
+    errorMessage,
+  ];
 }

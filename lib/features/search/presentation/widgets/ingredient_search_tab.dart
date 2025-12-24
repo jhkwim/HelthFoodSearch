@@ -8,6 +8,7 @@ import '../../../../core/widgets/empty_state_widget.dart';
 
 import '../../domain/entities/food_item.dart';
 import '../bloc/ingredient_search_cubit.dart';
+import '../../../../core/widgets/staggered_list_item.dart';
 
 class IngredientSearchTab extends StatelessWidget {
   final Function(FoodItem)? onItemSelected;
@@ -57,6 +58,8 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
     with AutomaticKeepAliveClientMixin {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final Set<String> _shownItems = {};
+  List<FoodItem>? _lastFoods;
 
   @override
   bool get wantKeepAlive => true;
@@ -325,10 +328,24 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                       final item = state.searchResults[index];
                       final isSelected =
                           item.reportNo == widget.selectedReportNo;
-                      return _FoodItemCard(
-                        item: item,
-                        isSelected: isSelected,
-                        onTap: () => _handleItemTap(context, item),
+
+                      if (state.searchResults != _lastFoods) {
+                        _shownItems.clear();
+                        _lastFoods = state.searchResults;
+                      }
+
+                      final shouldAnimate =
+                          !_shownItems.contains(item.reportNo) && index < 12;
+                      if (shouldAnimate) _shownItems.add(item.reportNo);
+
+                      return StaggeredListItem(
+                        index: index,
+                        shouldAnimate: shouldAnimate,
+                        child: _FoodItemCard(
+                          item: item,
+                          isSelected: isSelected,
+                          onTap: () => _handleItemTap(context, item),
+                        ),
                       );
                     }, childCount: state.searchResults.length),
                   );
@@ -337,15 +354,29 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final item = state.searchResults[index];
                     final isSelected = item.reportNo == widget.selectedReportNo;
+
+                    if (state.searchResults != _lastFoods) {
+                      _shownItems.clear();
+                      _lastFoods = state.searchResults;
+                    }
+
+                    final shouldAnimate =
+                        !_shownItems.contains(item.reportNo) && index < 12;
+                    if (shouldAnimate) _shownItems.add(item.reportNo);
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
                       ), // Padding for list
-                      child: _FoodItemCard(
-                        item: item,
-                        isSelected: isSelected,
-                        onTap: () => _handleItemTap(context, item),
+                      child: StaggeredListItem(
+                        index: index,
+                        shouldAnimate: shouldAnimate,
+                        child: _FoodItemCard(
+                          item: item,
+                          isSelected: isSelected,
+                          onTap: () => _handleItemTap(context, item),
+                        ),
                       ),
                     );
                   }, childCount: state.searchResults.length),
@@ -375,10 +406,24 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                   itemBuilder: (context, index) {
                     final item = state.searchResults[index];
                     final isSelected = item.reportNo == widget.selectedReportNo;
-                    return _FoodItemCard(
-                      item: item,
-                      isSelected: isSelected,
-                      onTap: () => _handleItemTap(context, item),
+
+                    if (state.searchResults != _lastFoods) {
+                      _shownItems.clear();
+                      _lastFoods = state.searchResults;
+                    }
+
+                    final shouldAnimate =
+                        !_shownItems.contains(item.reportNo) && index < 12;
+                    if (shouldAnimate) _shownItems.add(item.reportNo);
+
+                    return StaggeredListItem(
+                      index: index,
+                      shouldAnimate: shouldAnimate,
+                      child: _FoodItemCard(
+                        item: item,
+                        isSelected: isSelected,
+                        onTap: () => _handleItemTap(context, item),
+                      ),
                     );
                   },
                 );
@@ -392,10 +437,24 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                 itemBuilder: (context, index) {
                   final item = state.searchResults[index];
                   final isSelected = item.reportNo == widget.selectedReportNo;
-                  return _FoodItemCard(
-                    item: item,
-                    isSelected: isSelected,
-                    onTap: () => _handleItemTap(context, item),
+
+                  if (state.searchResults != _lastFoods) {
+                    _shownItems.clear();
+                    _lastFoods = state.searchResults;
+                  }
+
+                  final shouldAnimate =
+                      !_shownItems.contains(item.reportNo) && index < 12;
+                  if (shouldAnimate) _shownItems.add(item.reportNo);
+
+                  return StaggeredListItem(
+                    index: index,
+                    shouldAnimate: shouldAnimate,
+                    child: _FoodItemCard(
+                      item: item,
+                      isSelected: isSelected,
+                      onTap: () => _handleItemTap(context, item),
+                    ),
                   );
                 },
               );

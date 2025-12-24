@@ -351,6 +351,7 @@ class _MainScreenState extends State<MainScreen>
                                       AppLocalizations.of(context)!.appTitle,
                                     ),
                                     centerTitle: false,
+                                    automaticallyImplyLeading: false,
                                     floating: true,
                                     snap: true,
                                     pinned: false,

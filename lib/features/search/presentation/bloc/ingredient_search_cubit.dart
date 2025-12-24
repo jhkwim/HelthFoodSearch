@@ -22,8 +22,9 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
   void addIngredient(String ingredient) {
     if (ingredient.trim().isEmpty) return;
     if (state.selectedIngredients.contains(ingredient)) return;
-    
-    final newIngredients = List<String>.from(state.selectedIngredients)..add(ingredient);
+
+    final newIngredients = List<String>.from(state.selectedIngredients)
+      ..add(ingredient);
     // Optimistic update of ingredients list, then search
     emit(state.copyWith(selectedIngredients: newIngredients));
     search();
@@ -38,15 +39,16 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
         changed = true;
       }
     }
-    
+
     if (changed) {
-       emit(state.copyWith(selectedIngredients: newIngredients));
-       search();
+      emit(state.copyWith(selectedIngredients: newIngredients));
+      search();
     }
   }
 
   void removeIngredient(String ingredient) {
-    final newIngredients = List<String>.from(state.selectedIngredients)..remove(ingredient);
+    final newIngredients = List<String>.from(state.selectedIngredients)
+      ..remove(ingredient);
     emit(state.copyWith(selectedIngredients: newIngredients));
     search();
   }
@@ -56,7 +58,7 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     emit(state.copyWith(selectedIngredients: ingredients));
     search();
   }
-  
+
   void setSearchType(IngredientSearchType type) {
     emit(state.copyWith(searchType: type));
     search();
@@ -66,7 +68,7 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     if (state.selectedIngredients.isEmpty) return;
 
     emit(state.copyWith(status: IngredientSearchStatus.loading));
-    
+
     final result = await searchFoodByIngredientsUseCase(
       SearchFoodByIngredientsParams(
         ingredients: state.selectedIngredients,
@@ -75,8 +77,18 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(status: IngredientSearchStatus.error, errorMessage: failure.message)),
-      (foods) => emit(state.copyWith(status: IngredientSearchStatus.loaded, searchResults: foods)),
+      (failure) => emit(
+        state.copyWith(
+          status: IngredientSearchStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (foods) => emit(
+        state.copyWith(
+          status: IngredientSearchStatus.loaded,
+          searchResults: foods,
+        ),
+      ),
     );
   }
 

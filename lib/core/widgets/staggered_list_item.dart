@@ -5,6 +5,7 @@ class StaggeredListItem extends StatefulWidget {
   final Widget child;
   final Duration duration;
   final double verticalOffset;
+  final bool shouldAnimate;
 
   const StaggeredListItem({
     super.key,
@@ -12,6 +13,7 @@ class StaggeredListItem extends StatefulWidget {
     required this.child,
     this.duration = const Duration(milliseconds: 375),
     this.verticalOffset = 50.0,
+    this.shouldAnimate = true,
   });
 
   @override
@@ -42,8 +44,15 @@ class _StaggeredListItemState extends State<StaggeredListItem>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
+    if (!widget.shouldAnimate) {
+      _controller.value = 1.0;
+      return;
+    }
+
     // Stagger delay
-    Future.delayed(Duration(milliseconds: widget.index * 50), () {
+    // Cap the delay to avoid long waits for items far down the list
+    final int delayIndex = widget.index > 6 ? 6 : widget.index;
+    Future.delayed(Duration(milliseconds: delayIndex * 50), () {
       if (mounted) {
         _controller.forward();
       }
