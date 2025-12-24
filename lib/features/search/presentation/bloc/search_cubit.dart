@@ -17,12 +17,12 @@ class SearchCubit extends Cubit<SearchState> {
       emit(SearchInitial());
       return;
     }
-    
+
     emit(SearchLoading());
     final result = await searchFoodByNameUseCase(query);
     result.fold(
       (failure) => emit(SearchError(failure.message)),
-      (foods) => emit(SearchLoaded(foods)),
+      (foods) => emit(SearchLoaded(foods, query: query)),
     );
   }
 }

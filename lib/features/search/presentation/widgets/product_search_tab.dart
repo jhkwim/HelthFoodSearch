@@ -7,6 +7,7 @@ import '../bloc/search_cubit.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
 import 'product_list_skeleton.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../../core/widgets/staggered_list_item.dart';
 
 class ProductSearchTab extends StatefulWidget {
   final Function(FoodItem)? onItemSelected;
@@ -99,16 +100,20 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    child: _FoodItemCard(
-                      item: item,
-                      isSelected: isSelected,
-                      onTap: () {
-                        if (widget.onItemSelected != null) {
-                          widget.onItemSelected!(item);
-                        } else {
-                          context.push('/detail', extra: item);
-                        }
-                      },
+                    child: StaggeredListItem(
+                      index: index,
+                      child: _FoodItemCard(
+                        item: item,
+                        isSelected: isSelected,
+                        highlightQuery: state.query,
+                        onTap: () {
+                          if (widget.onItemSelected != null) {
+                            widget.onItemSelected!(item);
+                          } else {
+                            context.push('/detail', extra: item);
+                          }
+                        },
+                      ),
                     ),
                   );
                 }, childCount: state.foods.length),
@@ -204,16 +209,20 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                           final item = state.foods[index];
                           final isSelected =
                               item.reportNo == widget.selectedReportNo;
-                          return _FoodItemCard(
-                            item: item,
-                            isSelected: isSelected,
-                            onTap: () {
-                              if (widget.onItemSelected != null) {
-                                widget.onItemSelected!(item);
-                              } else {
-                                context.push('/detail', extra: item);
-                              }
-                            },
+                          return StaggeredListItem(
+                            index: index,
+                            child: _FoodItemCard(
+                              item: item,
+                              isSelected: isSelected,
+                              highlightQuery: state.query,
+                              onTap: () {
+                                if (widget.onItemSelected != null) {
+                                  widget.onItemSelected!(item);
+                                } else {
+                                  context.push('/detail', extra: item);
+                                }
+                              },
+                            ),
                           );
                         },
                       );
@@ -223,18 +232,25 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                       itemCount: state.foods.length,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 16),
-                      itemBuilder: (context, index) => _FoodItemCard(
-                        item: state.foods[index],
-                        isSelected:
-                            state.foods[index].reportNo ==
-                            widget.selectedReportNo,
-                        onTap: () {
-                          if (widget.onItemSelected != null) {
-                            widget.onItemSelected!(state.foods[index]);
-                          } else {
-                            context.push('/detail', extra: state.foods[index]);
-                          }
-                        },
+                      itemBuilder: (context, index) => StaggeredListItem(
+                        index: index,
+                        child: _FoodItemCard(
+                          item: state.foods[index],
+                          isSelected:
+                              state.foods[index].reportNo ==
+                              widget.selectedReportNo,
+                          highlightQuery: state.query,
+                          onTap: () {
+                            if (widget.onItemSelected != null) {
+                              widget.onItemSelected!(state.foods[index]);
+                            } else {
+                              context.push(
+                                '/detail',
+                                extra: state.foods[index],
+                              );
+                            }
+                          },
+                        ),
                       ),
                     );
                   },
@@ -278,11 +294,13 @@ class _FoodItemCard extends StatelessWidget {
   final FoodItem item;
   final VoidCallback onTap;
   final bool isSelected;
+  final String highlightQuery;
 
   const _FoodItemCard({
     required this.item,
     required this.onTap,
     this.isSelected = false,
+    this.highlightQuery = '',
   });
 
   @override
@@ -322,17 +340,56 @@ class _FoodItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                item.prdlstNm,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: 18,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                  color: Theme.of(context).primaryColor,
-                  height: 1.2,
+              // Product Name with Highlighting
+              if (highlightQuery.isNotEmpty)
+                RichText(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontSize: 18,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
+                      color: Theme.of(context).primaryColor,
+                      height: 1.2,
+                    ),
+                    children: _buildHighlightSpans(
+                      item.prdlstNm,
+                      highlightQuery,
+                      Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: 18,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w600,
+                            color: Theme.of(context).primaryColor,
+                            height: 1.2,
+                          ) ??
+                          const TextStyle(),
+                      Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            // Use a distinct color for highlight, e.g., errorColor or secondary
+                            color: Theme.of(context).colorScheme.error,
+                            decoration: TextDecoration.underline,
+                            height: 1.2,
+                          ) ??
+                          const TextStyle(),
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  item.prdlstNm,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontSize: 18,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                    color: Theme.of(context).primaryColor,
+                    height: 1.2,
+                  ),
                 ),
-              ),
               const SizedBox(height: 12),
               if (item.mainIngredients.isNotEmpty)
                 RichText(
@@ -363,5 +420,45 @@ class _FoodItemCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<InlineSpan> _buildHighlightSpans(
+    String text,
+    String query,
+    TextStyle normalStyle,
+    TextStyle highlightStyle,
+  ) {
+    if (query.isEmpty) return [TextSpan(text: text, style: normalStyle)];
+
+    final lowerText = text.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+    final List<InlineSpan> spans = [];
+    int start = 0;
+    int indexOfMatch = lowerText.indexOf(lowerQuery, start);
+
+    while (indexOfMatch != -1) {
+      if (indexOfMatch > start) {
+        spans.add(
+          TextSpan(
+            text: text.substring(start, indexOfMatch),
+            style: normalStyle,
+          ),
+        );
+      }
+      spans.add(
+        TextSpan(
+          text: text.substring(indexOfMatch, indexOfMatch + query.length),
+          style: highlightStyle,
+        ),
+      );
+      start = indexOfMatch + query.length;
+      indexOfMatch = lowerText.indexOf(lowerQuery, start);
+    }
+
+    if (start < text.length) {
+      spans.add(TextSpan(text: text.substring(start), style: normalStyle));
+    }
+
+    return spans;
   }
 }

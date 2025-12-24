@@ -12,9 +12,10 @@ class SearchLoading extends SearchState {}
 
 class SearchLoaded extends SearchState {
   final List<FoodItem> foods;
-  const SearchLoaded(this.foods);
+  final String query;
+  const SearchLoaded(this.foods, {this.query = ''});
   @override
-  List<Object> get props => [foods];
+  List<Object> get props => [foods, query];
 }
 
 class SearchError extends SearchState {

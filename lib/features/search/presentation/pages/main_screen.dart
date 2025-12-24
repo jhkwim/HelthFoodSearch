@@ -66,11 +66,12 @@ class _MainScreenState extends State<MainScreen>
     if (_tabController.index == 0) {
       // Product Search Header
       return PreferredSize(
-        preferredSize: const Size.fromHeight(70),
+        preferredSize: const Size.fromHeight(80),
         child: Container(
           color: Theme.of(context).scaffoldBackgroundColor, // Match background
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: TextField(
+            style: const TextStyle(color: Colors.black),
             controller: _productSearchController,
             focusNode: _productFocusNode,
             decoration: InputDecoration(
@@ -123,17 +124,18 @@ class _MainScreenState extends State<MainScreen>
       // Options Row (~40)
       // Chips Row (~40) + Padding
       // Base: 120. With Chips: 170.
-      final double headerHeight = hasChips ? 170.0 : 120.0;
+      final double headerHeight = hasChips ? 180.0 : 130.0;
 
       return PreferredSize(
         preferredSize: Size.fromHeight(headerHeight),
         child: Container(
           color: Theme.of(context).scaffoldBackgroundColor,
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
+                style: const TextStyle(color: Colors.black),
                 controller: _ingredientSearchController,
                 focusNode: _ingredientFocusNode,
                 decoration: InputDecoration(
