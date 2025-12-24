@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Emerald Palette (Reference: Tailwind Emerald)
-  static const Color primaryColor = Color(0xFF10B981); // Emerald 500
+  static const Color primaryColor = Color(0xFF059669); // Emerald 600 (Deep Emerald)
   static const Color primaryLight = Color(0xFFD1FAE5); // Emerald 100
   static const Color primaryDark = Color(0xFF047857); // Emerald 700
   
