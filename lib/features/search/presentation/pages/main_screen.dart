@@ -59,7 +59,10 @@ class _MainScreenState extends State<MainScreen>
     }
   }
 
-  PreferredSizeWidget _buildHeaderBottom(BuildContext context) {
+  PreferredSizeWidget _buildHeaderBottom(
+    BuildContext context,
+    IngredientSearchState state,
+  ) {
     if (_tabController.index == 0) {
       // Product Search Header
       return PreferredSize(
@@ -112,8 +115,18 @@ class _MainScreenState extends State<MainScreen>
       // Let's stick to a reasonable fixed height that includes chips,
       // OR use a layout that allows empty space (Container will just be empty).
       // Let's try 160.
+      final ingredients = state.selectedIngredients;
+      final bool hasChips = ingredients.isNotEmpty;
+
+      // Dynamic Height Calculation
+      // TextField + Label (~60-70)
+      // Options Row (~40)
+      // Chips Row (~40) + Padding
+      // Base: 120. With Chips: 170.
+      final double headerHeight = hasChips ? 170.0 : 120.0;
+
       return PreferredSize(
-        preferredSize: const Size.fromHeight(160),
+        preferredSize: Size.fromHeight(headerHeight),
         child: Container(
           color: Theme.of(context).scaffoldBackgroundColor,
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -165,8 +178,12 @@ class _MainScreenState extends State<MainScreen>
               ),
               const SizedBox(height: 8),
               // Search Options Row
-              BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
-                builder: (context, state) {
+              // Note: We already have state passed in, but the content below might use Builder?
+              // The logic below is static enough, we can use state directly.
+              Builder(
+                builder: (context) {
+                  // Reusing state passed from _buildHeaderBottom argument
+                  // But wait, the children need context too.
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -323,25 +340,33 @@ class _MainScreenState extends State<MainScreen>
                       headerSliverBuilder:
                           (BuildContext context, bool innerBoxIsScrolled) {
                             return <Widget>[
-                              SliverAppBar(
-                                title: Text(
-                                  AppLocalizations.of(context)!.appTitle,
-                                ),
-                                centerTitle: false,
-                                floating: true,
-                                snap: true,
-                                pinned: false,
-                                bottom: _buildHeaderBottom(
-                                  context,
-                                ), // Dynamic Search Area
-                                actions: [
-                                  IconButton(
-                                    icon: const Icon(Icons.settings),
-                                    onPressed: () {
-                                      context.push('/settings');
-                                    },
-                                  ),
-                                ],
+                              BlocBuilder<
+                                IngredientSearchCubit,
+                                IngredientSearchState
+                              >(
+                                builder: (context, state) {
+                                  return SliverAppBar(
+                                    title: Text(
+                                      AppLocalizations.of(context)!.appTitle,
+                                    ),
+                                    centerTitle: false,
+                                    floating: true,
+                                    snap: true,
+                                    pinned: false,
+                                    bottom: _buildHeaderBottom(
+                                      context,
+                                      state,
+                                    ), // Dynamic Search Area
+                                    actions: [
+                                      IconButton(
+                                        icon: const Icon(Icons.settings),
+                                        onPressed: () {
+                                          context.push('/settings');
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
 
                               // Progress bar needs to be visible

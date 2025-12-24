@@ -6,6 +6,7 @@ import '../../domain/entities/food_item.dart';
 import '../bloc/search_cubit.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
 import 'product_list_skeleton.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class ProductSearchTab extends StatefulWidget {
   final Function(FoodItem)? onItemSelected;
@@ -82,10 +83,9 @@ class _ProductSearchTabState extends State<ProductSearchTab>
             } else if (state is SearchLoaded) {
               if (state.foods.isEmpty) {
                 return SliverFillRemaining(
-                  child: Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.searchProductEmpty,
-                    ),
+                  child: EmptyStateWidget(
+                    message: AppLocalizations.of(context)!.searchProductEmpty,
+                    icon: Icons.search_off,
                   ),
                 );
               }
@@ -115,8 +115,10 @@ class _ProductSearchTabState extends State<ProductSearchTab>
               );
             }
             return SliverFillRemaining(
-              child: Center(
-                child: Text(AppLocalizations.of(context)!.searchProductInitial),
+              child: EmptyStateWidget(
+                message: AppLocalizations.of(context)!.searchProductInitial,
+                icon: Icons.search,
+                iconSize: 48,
               ),
             );
           },
@@ -176,10 +178,9 @@ class _ProductSearchTabState extends State<ProductSearchTab>
               } else if (state is SearchLoaded) {
                 // Reuse existing grid/list logic for desktop
                 if (state.foods.isEmpty) {
-                  return Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.searchProductEmpty,
-                    ),
+                  return EmptyStateWidget(
+                    message: AppLocalizations.of(context)!.searchProductEmpty,
+                    icon: Icons.search_off,
                   );
                 }
 
@@ -239,8 +240,10 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                   },
                 );
               }
-              return Center(
-                child: Text(AppLocalizations.of(context)!.searchProductInitial),
+              return EmptyStateWidget(
+                message: AppLocalizations.of(context)!.searchProductInitial,
+                icon: Icons.search,
+                iconSize: 48,
               );
             },
           ),

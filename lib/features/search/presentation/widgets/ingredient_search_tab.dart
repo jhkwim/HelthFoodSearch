@@ -4,6 +4,7 @@ import '../../../../core/enums/ingredient_search_type.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'product_list_skeleton.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 import '../../domain/entities/food_item.dart';
 import '../bloc/ingredient_search_cubit.dart';
@@ -288,10 +289,11 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
           return isSliver ? SliverFillRemaining(child: errWidget) : errWidget;
         } else if (state.status == IngredientSearchStatus.loaded) {
           if (state.searchResults.isEmpty) {
-            final emptyWidget = Center(
-              child: Text(
-                AppLocalizations.of(context)!.searchIngredientEmptyResult,
-              ),
+            final emptyWidget = EmptyStateWidget(
+              message: AppLocalizations.of(
+                context,
+              )!.searchIngredientEmptyResult,
+              icon: Icons.search_off,
             );
             return isSliver
                 ? SliverFillRemaining(child: emptyWidget)
@@ -401,8 +403,10 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
           );
         }
 
-        final initWidget = Center(
-          child: Text(AppLocalizations.of(context)!.searchIngredientInitial),
+        final initWidget = EmptyStateWidget(
+          message: AppLocalizations.of(context)!.searchIngredientInitial,
+          icon: Icons.search,
+          iconSize: 48,
         );
         return isSliver ? SliverFillRemaining(child: initWidget) : initWidget;
       },
