@@ -274,16 +274,22 @@ class _DetailScreenState extends State<DetailScreen> {
                                       color: Colors.white,
                                     )
                                   : CircleAvatar(
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).dividerColor,
+                                      radius: 9,
+                                      backgroundColor:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.grey[700]
+                                          : Colors.grey[300],
                                       child: Text(
                                         '${index + 1}',
                                         style: TextStyle(
                                           fontSize: 10,
-                                          color: Theme.of(
-                                            context,
-                                          ).textTheme.bodyMedium?.color,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Colors.white
+                                              : Colors.black87,
                                         ),
                                       ),
                                     ),
