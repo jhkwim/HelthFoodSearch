@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/injection.dart';
 import '../bloc/data_sync_cubit.dart';
 
 class DownloadScreen extends StatelessWidget {
@@ -18,15 +17,18 @@ class DownloadScreen extends StatelessWidget {
           // That is fine. If user goes to background, this screen is popped, so this listener dies. MainScreen handles success?
           // User request: "Download continues... show progress on Search Screen".
           // So MainScreen needs to listen or show status.
-          
+
           // Use go() might be abrupt if user is just watching. 'go' is fine.
-          if (GoRouter.of(context).routerDelegate.currentConfiguration.fullPath == '/download') {
-             context.go('/main');
+          if (GoRouter.of(
+                context,
+              ).routerDelegate.currentConfiguration.fullPath ==
+              '/download') {
+            context.go('/main');
           }
         } else if (state is DataSyncError) {
-           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
@@ -40,7 +42,11 @@ class DownloadScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(Icons.cloud_download, size: 80, color: Colors.grey),
+                  const Icon(
+                    Icons.cloud_download,
+                    size: 80,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 24),
                   Text(
                     '최신 데이터를 받아옵니다.',
@@ -58,7 +64,9 @@ class DownloadScreen extends StatelessWidget {
                     LinearProgressIndicator(
                       value: state.progress.clamp(0.0, 1.0),
                       backgroundColor: Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).primaryColor,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text('${(state.progress * 100).clamp(0, 100).toInt()}% 완료'),
@@ -66,13 +74,16 @@ class DownloadScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         context.go('/main');
-                      }, 
-                      child: const Text('백그라운드에서 계속하기')
+                      },
+                      child: const Text('백그라운드에서 계속하기'),
                     ),
                   ] else ...[
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 32,
+                        ),
                       ),
                       onPressed: () {
                         context.read<DataSyncCubit>().syncData();

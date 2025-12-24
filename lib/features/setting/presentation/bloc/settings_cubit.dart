@@ -43,7 +43,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> checkSettings() async {
     emit(SettingsLoading());
     final result = await getSettingsUseCase(NoParams());
-    
+
     String version = '';
     try {
       final packageInfo = await PackageInfo.fromPlatform();
@@ -52,17 +52,16 @@ class SettingsCubit extends Cubit<SettingsState> {
       debugPrint('Error getting package info: $e');
     }
 
-    result.fold(
-      (failure) => emit(SettingsError(failure.message)),
-      (settings) {
-        // Emit loaded with version info
-        emit(SettingsLoaded(
-          settings, 
+    result.fold((failure) => emit(SettingsError(failure.message)), (settings) {
+      // Emit loaded with version info
+      emit(
+        SettingsLoaded(
+          settings,
           isApiKeyMissing: settings.apiKey == null || settings.apiKey!.isEmpty,
           appVersion: version,
-        ));
-      },
-    );
+        ),
+      );
+    });
   }
 
   Future<void> saveApiKey(String apiKey) async {
@@ -90,7 +89,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     try {
       await exportFoodDataUseCase();
     } catch (e) {
-      emit(SettingsError('데이터 내보내기 실패: $e')); 
+      emit(SettingsError('데이터 내보내기 실패: $e'));
     }
   }
 
@@ -99,34 +98,39 @@ class SettingsCubit extends Cubit<SettingsState> {
     if (currentState is! SettingsLoaded) return;
 
     // Start
-    emit(SettingsLoaded(
-      currentState.settings,
-      isApiKeyMissing: currentState.isApiKeyMissing,
-      appVersion: currentState.appVersion,
-      refinementProgress: 0.0,
-    ));
-
-    try {
-      await for (final progress in refineLocalDataUseCase()) {
-        emit(SettingsLoaded(
-          currentState.settings,
-          isApiKeyMissing: currentState.isApiKeyMissing,
-          appVersion: currentState.appVersion,
-          refinementProgress: progress,
-        ));
-      }
-
-      // Finish (back to null progress)
-      emit(SettingsLoaded(
+    emit(
+      SettingsLoaded(
         currentState.settings,
         isApiKeyMissing: currentState.isApiKeyMissing,
         appVersion: currentState.appVersion,
-        refinementProgress: null,
-      ));
-      
+        refinementProgress: 0.0,
+      ),
+    );
+
+    try {
+      await for (final progress in refineLocalDataUseCase()) {
+        emit(
+          SettingsLoaded(
+            currentState.settings,
+            isApiKeyMissing: currentState.isApiKeyMissing,
+            appVersion: currentState.appVersion,
+            refinementProgress: progress,
+          ),
+        );
+      }
+
+      // Finish (back to null progress)
+      emit(
+        SettingsLoaded(
+          currentState.settings,
+          isApiKeyMissing: currentState.isApiKeyMissing,
+          appVersion: currentState.appVersion,
+          refinementProgress: null,
+        ),
+      );
+
       // Optionally show success message via side effect or snackbar managed by UI listener?
       // For now, returning to idle state implies completion.
-    } catch (e) {
     } catch (e) {
       emit(SettingsError('데이터 재정제 실패: $e'));
     }
@@ -161,4 +165,3 @@ class SettingsCubit extends Cubit<SettingsState> {
     );
   }
 }
-

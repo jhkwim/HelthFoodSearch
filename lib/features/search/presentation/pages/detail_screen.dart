@@ -1,19 +1,20 @@
-
 import 'package:flutter/material.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
-import 'package:go_router/go_router.dart';
 import 'package:dartz/dartz.dart' show Either; // or just dartz
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/usecases/get_raw_materials_usecase.dart';
 import '../../domain/entities/food_item.dart';
-import '../../../../core/utils/ingredient_refiner.dart';
 
 class DetailScreen extends StatefulWidget {
   final FoodItem item;
   final Function(List<String>)? onIngredientSelected;
 
-  const DetailScreen({super.key, required this.item, this.onIngredientSelected});
+  const DetailScreen({
+    super.key,
+    required this.item,
+    this.onIngredientSelected,
+  });
 
   @override
   State<DetailScreen> createState() => _DetailScreenState();
@@ -47,8 +48,8 @@ class _DetailScreenState extends State<DetailScreen> {
         Container(
           height: 36,
           decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark 
-                ? Colors.white.withOpacity(0.05) 
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withOpacity(0.05)
                 : Colors.grey[100],
             borderRadius: BorderRadius.circular(8),
           ),
@@ -77,21 +78,34 @@ class _DetailScreenState extends State<DetailScreen> {
         onTap: () => setState(() => _selectedTabIndex = index),
         child: Container(
           decoration: BoxDecoration(
-            color: isSelected ? Theme.of(context).cardColor : Colors.transparent,
+            color: isSelected
+                ? Theme.of(context).cardColor
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
-            boxShadow: isSelected ? [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), blurRadius: 2, offset: const Offset(0, 1))] : null,
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Theme.of(context).shadowColor.withOpacity(0.05),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
           ),
           margin: const EdgeInsets.all(2),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).hintColor,
-                    fontSize: 13, // Slight adjustment if labelLarge is too big, but aim for consistency
-                  ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).hintColor,
+              fontSize:
+                  13, // Slight adjustment if labelLarge is too big, but aim for consistency
             ),
           ),
+        ),
       ),
     );
   }
@@ -99,17 +113,17 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _buildTabUniqueContent() {
     switch (_selectedTabIndex) {
       case 0:
-        return widget.item.indivRawmtrlNm.isEmpty 
-          ? const Text('-', style: TextStyle(color: Colors.grey)) 
-          : _buildNumberedList(widget.item.indivRawmtrlNm);
+        return widget.item.indivRawmtrlNm.isEmpty
+            ? const Text('-', style: TextStyle(color: Colors.grey))
+            : _buildNumberedList(widget.item.indivRawmtrlNm);
       case 1:
-        return widget.item.etcRawmtrlNm.isEmpty 
-          ? const Text('-', style: TextStyle(color: Colors.grey)) 
-          : _buildNumberedList(widget.item.etcRawmtrlNm);
+        return widget.item.etcRawmtrlNm.isEmpty
+            ? const Text('-', style: TextStyle(color: Colors.grey))
+            : _buildNumberedList(widget.item.etcRawmtrlNm);
       case 2:
-        return widget.item.capRawmtrlNm.isEmpty 
-          ? const Text('-', style: TextStyle(color: Colors.grey)) 
-          : _buildNumberedList(widget.item.capRawmtrlNm);
+        return widget.item.capRawmtrlNm.isEmpty
+            ? const Text('-', style: TextStyle(color: Colors.grey))
+            : _buildNumberedList(widget.item.capRawmtrlNm);
       default:
         return const SizedBox.shrink();
     }
@@ -123,218 +137,305 @@ class _DetailScreenState extends State<DetailScreen> {
         elevation: 0,
       ),
       body: Center(
-                child: SelectionArea(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Header Section (Product Name)
-                        _buildHeader(context),
-                        const SizedBox(height: 24),
+        child: SelectionArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header Section (Product Name)
+                _buildHeader(context),
+                const SizedBox(height: 24),
 
-                        // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
-                        // 2. Basic Info
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionBasic,
-                          icon: Icons.info_outline,
-                          child: _buildTable([
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelCompany, widget.item.bsshNm),
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelReportNo, widget.item.reportNo),
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelRegDate, widget.item.prmsDt),
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelExpireDate, widget.item.pogDaycnt),
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelAppearance, widget.item.dispos),
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelForm, widget.item.prdtShapCdNm),
-                          ]),
-                        ),
-                        const SizedBox(height: 16),
-
-                         // 3. Packaging (Material/Method)
-                         // 3. Packaging
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionPacking,
-                          icon: Icons.inventory_2_outlined,
-                          child: _buildTable([
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelPackMaterial, widget.item.frmlcMtrqlt),
-                            _InfoRow(AppLocalizations.of(context)!.detailLabelPackMethod, widget.item.frmlcMthd),
-                          ]),
-                        ),
-                         const SizedBox(height: 16),
-
-                        // 4. Intake (Method/Amount)
-                        // 4. Intake
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionIntake,
-                          icon: Icons.restaurant_menu,
-                          child: Text(
-                            widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd, 
-                            style: const TextStyle(height: 1.5)
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // 8. Ingredients (Moved here)
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionIngredients,
-                          icon: Icons.grass,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                               // 8.1 Primary
-                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(AppLocalizations.of(context)!.detailLabelRawMaterialsSearchable, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Theme.of(context).hintColor)),
-                                  if (widget.onIngredientSelected != null)
-                                    Text(AppLocalizations.of(context)!.detailSelectedCount(_selectedIngredients.length), style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
-                                children: _getCombinedIngredients().asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final ing = entry.value;
-                                  final isSelected = _selectedIngredients.contains(ing);
-                                  return ActionChip(
-                                    label: Text(ing),
-                                    onPressed: () {
-                                      if (widget.onIngredientSelected != null) {
-                                         _toggleIngredient(ing);
-                                      }
-                                    },
-                                    avatar: isSelected 
-                                      ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                      : CircleAvatar(
-                                          backgroundColor: Theme.of(context).dividerColor,
-                                          child: Text(
-                                            '${index + 1}',
-                                            style: TextStyle(fontSize: 10, color: Theme.of(context).textTheme.bodyMedium?.color),
-                                          ),
-                                        ),
-                                    backgroundColor: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
-                                    labelStyle: TextStyle(
-                                      color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                    side: BorderSide(
-                                      color: isSelected ? Colors.transparent : Theme.of(context).primaryColor.withOpacity(0.2)
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              const Divider(height: 32),
-                              
-                              // 8.2 Secondary: Detail Tabs (Functional, Etc, Capsule)
-                              _buildIngredientTabs(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        
-                        // C003 Raw Materials Section (Async On-Demand) (Moved here)
-                        FutureBuilder<Either<Failure, List<String>?>>(
-                          future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return snapshot.data!.fold(
-                                (l) => const SizedBox(), 
-                                (r) {
-                                  if (r == null || r.isEmpty) {
-                                     // Fallback to I0030 if C003 is empty/failed
-                                     if (widget.item.rawmtrlNm.isNotEmpty) {
-                                        return _buildInfoCard(
-                                          context,
-                                          title: AppLocalizations.of(context)!.detailSectionRawMaterialsReport,
-                                          icon: Icons.science_outlined,
-                                          child: _buildNumberedList(widget.item.rawmtrlNm),
-                                        );
-                                     }
-                                     return const SizedBox();
-                                  }
-                                  
-                                  return _buildInfoCard(
-                                    context, 
-                                    title: AppLocalizations.of(context)!.detailSectionRawMaterialsReport, 
-                                    icon: Icons.science_outlined,
-                                    child: _buildBulletList(r),
-                                  );
-                                }
-                              );
-                            }
-                            return Center(child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ));
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
-                        // 5. Functionality Content
-                        // 5. Functionality
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionFunc,
-                          icon: Icons.verified_user_outlined,
-                          color: Theme.of(context).primaryColor.withOpacity(0.05),
-                          child: Text(
-                            widget.item.primaryFnclty.isEmpty ? '-' : widget.item.primaryFnclty,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // 6. Standards
-                        // 6. Standards
-                        _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionStandard,
-                          icon: Icons.gavel_outlined,
-                          child: Text(
-                            widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd, 
-                            style: const TextStyle(height: 1.5)
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // 7. Cautions & Storage
-                        // 7. Cautions
-                         _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(context)!.detailSectionCaution,
-                          icon: Icons.warning_amber_rounded,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionIntake, color: Colors.red),
-                                Text(
-                                  widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
-                                  style: TextStyle(height: 1.5, color: Theme.of(context).textTheme.bodyMedium?.color)
-                                ),
-                                const SizedBox(height: 16),
-                              
-                                _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionStorage),
-                                Text(
-                                  widget.item.cstdyMthd.isEmpty ? '-' : widget.item.cstdyMthd, 
-                                  style: const TextStyle(height: 1.5)
-                                ),
-                            ],
-                          ),
-                        ),
-                         const SizedBox(height: 16),
-
-
-                        const SizedBox(height: 80), // Space for FAB
-                      ],
-                      ),
+                // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
+                // 2. Basic Info
+                _buildInfoCard(
+                  context,
+                  title: AppLocalizations.of(context)!.detailSectionBasic,
+                  icon: Icons.info_outline,
+                  child: _buildTable([
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelCompany,
+                      widget.item.bsshNm,
                     ),
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelReportNo,
+                      widget.item.reportNo,
+                    ),
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelRegDate,
+                      widget.item.prmsDt,
+                    ),
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelExpireDate,
+                      widget.item.pogDaycnt,
+                    ),
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelAppearance,
+                      widget.item.dispos,
+                    ),
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelForm,
+                      widget.item.prdtShapCdNm,
+                    ),
+                  ]),
+                ),
+                const SizedBox(height: 16),
+
+                // 3. Packaging (Material/Method)
+                // 3. Packaging
+                _buildInfoCard(
+                  context,
+                  title: AppLocalizations.of(context)!.detailSectionPacking,
+                  icon: Icons.inventory_2_outlined,
+                  child: _buildTable([
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelPackMaterial,
+                      widget.item.frmlcMtrqlt,
+                    ),
+                    _InfoRow(
+                      AppLocalizations.of(context)!.detailLabelPackMethod,
+                      widget.item.frmlcMthd,
+                    ),
+                  ]),
+                ),
+                const SizedBox(height: 16),
+
+                // 4. Intake (Method/Amount)
+                // 4. Intake
+                _buildInfoCard(
+                  context,
+                  title: AppLocalizations.of(context)!.detailSectionIntake,
+                  icon: Icons.restaurant_menu,
+                  child: Text(
+                    widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd,
+                    style: const TextStyle(height: 1.5),
                   ),
-              ),
+                ),
+                const SizedBox(height: 16),
+
+                // 8. Ingredients (Moved here)
+                _buildInfoCard(
+                  context,
+                  title: AppLocalizations.of(context)!.detailSectionIngredients,
+                  icon: Icons.grass,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 8.1 Primary
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.detailLabelRawMaterialsSearchable,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
+                          if (widget.onIngredientSelected != null)
+                            Text(
+                              AppLocalizations.of(context)!.detailSelectedCount(
+                                _selectedIngredients.length,
+                              ),
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: _getCombinedIngredients().asMap().entries.map(
+                          (entry) {
+                            final index = entry.key;
+                            final ing = entry.value;
+                            final isSelected = _selectedIngredients.contains(
+                              ing,
+                            );
+                            return ActionChip(
+                              label: Text(ing),
+                              onPressed: () {
+                                if (widget.onIngredientSelected != null) {
+                                  _toggleIngredient(ing);
+                                }
+                              },
+                              avatar: isSelected
+                                  ? const Icon(
+                                      Icons.check,
+                                      size: 16,
+                                      color: Colors.white,
+                                    )
+                                  : CircleAvatar(
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).dividerColor,
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium?.color,
+                                        ),
+                                      ),
+                                    ),
+                              backgroundColor: isSelected
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).cardColor,
+                              labelStyle: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.color,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                              side: BorderSide(
+                                color: isSelected
+                                    ? Colors.transparent
+                                    : Theme.of(
+                                        context,
+                                      ).primaryColor.withOpacity(0.2),
+                              ),
+                            );
+                          },
+                        ).toList(),
+                      ),
+                      const Divider(height: 32),
+
+                      // 8.2 Secondary: Detail Tabs (Functional, Etc, Capsule)
+                      _buildIngredientTabs(),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // C003 Raw Materials Section (Async On-Demand) (Moved here)
+                FutureBuilder<Either<Failure, List<String>?>>(
+                  future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return snapshot.data!.fold((l) => const SizedBox(), (r) {
+                        if (r == null || r.isEmpty) {
+                          // Fallback to I0030 if C003 is empty/failed
+                          if (widget.item.rawmtrlNm.isNotEmpty) {
+                            return _buildInfoCard(
+                              context,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.detailSectionRawMaterialsReport,
+                              icon: Icons.science_outlined,
+                              child: _buildNumberedList(widget.item.rawmtrlNm),
+                            );
+                          }
+                          return const SizedBox();
+                        }
+
+                        return _buildInfoCard(
+                          context,
+                          title: AppLocalizations.of(
+                            context,
+                          )!.detailSectionRawMaterialsReport,
+                          icon: Icons.science_outlined,
+                          child: _buildBulletList(r),
+                        );
+                      });
+                    }
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // 5. Functionality Content
+                // 5. Functionality
+                _buildInfoCard(
+                  context,
+                  title: AppLocalizations.of(context)!.detailSectionFunc,
+                  icon: Icons.verified_user_outlined,
+                  color: Theme.of(context).primaryColor.withOpacity(0.05),
+                  child: Text(
+                    widget.item.primaryFnclty.isEmpty
+                        ? '-'
+                        : widget.item.primaryFnclty,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(height: 1.6),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 6. Standards
+                // 6. Standards
+                _buildInfoCard(
+                  context,
+                  title: AppLocalizations.of(context)!.detailSectionStandard,
+                  icon: Icons.gavel_outlined,
+                  child: Text(
+                    widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd,
+                    style: const TextStyle(height: 1.5),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 7. Cautions & Storage
+                // 7. Cautions
+                _buildInfoCard(
+                  context,
+                  title: AppLocalizations.of(context)!.detailSectionCaution,
+                  icon: Icons.warning_amber_rounded,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSubTitle(
+                        AppLocalizations.of(context)!.detailLabelCautionIntake,
+                        color: Colors.red,
+                      ),
+                      Text(
+                        widget.item.iftknAtntMatrCn.isEmpty
+                            ? '-'
+                            : widget.item.iftknAtntMatrCn,
+                        style: TextStyle(
+                          height: 1.5,
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      _buildSubTitle(
+                        AppLocalizations.of(context)!.detailLabelCautionStorage,
+                      ),
+                      Text(
+                        widget.item.cstdyMthd.isEmpty
+                            ? '-'
+                            : widget.item.cstdyMthd,
+                        style: const TextStyle(height: 1.5),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                const SizedBox(height: 80), // Space for FAB
+              ],
+            ),
+          ),
+        ),
+      ),
       floatingActionButton: _selectedIngredients.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: () {
@@ -343,7 +444,11 @@ class _DetailScreenState extends State<DetailScreen> {
                 }
               },
               icon: const Icon(Icons.search),
-              label: Text(AppLocalizations.of(context)!.detailFabSearchWithIngredients(_selectedIngredients.length)),
+              label: Text(
+                AppLocalizations.of(
+                  context,
+                )!.detailFabSearchWithIngredients(_selectedIngredients.length),
+              ),
             )
           : null,
     );
@@ -364,7 +469,13 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  Widget _buildInfoCard(BuildContext context, {required String title, required IconData icon, required Widget child, Color? color}) {
+  Widget _buildInfoCard(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Widget child,
+    Color? color,
+  }) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -399,37 +510,39 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget _buildTable(List<_InfoRow> rows) {
     return Table(
-      columnWidths: const {
-        0: FixedColumnWidth(100),
-        1: FlexColumnWidth(),
-      },
+      columnWidths: const {0: FixedColumnWidth(100), 1: FlexColumnWidth()},
       defaultVerticalAlignment: TableCellVerticalAlignment.top,
-      children: rows.map((row) {
-        if (row.value.isEmpty) return null;
-        return TableRow(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(
-                row.label,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).hintColor, // Darker grey for better legibility
+      children: rows
+          .map((row) {
+            if (row.value.isEmpty) return null;
+            return TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    row.label,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).hintColor, // Darker grey for better legibility
                       fontWeight: FontWeight.w600, // Slightly bolder
                     ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(
-                row.value,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    row.value,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).textTheme.bodyMedium?.color,
                     ),
-              ),
-            ),
-          ],
-        );
-      }).whereType<TableRow>().toList(),
+                  ),
+                ),
+              ],
+            );
+          })
+          .whereType<TableRow>()
+          .toList(),
     );
   }
 
@@ -448,7 +561,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget _buildNumberedList(String rawString) {
     if (rawString.isEmpty) return const SizedBox.shrink();
-    
+
     // Use smart split to handle parentheses correctly
     final list = _splitRawMaterials(rawString);
 
@@ -478,15 +591,13 @@ class _DetailScreenState extends State<DetailScreen> {
         buffer.write(char);
       }
     }
-    
+
     if (buffer.isNotEmpty) {
       result.add(buffer.toString().trim());
     }
 
     return result.where((e) => e.isNotEmpty).toList();
   }
-
-
 
   Widget _buildListContent(List<String> list) {
     if (list.isEmpty) return const SizedBox.shrink();
@@ -502,17 +613,17 @@ class _DetailScreenState extends State<DetailScreen> {
               Text(
                 '${index + 1}. ',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).hintColor,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).hintColor,
+                ),
               ),
               Expanded(
                 child: Text(
                   list[index],
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        height: 1.5,
-                        color: Theme.of(context).textTheme.bodyMedium?.color,
-                      ),
+                    height: 1.5,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
                 ),
               ),
             ],
@@ -521,6 +632,7 @@ class _DetailScreenState extends State<DetailScreen> {
       }),
     );
   }
+
   Widget _buildBulletList(List<String> list) {
     if (list.isEmpty) return const SizedBox.shrink();
 
@@ -532,10 +644,12 @@ class _DetailScreenState extends State<DetailScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('•  ', 
+              Text(
+                '•  ',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold, color: Theme.of(context).hintColor
-                )
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).hintColor,
+                ),
               ),
               Expanded(
                 child: Text(
