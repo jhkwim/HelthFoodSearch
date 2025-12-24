@@ -3,38 +3,59 @@ class IngredientRefiner {
 
   // Hardcoded replacement dictionary provided by user
   static const Map<String, String> _replacements = {
-    // 1. 키토산 Group -> 키토산
-    '키토산/키토올리고당': '키토산',
-    '키토산제품': '키토산',
-    '키토올리고당': '키토산',
-    '키토올리고당제품': '키토산',
+    // 1. 키토산 Group
+    '키토산': '키토산/키토올리고당',
+    '키토산제품': '키토산/키토올리고당', // Derivative
+    '키토올리고당': '키토산/키토올리고당', // Should likely also map to target if encountered? User didn't specify but implied group.
     
-    // 2. 차전자피 Group -> 차전자피식이섬유
-    '차전자피식이섬유': '차전자피식이섬유', // Self-mapping for clarity (if refined reduces it?)
-    '차전자피': '차전자피식이섬유',
-    '차전자피제품': '차전자피식이섬유',
+    // 2. 식물스테롤 Group
+    '식물스테롤': '식물스테롤/식물스테롤에스테르',
+    '식물스테롤제품': '식물스테롤/식물스테롤에스테르',
+
+    // 3. 이눌린/치커리추출물 Group
+    '치커리추출물': '이눌린/치커리추출물',
     
-    // 3. 이눌린 Group -> 이눌린/치커리추출물
-    '이눌린/치커리추출물': '이눌린/치커리추출물',
-    '이눌린제품': '이눌린/치커리추출물',
-    '이눌린': '이눌린/치커리추출물', // Implied single term also merges? text says "list merged to First Item".
-    
-    // 4. 식물스테롤 Group -> 식물스테롤
-    '식물스테롤/식물스테롤에스테르': '식물스테롤',
-    '식물스테롤에스테르제품': '식물스테롤',
-    '식물스테롤제품': '식물스테롤',
-    '식물스테롤에스테르': '식물스테롤',
-    '식물스타놀에스테르': '식물스테롤',
-    
-    // 5. N-아세틸글루코사민 Group -> N-아세틸글루코사민
-    'N-아세틸글루코사민제품': 'N-아세틸글루코사민',
+    // 4. N-아세틸글루코사민 Group
     'N-Acetylglucosamine': 'N-아세틸글루코사민',
-    'NAG': 'N-아세틸글루코사민',
-    '엔에이지': 'N-아세틸글루코사민',
+    'NAG(엔에이지': 'N-아세틸글루코사민', // As per specific text
+    'NAG': 'N-아세틸글루코사민', // Common var
+    '엔에이지': 'N-아세틸글루코사민', // Common var
+    'N-아세틸글루코사민제품': 'N-아세틸글루코사민',
+
+    // 5. 곤약감자추출물 Group
+    '곤약감자추출분말': '곤약감자추출물',
+    '곤약감자추출물분말': '곤약감자추출물',
+
+    // 6. MSM Group
+    '엠에스엠(MSM, MSM)': 'MSM(엠에스엠)',
+    'Methylsulfonylmethane': 'MSM(엠에스엠)',
+    '디메틸설폰(Methylsulfonylmethane, 디메틸설폰)': 'MSM(엠에스엠)',
+    '엠에스엠': 'MSM(엠에스엠)', // Likely needed
+    '디메틸설폰': 'MSM(엠에스엠)', // Likely needed
+
+    // 7. 뮤코다당 Group
+    '뮤코다당․단백': '뮤코다당․단백', // Normalized form (key match)
+    '뮤코다당·단백': '뮤코다당․단백', // Backup
+    '뮤코다당.단백': '뮤코다당․단백', // Backup for logic bypass
+    '뮤코다당': '뮤코다당․단백',
+    '뮤코다당단백': '뮤코다당․단백',
+    
+    // 8. 마리골드꽃추출물 Group
+    '마리골드추출물': '마리골드꽃추출물',
+    
+    // 9. 가르시니아캄보지아추출물 Group
+    '가르시니아캄보지아': '가르시니아캄보지아추출물',
+    '가르시니아캄보지아껍질추출물HCA-600-SXS': '가르시니아캄보지아추출물',
+
+    // 10. 코엔자임Q10 Group
+    '코엔자임큐텐': '코엔자임Q10',
     
     // Legacy / Others
+    '차전자피': '차전자피식이섬유',
+    '차전자피제품': '차전자피식이섬유',
     '클로렐라제품': '클로렐라',
     '감마리놀렌산함유유지': '감마리놀렌산', 
+    '비타민 B1': '비타민B1', 
   };
 
   /// Refines a raw ingredient string into a clean, searchable keyword.
@@ -47,69 +68,28 @@ class IngredientRefiner {
     // 2. Remove all whitespace
     refined = refined.replaceAll(RegExp(r'\s+'), '');
 
+    // 2.5 Normalize dot separators to '․' (U+2024) or standard '.'
+    // The target key uses '․' (U+2024) in the map: '뮤코다당·단백': '뮤코다당․단백'
+    // Source appears to use '·' (U+00B7) or '.' (U+002E).
+    // Let's normalize all to the key's format '․' to ensure match.
+    // Or simpler: Normalize everything to '.' (U+002E) but update the Map Keys to use '.'?
+    // User originally provided '뮤코다당․단백' (U+2024?).
+    // Let's normalize variants to '․' (One Dot Leader) to match the existing key.
+    refined = refined.replaceAll(RegExp(r'[·.・]'), '․');
+
     // 3. Dictionary Replacement (Exact Match)
     if (_replacements.containsKey(refined)) {
       return _replacements[refined]!;
     }
     
-    // 4. "제품" suffix removal rule (User Req #1)
-    // Only if it ends with "제품" and length > 2 (to avoid "제품" itself becoming empty or single char)
+    // 4. "제품" suffix removal rule
     if (refined.endsWith('제품') && refined.length > 2) {
-       // "클로렐라제품" -> "클로렐라"
-       // Check if trimmed version is in map?
        String trimmed = refined.substring(0, refined.length - 2);
-       // Check map again for trimmed version? (Maybe "키토산제품" -> "키토산" is already in map, but "Unknown제품" -> "Unknown")
-       // If unique, just return trimmed.
-       // But if trimmed matches a key in map? e.g. "키토올리고당제품" -> "키토올리고당" -> Map -> "키토산"
-       // Recursive refinement? Or just dual check.
        if (_replacements.containsKey(trimmed)) {
          return _replacements[trimmed]!;
        }
        return trimmed;
     }
-
-    // 5. Special Prefix/Contains Rules (User Req #3)
-    // Removed simplistic prefix rules as they conflict with explicit merges above.
-    // E.g. "식물스테롤/식물스테롤에스테르" starts with "식물스테롤/", but target is itself, not "식물스테롤".
-    // If we map exact match first (which we do at step 3), this step handles unknowns.
-    
-    // But we need to be careful not to override intended explicit merges.
-    // The code structure is: 
-    // 1. Parentheses/Space removal -> `refined`
-    // 2. Dictionary check FIRST. -> returns immediately.
-    // 3. Suffix removal.
-    // 4. Prefix check.
-    
-    // Since dictionary check is step 3 (in code logic above, effectively first match logic),
-    // explicit mappings like "식물스테롤/식물스테롤에스테르" -> "식물스테롤/식물스테롤에스테르" will be caught there.
-    // The prefix logic below serves as a fallback for standardizing unknown variants?
-    // User didn't ask for general prefix standardization, just specific list.
-    // So better to remove these dangerous prefixes if not explicitly requested.
-    // Or keep them but ensure they don't break the rules.
-    
-    // "식물스테롤/..." -> "식물스테롤" rule logic was my assumption.
-    // User wants "식물스테롤/식물스테롤에스테르" preserved (or mapped to itself).
-    // If I keep `if (refined.startsWith('식물스테롤/')) return '식물스테롤';`,
-    // and if the input is "식물스테롤/Unknown", it becomes "식물스테롤".
-    // This seems safe for UNKNOWN items.
-    // KNOWN items are in the map and return early.
-    
-    // However, "키토산/" might be safe?
-    // "이눌린/" might be safe?
-    // Let's keep them but comment that specific ones are handled by map.
-    
-    // Wait, "식물스테롤/식물스테롤에스테르" matches map?
-    // `refined` will have no spaces. "식물스테롤/식물스테롤에스테르".
-    // Map has it? Yes.
-    // So it returns early.
-    // "식물스테롤/" prefix logic is unreachable for that specific string.
-    
-    // So it is safe to leave them or remove them.
-    // Removing to be safe and strictly follow user request.
-    
-    // if (refined.startsWith('식물스테롤/')) return '식물스테롤';
-    // if (refined.startsWith('키토산/')) return '키토산';
-    // if (refined.startsWith('이눌린/')) return '이눌린';
 
     return refined;
   }
@@ -121,7 +101,7 @@ class IngredientRefiner {
     
     return rawList.split(',')
         .map((e) => refine(e))
-        .where((e) => e.isNotEmpty && e.length > 1) // Filter out empty or single-char garbage
+        .where((e) => e.isNotEmpty) // Removed length > 1 check to allow '철', '인'
         .toSet() // Deduplicate
         .toList();
   }
