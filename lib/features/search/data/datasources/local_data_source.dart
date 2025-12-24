@@ -3,7 +3,6 @@ import 'package:hive/hive.dart';
 import 'package:injectable/injectable.dart';
 import 'package:universal_io/io.dart';
 import '../../../../core/enums/ingredient_search_type.dart';
-import '../../../../core/error/failures.dart';
 import '../../domain/entities/storage_info.dart';
 import '../models/food_item_hive_model.dart';
 import '../models/raw_material_hive_model.dart';
@@ -14,11 +13,15 @@ abstract class LocalDataSource {
   Future<void> cacheRawMaterials(List<RawMaterialHiveModel> items);
   Future<List<FoodItemHiveModel>> getFoodItems();
   Future<List<FoodItemHiveModel>> searchFoodByName(String query);
-  Future<List<FoodItemHiveModel>> searchFoodByIngredients(List<String> ingredients, {IngredientSearchType type = IngredientSearchType.include});
+  Future<List<FoodItemHiveModel>> searchFoodByIngredients(
+    List<String> ingredients, {
+    IngredientSearchType type = IngredientSearchType.include,
+  });
   Future<List<String>?> getRawMaterials(String reportNo);
   Future<void> clearData();
   Future<bool> hasData();
   Future<StorageInfo> getStorageInfo();
+
   /// Searches for unique main ingredients directly.
   Future<List<String>> searchIngredients(String query);
 }
@@ -32,7 +35,7 @@ class LocalDataSourceImpl implements LocalDataSource {
   Future<void> cacheFoodItems(List<FoodItemHiveModel> items) async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
     final Map<String, FoodItemHiveModel> map = {
-      for (var item in items) item.reportNo: item
+      for (var item in items) item.reportNo: item,
     };
     await box.putAll(map);
   }
@@ -46,21 +49,21 @@ class LocalDataSourceImpl implements LocalDataSource {
   @override
   Future<void> cacheRawMaterials(List<RawMaterialHiveModel> items) async {
     final box = await Hive.openBox<RawMaterialHiveModel>(rawMaterialBoxName);
-    
+
     // Efficient merge strategy: Read potentially affected items?
     // Or just iterate. 1000 items is fast enough.
-    
+
     for (var newItem in items) {
       final existingKey = newItem.reportNo;
       final existingItem = box.get(existingKey);
-      
+
       if (existingItem != null) {
         // Create new list to ensure Hive detects change if we were inplace modifying
         // But here we are just saving a modified object or new object.
         // It's safer to create a new object or modify list and verify save.
         // Since Hive objects are mutable if extends HiveObject.
         existingItem.rawMtrlNms.addAll(newItem.rawMtrlNms);
-        await box.put(existingKey, existingItem); 
+        await box.put(existingKey, existingItem);
       } else {
         await box.put(existingKey, newItem);
       }
@@ -77,16 +80,20 @@ class LocalDataSourceImpl implements LocalDataSource {
   Future<List<FoodItemHiveModel>> searchFoodByName(String query) async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
     return box.values
-        .where((item) => 
-          item.prdlstNm.contains(query) ||
-          item.reportNo.contains(query) ||
-          item.lcnsNo.contains(query)
+        .where(
+          (item) =>
+              item.prdlstNm.contains(query) ||
+              item.reportNo.contains(query) ||
+              item.lcnsNo.contains(query),
         )
         .toList();
   }
 
   @override
-  Future<List<FoodItemHiveModel>> searchFoodByIngredients(List<String> ingredients, {IngredientSearchType type = IngredientSearchType.include}) async {
+  Future<List<FoodItemHiveModel>> searchFoodByIngredients(
+    List<String> ingredients, {
+    IngredientSearchType type = IngredientSearchType.include,
+  }) async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
     return box.values.where((item) {
       if (ingredients.isEmpty) return false;
@@ -94,26 +101,26 @@ class LocalDataSourceImpl implements LocalDataSource {
       if (type == IngredientSearchType.include) {
         // 1. Include Mode: Item must contain ALL queried ingredients.
         // (AND logic for query items)
-        return ingredients.every((ing) => 
-          item.mainIngredients.any((main) => main.contains(ing))
+        return ingredients.every(
+          (ing) => item.mainIngredients.any((main) => main.contains(ing)),
         );
       } else {
         // 2. Exclusive Mode: Item must contain ONLY the queried ingredients.
         // Logic: Set Equality (Item == Query)
         // a) Item must contain ALL queried ingredients.
         // b) Item must NOT contain any ingredient NOT in query.
-        
+
         if (item.mainIngredients.isEmpty) return false;
 
         // Condition A: All query ingredients must be present in item
-        bool hasAllQuery = ingredients.every((ing) => 
-          item.mainIngredients.any((main) => main.contains(ing))
+        bool hasAllQuery = ingredients.every(
+          (ing) => item.mainIngredients.any((main) => main.contains(ing)),
         );
         if (!hasAllQuery) return false;
 
         // Condition B: All item ingredients must be covered by query
-        bool hasOnlyQuery = item.mainIngredients.every((main) => 
-          ingredients.any((ing) => main.contains(ing))
+        bool hasOnlyQuery = item.mainIngredients.every(
+          (main) => ingredients.any((ing) => main.contains(ing)),
         );
         return hasOnlyQuery;
       }
@@ -165,13 +172,13 @@ class LocalDataSourceImpl implements LocalDataSource {
   Future<List<String>> searchIngredients(String query) async {
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
     final Set<String> matches = {};
-    
-    // Iterate all values. 
-    // Optimization: Stop after N matches? 
+
+    // Iterate all values.
+    // Optimization: Stop after N matches?
     // The user wants suggestions, so 20-50 is enough.
     // But we need to be diverse.
     // Let's iterate all (30k is fast) and dedupe.
-    
+
     for (var item in box.values) {
       for (var ing in item.mainIngredients) {
         if (ing.contains(query)) {
@@ -181,7 +188,7 @@ class LocalDataSourceImpl implements LocalDataSource {
       }
       if (matches.length >= 50) break;
     }
-    
+
     return matches.toList();
   }
 }

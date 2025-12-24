@@ -3,10 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Emerald Palette (Reference: Tailwind Emerald)
-  static const Color primaryColor = Color(0xFF059669); // Emerald 600 (Deep Emerald)
+  static const Color primaryColor = Color(
+    0xFF059669,
+  ); // Emerald 600 (Deep Emerald)
   static const Color primaryLight = Color(0xFFD1FAE5); // Emerald 100
   static const Color primaryDark = Color(0xFF047857); // Emerald 700
-  
+
   // Slate Palette (Reference: Tailwind Slate)
   static const Color background = Color(0xFFF8FAFC); // Slate 50
   static const Color surface = Colors.white;
@@ -22,7 +24,9 @@ class AppTheme {
   static const Color borderDark = Color(0xFF334155); // Slate 700
 
   // Emerald Dark Palette
-  static const Color primaryColorDark = Color(0xFF34D399); // Emerald 400
+  static const Color primaryColorDark = Color(
+    0xFF10B981,
+  ); // Emerald 500 (Less Neon, More Premium)
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -30,12 +34,11 @@ class AppTheme {
       brightness: Brightness.light,
       primaryColor: primaryColor,
       scaffoldBackgroundColor: background,
-      
+
       colorScheme: const ColorScheme.light(
         primary: primaryColor,
         secondary: primaryColor,
         surface: surface,
-        background: background,
         onPrimary: Colors.white,
         onSurface: textPrimary,
       ),
@@ -43,10 +46,7 @@ class AppTheme {
       fontFamily: 'Pretendard',
       textTheme: const TextTheme(
         bodyMedium: TextStyle(fontSize: 14),
-      ).apply(
-        bodyColor: textPrimary,
-        displayColor: textPrimary,
-      ),
+      ).apply(bodyColor: textPrimary, displayColor: textPrimary),
 
       appBarTheme: const AppBarTheme(
         backgroundColor: surface,
@@ -74,7 +74,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: border),
@@ -99,20 +102,17 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
-      
+
       tabBarTheme: const TabBarThemeData(
         labelColor: primaryColor,
         unselectedLabelColor: textSecondary,
         indicatorColor: primaryColor,
         labelStyle: TextStyle(fontWeight: FontWeight.bold),
       ),
-      
+
       chipTheme: ChipThemeData(
         backgroundColor: Colors.white,
         selectedColor: primaryColor,
@@ -130,24 +130,21 @@ class AppTheme {
       brightness: Brightness.dark,
       primaryColor: primaryColorDark,
       scaffoldBackgroundColor: backgroundDark,
-      
+
       colorScheme: const ColorScheme.dark(
         primary: primaryColorDark,
         secondary: primaryColorDark,
         surface: surfaceDark,
-        background: backgroundDark,
-        onPrimary: backgroundDark, // Text on primary should be dark on light, but here emerald 400 is light? 
-                                   // Yes Emerald 400 is #34D399 (Light Green). Text should be dark.
+        onPrimary:
+            backgroundDark, // Text on primary should be dark on light, but here emerald 400 is light?
+        // Yes Emerald 400 is #34D399 (Light Green). Text should be dark.
         onSurface: textPrimaryDark,
       ),
 
       fontFamily: 'Pretendard',
       textTheme: const TextTheme(
         bodyMedium: TextStyle(fontSize: 14),
-      ).apply(
-        bodyColor: textPrimaryDark,
-        displayColor: textPrimaryDark,
-      ),
+      ).apply(bodyColor: textPrimaryDark, displayColor: textPrimaryDark),
 
       appBarTheme: const AppBarTheme(
         backgroundColor: surfaceDark,
@@ -174,8 +171,12 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceDark, // Input bg roughly same as card or slightly lighter? Usually surfaceDark
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        fillColor:
+            surfaceDark, // Input bg roughly same as card or slightly lighter? Usually surfaceDark
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: borderDark),
@@ -200,20 +201,17 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
-      
+
       tabBarTheme: const TabBarThemeData(
         labelColor: primaryColorDark,
         unselectedLabelColor: textSecondaryDark,
         indicatorColor: primaryColorDark,
         labelStyle: TextStyle(fontWeight: FontWeight.bold),
       ),
-      
+
       chipTheme: ChipThemeData(
         backgroundColor: surfaceDark,
         selectedColor: primaryColorDark,
@@ -222,7 +220,7 @@ class AppTheme {
         secondaryLabelStyle: const TextStyle(color: backgroundDark),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      
+
       // Dialog & BottomSheet
       // dialogTheme removed to avoid type mismatch with DialogThemeData
     );

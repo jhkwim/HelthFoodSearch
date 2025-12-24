@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart'; // Add this for ThemeMode
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:injectable/injectable.dart';
@@ -23,12 +22,16 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, AppSettings>> getSettings() async {
     try {
       final apiKey = settingsBox.get(apiKeyKey) as String?;
-      final textScale = settingsBox.get(textScaleKey, defaultValue: 1.0) as double;
-      final updateInterval = settingsBox.get(updateIntervalKey, defaultValue: 30) as int;
-      
+      final textScale =
+          settingsBox.get(textScaleKey, defaultValue: 1.0) as double;
+      final updateInterval =
+          settingsBox.get(updateIntervalKey, defaultValue: 30) as int;
+
       ThemeMode themeMode = ThemeMode.system;
       final themeIndex = settingsBox.get(themeModeKey) as int?;
-      if (themeIndex != null && themeIndex >= 0 && themeIndex < ThemeMode.values.length) {
+      if (themeIndex != null &&
+          themeIndex >= 0 &&
+          themeIndex < ThemeMode.values.length) {
         themeMode = ThemeMode.values[themeIndex];
       }
 
@@ -37,14 +40,16 @@ class SettingsRepositoryImpl implements ISettingsRepository {
       if (lastSyncStr != null) {
         lastSyncTime = DateTime.tryParse(lastSyncStr);
       }
-      
-      return Right(AppSettings(
-        apiKey: apiKey, 
-        textScale: textScale, 
-        lastSyncTime: lastSyncTime,
-        updateIntervalDays: updateInterval,
-        themeMode: themeMode,
-      ));
+
+      return Right(
+        AppSettings(
+          apiKey: apiKey,
+          textScale: textScale,
+          lastSyncTime: lastSyncTime,
+          updateIntervalDays: updateInterval,
+          themeMode: themeMode,
+        ),
+      );
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }

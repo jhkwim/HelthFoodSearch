@@ -23,12 +23,15 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
-  final TextEditingController _productSearchController = TextEditingController();
-  final TextEditingController _ingredientSearchController = TextEditingController();
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
+  final TextEditingController _productSearchController =
+      TextEditingController();
+  final TextEditingController _ingredientSearchController =
+      TextEditingController();
   final FocusNode _productFocusNode = FocusNode();
   final FocusNode _ingredientFocusNode = FocusNode();
-  
+
   late TabController _tabController;
   FoodItem? _selectedItem;
 
@@ -52,11 +55,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   void _handleTabSelection() {
     if (_tabController.indexIsChanging) {
-      setState(() {}); 
+      setState(() {});
     }
   }
 
-  PreferredSizeWidget _buildHeaderBottom(BuildContext context) {
+  PreferredSizeWidget _buildHeaderBottom(
+    BuildContext context,
+    IngredientSearchState state,
+  ) {
     if (_tabController.index == 0) {
       // Product Search Header
       return PreferredSize(
@@ -74,8 +80,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               suffixIcon: IconButton(
                 icon: const Icon(Icons.clear),
                 onPressed: () {
-                   _productSearchController.clear();
-                   context.read<SearchCubit>().search('');
+                  _productSearchController.clear();
+                  context.read<SearchCubit>().search('');
                 },
               ),
               filled: true,
@@ -84,7 +90,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
             ),
             textInputAction: TextInputAction.search,
             onSubmitted: (query) {
@@ -103,31 +112,47 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       // Base height 120 (Text + Options). Chips row ~40-50. Total ~170?
       // But if no chips, we want less space?
       // Standard SliverAppBar bottom doesn't animate height easily.
-      // Let's stick to a reasonable fixed height that includes chips, 
+      // Let's stick to a reasonable fixed height that includes chips,
       // OR use a layout that allows empty space (Container will just be empty).
       // Let's try 160.
+      final ingredients = state.selectedIngredients;
+      final bool hasChips = ingredients.isNotEmpty;
+
+      // Dynamic Height Calculation
+      // TextField + Label (~60-70)
+      // Options Row (~40)
+      // Chips Row (~40) + Padding
+      // Base: 120. With Chips: 170.
+      final double headerHeight = hasChips ? 170.0 : 120.0;
+
       return PreferredSize(
-        preferredSize: const Size.fromHeight(160),
+        preferredSize: Size.fromHeight(headerHeight),
         child: Container(
           color: Theme.of(context).scaffoldBackgroundColor,
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-               TextField(
+              TextField(
                 controller: _ingredientSearchController,
                 focusNode: _ingredientFocusNode,
                 decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.searchIngredientLabel,
-                  hintText: AppLocalizations.of(context)!.searchIngredientHintExample,
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.searchIngredientLabel,
+                  hintText: AppLocalizations.of(
+                    context,
+                  )!.searchIngredientHintExample,
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.add_circle),
                     onPressed: () {
-                       final val = _ingredientSearchController.text;
-                       if (val.isNotEmpty) {
-                          context.read<IngredientSearchCubit>().addIngredient(val);
-                          _ingredientSearchController.clear();
-                       }
+                      final val = _ingredientSearchController.text;
+                      if (val.isNotEmpty) {
+                        context.read<IngredientSearchCubit>().addIngredient(
+                          val,
+                        );
+                        _ingredientSearchController.clear();
+                      }
                     },
                   ),
                   filled: true,
@@ -136,20 +161,29 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
                 onChanged: (value) {
-                   context.read<IngredientSearchCubit>().updateSuggestions(value);
+                  context.read<IngredientSearchCubit>().updateSuggestions(
+                    value,
+                  );
                 },
                 onSubmitted: (value) {
-                   context.read<IngredientSearchCubit>().addIngredient(value);
-                   _ingredientSearchController.clear();
+                  context.read<IngredientSearchCubit>().addIngredient(value);
+                  _ingredientSearchController.clear();
                 },
               ),
               const SizedBox(height: 8),
               // Search Options Row
-              BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
-                builder: (context, state) {
+              // Note: We already have state passed in, but the content below might use Builder?
+              // The logic below is static enough, we can use state directly.
+              Builder(
+                builder: (context) {
+                  // Reusing state passed from _buildHeaderBottom argument
+                  // But wait, the children need context too.
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -157,20 +191,40 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            Text(AppLocalizations.of(context)!.searchModeLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                            Text(
+                              AppLocalizations.of(context)!.searchModeLabel,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SizedBox(width: 12),
                             _buildModeChip(
-                              context, 
-                              label: AppLocalizations.of(context)!.searchModeInclude, 
-                              isSelected: state.searchType == IngredientSearchType.include,
-                              onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
+                              context,
+                              label: AppLocalizations.of(
+                                context,
+                              )!.searchModeInclude,
+                              isSelected:
+                                  state.searchType ==
+                                  IngredientSearchType.include,
+                              onTap: () => context
+                                  .read<IngredientSearchCubit>()
+                                  .setSearchType(IngredientSearchType.include),
                             ),
                             const SizedBox(width: 8),
                             _buildModeChip(
-                              context, 
-                              label: AppLocalizations.of(context)!.searchModeExclusive, 
-                              isSelected: state.searchType == IngredientSearchType.exclusive,
-                              onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
+                              context,
+                              label: AppLocalizations.of(
+                                context,
+                              )!.searchModeExclusive,
+                              isSelected:
+                                  state.searchType ==
+                                  IngredientSearchType.exclusive,
+                              onTap: () => context
+                                  .read<IngredientSearchCubit>()
+                                  .setSearchType(
+                                    IngredientSearchType.exclusive,
+                                  ),
                             ),
                           ],
                         ),
@@ -182,20 +236,30 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: state.selectedIngredients.map((ing) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Chip(
-                                    label: Text(ing, style: const TextStyle(fontSize: 12)),
-                                    onDeleted: () {
-                                      context.read<IngredientSearchCubit>().removeIngredient(ing);
-                                    },
-                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: VisualDensity.compact,
-                                    backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                                    deleteIconColor: Theme.of(context).primaryColor,
-                                    side: BorderSide.none,
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Chip(
+                                  label: Text(
+                                    ing,
+                                    style: const TextStyle(fontSize: 12),
                                   ),
-                                );
+                                  onDeleted: () {
+                                    context
+                                        .read<IngredientSearchCubit>()
+                                        .removeIngredient(ing);
+                                  },
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).primaryColor.withOpacity(0.1),
+                                  deleteIconColor: Theme.of(
+                                    context,
+                                  ).primaryColor,
+                                  side: BorderSide.none,
+                                ),
+                              );
                             }).toList(),
                           ),
                         ),
@@ -211,22 +275,31 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     }
   }
 
-  Widget _buildModeChip(BuildContext context, {required String label, required bool isSelected, required VoidCallback onTap}) {
+  Widget _buildModeChip(
+    BuildContext context, {
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).primaryColor : Colors.grey[200],
+          color: isSelected
+              ? Theme.of(context).primaryColor
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Theme.of(context).dividerColor,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
+            color: isSelected ? Colors.white : Theme.of(context).hintColor,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             fontSize: 12,
           ),
@@ -237,7 +310,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-     return MultiBlocProvider(
+    return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => getIt<IngredientSearchCubit>()),
         BlocProvider(create: (context) => getIt<SearchCubit>()),
@@ -251,82 +324,119 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               // Function to handle ingredient selection
               void handleIngredientSelection(List<String> ingredients) {
                 _tabController.animateTo(1); // Switch to Ingredient Tab
-                
+
                 final cubit = context.read<IngredientSearchCubit>();
                 cubit.replaceIngredients(ingredients);
                 cubit.search();
               }
 
-                // Mobile / Narrow Layout
-                if (!isWide) {
-                  return Scaffold(
-                    body: SafeArea(
-                      top: true,
-                      bottom: false,
-                      child: NestedScrollView(
-                        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                          return <Widget>[
-                            SliverAppBar(
-                              title: Text(AppLocalizations.of(context)!.appTitle),
-                              centerTitle: false,
-                              floating: true,
-                              snap: true,
-                              pinned: false,
-                              bottom: _buildHeaderBottom(context), // Dynamic Search Area
-                              actions: [
-                                IconButton(
-                                  icon: const Icon(Icons.settings),
-                                  onPressed: () {
-                                    context.push('/settings');
-                                  },
-                                )
-                              ],
-                            ),
-                            
-                            // Progress bar needs to be visible
-                             SliverToBoxAdapter(child: _buildSyncProgress()),
-
-                            SliverOverlapAbsorber(
-                              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-                              sliver: SliverPersistentHeader(
-                                delegate: SliverTabBarDelegate(
-                                  TabBar(
-                                    controller: _tabController,
-                                    tabs: [
-                                      Tab(text: AppLocalizations.of(context)!.navProductSearch),
-                                      Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
+              // Mobile / Narrow Layout
+              if (!isWide) {
+                return Scaffold(
+                  body: SafeArea(
+                    top: true,
+                    bottom: false,
+                    child: NestedScrollView(
+                      headerSliverBuilder:
+                          (BuildContext context, bool innerBoxIsScrolled) {
+                            return <Widget>[
+                              BlocBuilder<
+                                IngredientSearchCubit,
+                                IngredientSearchState
+                              >(
+                                builder: (context, state) {
+                                  return SliverAppBar(
+                                    title: Text(
+                                      AppLocalizations.of(context)!.appTitle,
+                                    ),
+                                    centerTitle: false,
+                                    floating: true,
+                                    snap: true,
+                                    pinned: false,
+                                    bottom: _buildHeaderBottom(
+                                      context,
+                                      state,
+                                    ), // Dynamic Search Area
+                                    actions: [
+                                      IconButton(
+                                        icon: const Icon(Icons.settings),
+                                        onPressed: () {
+                                          context.push('/settings');
+                                        },
+                                      ),
                                     ],
-                                    labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                    indicatorWeight: 4,
-                                  ),
-                                ),
-                                pinned: true,
+                                  );
+                                },
                               ),
+
+                              // Progress bar needs to be visible
+                              SliverToBoxAdapter(child: _buildSyncProgress()),
+
+                              SliverOverlapAbsorber(
+                                handle:
+                                    NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                      context,
+                                    ),
+                                sliver: SliverPersistentHeader(
+                                  delegate: SliverTabBarDelegate(
+                                    TabBar(
+                                      controller: _tabController,
+                                      tabs: [
+                                        Tab(
+                                          text: AppLocalizations.of(
+                                            context,
+                                          )!.navProductSearch,
+                                        ),
+                                        Tab(
+                                          text: AppLocalizations.of(
+                                            context,
+                                          )!.navIngredientSearch,
+                                        ),
+                                      ],
+                                      labelStyle: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      indicatorWeight: 4,
+                                    ),
+                                  ),
+                                  pinned: true,
+                                ),
+                              ),
+                            ];
+                          },
+                      body: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          ProductSearchTab(
+                            useSlivers: true,
+                            onItemSelected: (item) => _navigateToDetailMobile(
+                              context,
+                              item,
+                              handleIngredientSelection,
                             ),
-                          ];
-                        },
-                        body: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            ProductSearchTab(
-                              useSlivers: true,
-                              onItemSelected: (item) => _navigateToDetailMobile(context, item, handleIngredientSelection),
+                          ),
+                          IngredientSearchTab(
+                            useSlivers: true,
+                            onItemSelected: (item) => _navigateToDetailMobile(
+                              context,
+                              item,
+                              handleIngredientSelection,
                             ),
-                            IngredientSearchTab(
-                              useSlivers: true,
-                              onItemSelected: (item) => _navigateToDetailMobile(context, item, handleIngredientSelection),
-                              onSuggestionSelected: () {
-                                _ingredientSearchController.clear();
-                                _ingredientFocusNode.unfocus();
-                                context.read<IngredientSearchCubit>().updateSuggestions('');
-                              },
-                            ),
-                          ],
-                        ),
+                            onSuggestionSelected: () {
+                              _ingredientSearchController.clear();
+                              _ingredientFocusNode.unfocus();
+                              context
+                                  .read<IngredientSearchCubit>()
+                                  .updateSuggestions('');
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }
+                  ),
+                );
+              }
 
               // Desktop / Wide Layout (Split View)
               return Scaffold(
@@ -348,10 +458,21 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                     child: TabBar(
                                       controller: _tabController,
                                       tabs: [
-                                        Tab(text: AppLocalizations.of(context)!.navProductSearch),
-                                        Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
+                                        Tab(
+                                          text: AppLocalizations.of(
+                                            context,
+                                          )!.navProductSearch,
+                                        ),
+                                        Tab(
+                                          text: AppLocalizations.of(
+                                            context,
+                                          )!.navIngredientSearch,
+                                        ),
                                       ],
-                                      labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      labelStyle: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                       indicatorWeight: 3,
                                     ),
                                   ),
@@ -360,7 +481,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                       controller: _tabController,
                                       children: [
                                         ProductSearchTab(
-                                          selectedReportNo: _selectedItem?.reportNo,
+                                          selectedReportNo:
+                                              _selectedItem?.reportNo,
                                           onItemSelected: (item) {
                                             setState(() {
                                               _selectedItem = item;
@@ -368,7 +490,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                           },
                                         ),
                                         IngredientSearchTab(
-                                          selectedReportNo: _selectedItem?.reportNo,
+                                          selectedReportNo:
+                                              _selectedItem?.reportNo,
                                           onItemSelected: (item) {
                                             setState(() {
                                               _selectedItem = item;
@@ -378,7 +501,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                             _ingredientSearchController.clear();
                                             // Desktop might not need unfocus, but good for consistency or if using touch
                                             _ingredientSearchController.clear();
-                                            context.read<IngredientSearchCubit>().updateSuggestions('');
+                                            context
+                                                .read<IngredientSearchCubit>()
+                                                .updateSuggestions('');
                                           },
                                         ),
                                       ],
@@ -391,56 +516,74 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                             // Right Panel: Detail View
                             Expanded(
                               flex: 7,
-                                child: _selectedItem == null
-                                    ? Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.touch_app_outlined, size: 64, color: Colors.grey[400]),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              AppLocalizations.of(context)!.searchEmptyGuide,
-                                              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                              child: _selectedItem == null
+                                  ? Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.touch_app_outlined,
+                                            size: 64,
+                                            color: Colors.grey[400],
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.searchEmptyGuide,
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.grey[600],
                                             ),
-                                          ],
-                                        ),
-                                      )
-                                    : DetailScreen(
-                                        key: ValueKey(_selectedItem!.reportNo),
-                                        item: _selectedItem!,
-                                        onIngredientSelected: handleIngredientSelection, // Use callback
+                                          ),
+                                        ],
                                       ),
-                              ),
-                            ],
-                          ),
+                                    )
+                                  : DetailScreen(
+                                      key: ValueKey(_selectedItem!.reportNo),
+                                      item: _selectedItem!,
+                                      onIngredientSelected:
+                                          handleIngredientSelection, // Use callback
+                                    ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           );
-        }
+        },
       ),
     );
   }
 
-  void _navigateToDetailMobile(BuildContext context, FoodItem item, Function(List<String>) onIngredientSelected) {
+  void _navigateToDetailMobile(
+    BuildContext context,
+    FoodItem item,
+    Function(List<String>) onIngredientSelected,
+  ) {
     context.push(
-      '/detail', 
+      '/detail',
       extra: {
         'item': item,
         'onIngredientSelected': (List<String> ingredients) {
-           // We need to pop first to go back to MainScreen
-           context.pop();
-           // Then Trigger callback
-           onIngredientSelected(ingredients);
-        }
-      }
+          // We need to pop first to go back to MainScreen
+          context.pop();
+          // Then Trigger callback
+          onIngredientSelected(ingredients);
+        },
+      },
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, {required bool isWide}) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context, {
+    required bool isWide,
+  }) {
     return AppBar(
       title: Text(AppLocalizations.of(context)!.appTitle),
       centerTitle: false,
@@ -452,7 +595,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 Tab(text: AppLocalizations.of(context)!.navProductSearch),
                 Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
               ],
-              labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              labelStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
               // indicatorColor: Colors.white, // Removed to fix invisible indicator on white background
               indicatorWeight: 4,
             ),
@@ -462,7 +608,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           onPressed: () {
             context.push('/settings');
           },
-        )
+        ),
       ],
     );
   }
@@ -484,13 +630,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).primaryColor,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    AppLocalizations.of(context)!.syncProgress(percent.toString()),
+                    AppLocalizations.of(
+                      context,
+                    )!.syncProgress(percent.toString()),
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
                       fontWeight: FontWeight.bold,

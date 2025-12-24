@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../domain/entities/food_item.dart';
 import '../bloc/search_cubit.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
+import 'product_list_skeleton.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class ProductSearchTab extends StatefulWidget {
   final Function(FoodItem)? onItemSelected;
@@ -12,8 +14,8 @@ class ProductSearchTab extends StatefulWidget {
   final bool useSlivers;
 
   const ProductSearchTab({
-    super.key, 
-    this.onItemSelected, 
+    super.key,
+    this.onItemSelected,
     this.selectedReportNo,
     this.useSlivers = false,
   });
@@ -22,7 +24,8 @@ class ProductSearchTab extends StatefulWidget {
   State<ProductSearchTab> createState() => _ProductSearchTabState();
 }
 
-class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepAliveClientMixin {
+class _ProductSearchTabState extends State<ProductSearchTab>
+    with AutomaticKeepAliveClientMixin {
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -37,14 +40,14 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
   @override
   Widget build(BuildContext context) {
     super.build(context); // Required for KeepAlive
-    
+
     // Use ancestor provider
     return Builder(
       builder: (context) {
-        return widget.useSlivers 
-          ? _buildSliverLayout(context)
-          : _buildStandardLayout(context);
-      }
+        return widget.useSlivers
+            ? _buildSliverLayout(context)
+            : _buildStandardLayout(context);
+      },
     );
   }
 
@@ -60,39 +63,64 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
         BlocBuilder<SearchCubit, SearchState>(
           builder: (context, state) {
             if (state is SearchLoading) {
-              return const SliverFillRemaining(child: Center(child: CircularProgressIndicator()));
-            } else if (state is SearchError) {
-              return SliverFillRemaining(child: Center(child: Text(AppLocalizations.of(context)!.errorOccurred(state.message))));
-            } else if (state is SearchLoaded) {
-              if (state.foods.isEmpty) {
-                return SliverFillRemaining(child: Center(child: Text(AppLocalizations.of(context)!.searchProductEmpty)));
-              }
-              
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final item = state.foods[index];
-                    final isSelected = item.reportNo == widget.selectedReportNo;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: _FoodItemCard(
-                        item: item,
-                        isSelected: isSelected,
-                        onTap: () {
-                          if (widget.onItemSelected != null) {
-                            widget.onItemSelected!(item);
-                          } else {
-                            context.push('/detail', extra: item);
-                          }
-                        },
-                      ),
-                    );
-                  },
-                  childCount: state.foods.length,
+                  (context, index) => const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ProductListItemSkeleton(),
+                  ),
+                  childCount: 6,
                 ),
               );
+            } else if (state is SearchError) {
+              return SliverFillRemaining(
+                child: Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.errorOccurred(state.message),
+                  ),
+                ),
+              );
+            } else if (state is SearchLoaded) {
+              if (state.foods.isEmpty) {
+                return SliverFillRemaining(
+                  child: EmptyStateWidget(
+                    message: AppLocalizations.of(context)!.searchProductEmpty,
+                    icon: Icons.search_off,
+                  ),
+                );
+              }
+
+              return SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final item = state.foods[index];
+                  final isSelected = item.reportNo == widget.selectedReportNo;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: _FoodItemCard(
+                      item: item,
+                      isSelected: isSelected,
+                      onTap: () {
+                        if (widget.onItemSelected != null) {
+                          widget.onItemSelected!(item);
+                        } else {
+                          context.push('/detail', extra: item);
+                        }
+                      },
+                    ),
+                  );
+                }, childCount: state.foods.length),
+              );
             }
-            return SliverFillRemaining(child: Center(child: Text(AppLocalizations.of(context)!.searchProductInitial)));
+            return SliverFillRemaining(
+              child: EmptyStateWidget(
+                message: AppLocalizations.of(context)!.searchProductInitial,
+                icon: Icons.search,
+                iconSize: 48,
+              ),
+            );
           },
         ),
       ],
@@ -111,66 +139,112 @@ class _ProductSearchTabState extends State<ProductSearchTab> with AutomaticKeepA
           child: BlocBuilder<SearchCubit, SearchState>(
             builder: (context, state) {
               if (state is SearchLoading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state is SearchError) {
-                return Center(child: Text(AppLocalizations.of(context)!.errorOccurred(state.message)));
-              } else if (state is SearchLoaded) {
-                 // Reuse existing grid/list logic for desktop
-                 if (state.foods.isEmpty) {
-                    return Center(child: Text(AppLocalizations.of(context)!.searchProductEmpty));
-                  }
-
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isGrid = constraints.maxWidth > 480;
-                      if (isGrid) {
-                        final crossAxisCount = (constraints.maxWidth / 250).floor().clamp(2, 6);
-                        return GridView.builder(
-                          padding: const EdgeInsets.all(16),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: crossAxisCount,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            mainAxisExtent: 240,
-                          ),
-                          itemCount: state.foods.length,
-                          itemBuilder: (context, index) {
-                             final item = state.foods[index];
-                             final isSelected = item.reportNo == widget.selectedReportNo;
-                             return _FoodItemCard(
-                                item: item,
-                                isSelected: isSelected,
-                                onTap: () {
-                                  if (widget.onItemSelected != null) {
-                                    widget.onItemSelected!(item);
-                                  } else {
-                                    context.push('/detail', extra: item);
-                                  }
-                                },
-                             );
-                          },
-                        );
-                      }
-                      return ListView.separated(
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isGrid = constraints.maxWidth > 480;
+                    if (isGrid) {
+                      final crossAxisCount = (constraints.maxWidth / 250)
+                          .floor()
+                          .clamp(2, 6);
+                      return GridView.builder(
                         padding: const EdgeInsets.all(16),
-                        itemCount: state.foods.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 16),
-                        itemBuilder: (context, index) => _FoodItemCard(
-                           item: state.foods[index],
-                           isSelected: state.foods[index].reportNo == widget.selectedReportNo,
-                           onTap: () {
-                              if (widget.onItemSelected != null) {
-                                widget.onItemSelected!(state.foods[index]);
-                              } else {
-                                context.push('/detail', extra: state.foods[index]);
-                              }
-                           },
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          mainAxisExtent: 240,
                         ),
+                        itemCount: 8,
+                        itemBuilder: (context, index) =>
+                            const ProductListItemSkeleton(),
                       );
-                    },
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: 6,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) =>
+                          const ProductListItemSkeleton(),
+                    );
+                  },
+                );
+              } else if (state is SearchError) {
+                return Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.errorOccurred(state.message),
+                  ),
+                );
+              } else if (state is SearchLoaded) {
+                // Reuse existing grid/list logic for desktop
+                if (state.foods.isEmpty) {
+                  return EmptyStateWidget(
+                    message: AppLocalizations.of(context)!.searchProductEmpty,
+                    icon: Icons.search_off,
                   );
+                }
+
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isGrid = constraints.maxWidth > 480;
+                    if (isGrid) {
+                      final crossAxisCount = (constraints.maxWidth / 250)
+                          .floor()
+                          .clamp(2, 6);
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          mainAxisExtent: 240,
+                        ),
+                        itemCount: state.foods.length,
+                        itemBuilder: (context, index) {
+                          final item = state.foods[index];
+                          final isSelected =
+                              item.reportNo == widget.selectedReportNo;
+                          return _FoodItemCard(
+                            item: item,
+                            isSelected: isSelected,
+                            onTap: () {
+                              if (widget.onItemSelected != null) {
+                                widget.onItemSelected!(item);
+                              } else {
+                                context.push('/detail', extra: item);
+                              }
+                            },
+                          );
+                        },
+                      );
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.foods.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) => _FoodItemCard(
+                        item: state.foods[index],
+                        isSelected:
+                            state.foods[index].reportNo ==
+                            widget.selectedReportNo,
+                        onTap: () {
+                          if (widget.onItemSelected != null) {
+                            widget.onItemSelected!(state.foods[index]);
+                          } else {
+                            context.push('/detail', extra: state.foods[index]);
+                          }
+                        },
+                      ),
+                    );
+                  },
+                );
               }
-              return Center(child: Text(AppLocalizations.of(context)!.searchProductInitial));
+              return EmptyStateWidget(
+                message: AppLocalizations.of(context)!.searchProductInitial,
+                icon: Icons.search,
+                iconSize: 48,
+              );
             },
           ),
         ),
@@ -206,8 +280,8 @@ class _FoodItemCard extends StatelessWidget {
   final bool isSelected;
 
   const _FoodItemCard({
-    required this.item, 
-    required this.onTap, 
+    required this.item,
+    required this.onTap,
     this.isSelected = false,
   });
 
@@ -217,9 +291,9 @@ class _FoodItemCard extends StatelessWidget {
       elevation: isSelected ? 3 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: isSelected 
-          ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
-          : BorderSide.none,
+        side: isSelected
+            ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
+            : BorderSide.none,
       ),
       color: null, // Clean look, no background color
       child: InkWell(
@@ -228,36 +302,36 @@ class _FoodItemCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-             mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white.withOpacity(0.1)
-                        : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.metaReportNo(item.reportNo),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                        ),
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.grey[100],
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  AppLocalizations.of(context)!.metaReportNo(item.reportNo),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
+              ),
               Text(
                 item.prdlstNm,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: 18,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                      color: Theme.of(context).primaryColor,
-                      height: 1.2,
-                    ),
+                  fontSize: 18,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  color: Theme.of(context).primaryColor,
+                  height: 1.2,
+                ),
               ),
               const SizedBox(height: 12),
               if (item.mainIngredients.isNotEmpty)
@@ -265,19 +339,20 @@ class _FoodItemCard extends StatelessWidget {
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      height: 1.5,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(height: 1.5),
                     children: [
-                       TextSpan(
+                      TextSpan(
                         text: AppLocalizations.of(context)!.metaMainIngredients,
                         style: TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          color: Theme.of(context).hintColor
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).hintColor,
                         ),
                       ),
                       TextSpan(
-                        text: ' ${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',
+                        text:
+                            ' ${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],
