@@ -235,13 +235,14 @@ class _FoodItemCard extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.grey[100],
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.metaReportNo(item.reportNo),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                         ),
@@ -265,16 +266,18 @@ class _FoodItemCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   text: TextSpan(
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black87,
                       height: 1.5,
                     ),
                     children: [
                        TextSpan(
                         text: AppLocalizations.of(context)!.metaMainIngredients,
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          color: Theme.of(context).hintColor
+                        ),
                       ),
                       TextSpan(
-                        text: '${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',
+                        text: ' ${item.mainIngredients.take(5).join(", ")}${item.mainIngredients.length > 5 ? "..." : ""}',
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],

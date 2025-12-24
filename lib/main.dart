@@ -37,8 +37,10 @@ class MyApp extends StatelessWidget {
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           double textScale = 1.0;
+          ThemeMode themeMode = ThemeMode.system;
           if (state is SettingsLoaded) {
             textScale = state.settings.textScale;
+            themeMode = state.settings.themeMode;
           }
           
           return MaterialApp.router(
@@ -53,6 +55,8 @@ class MyApp extends StatelessWidget {
               Locale('ko'),
             ],
             theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme, // New
+            themeMode: themeMode, // New
             routerConfig: appRouter,
             debugShowCheckedModeBanner: false,
             builder: (context, child) {

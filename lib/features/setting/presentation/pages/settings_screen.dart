@@ -89,6 +89,7 @@ class SettingsScreen extends StatelessWidget {
             final apiKey = (state is SettingsLoaded) ? state.settings.apiKey : '';
             final isLargeText = (state is SettingsLoaded) ? state.settings.textScale > 1.0 : false;
             final appVersion = (state is SettingsLoaded) ? state.appVersion : '';
+            final themeMode = (state is SettingsLoaded) ? state.settings.themeMode : ThemeMode.system;
             
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -96,14 +97,74 @@ class SettingsScreen extends StatelessWidget {
                 _buildSectionTitle(context, l10n.settingsDisplaySection),
 // ... (I only need to replace the variable extraction and the Text widget at the bottom, but replace_file_content works on contiguous blocks. I should do 2 replacements if they are far apart)
                 Card(
-                  child: SwitchListTile(
-                    secondary: const Icon(Icons.format_size),
-                    title: Text(l10n.settingsLargeText),
-                    subtitle: Text(l10n.settingsLargeTextDesc),
-                    value: isLargeText,
-                    onChanged: (value) {
-                      context.read<SettingsCubit>().toggleLargeText(value);
-                    },
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.brightness_6),
+                        title: const Text('앱 테마'),
+                        subtitle: Text(
+                          themeMode == ThemeMode.system ? '시스템 설정' :
+                          themeMode == ThemeMode.light ? '라이트 모드' : '다크 모드'
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('테마 선택'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  RadioListTile<ThemeMode>(
+                                    title: const Text('시스템 설정'),
+                                    value: ThemeMode.system,
+                                    groupValue: themeMode,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        context.read<SettingsCubit>().saveThemeMode(value);
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                  ),
+                                  RadioListTile<ThemeMode>(
+                                    title: const Text('라이트 모드'),
+                                    value: ThemeMode.light,
+                                    groupValue: themeMode,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        context.read<SettingsCubit>().saveThemeMode(value);
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                  ),
+                                  RadioListTile<ThemeMode>(
+                                    title: const Text('다크 모드'),
+                                    value: ThemeMode.dark,
+                                    groupValue: themeMode,
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        context.read<SettingsCubit>().saveThemeMode(value);
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      SwitchListTile(
+                        secondary: const Icon(Icons.format_size),
+                        title: Text(l10n.settingsLargeText),
+                        subtitle: Text(l10n.settingsLargeTextDesc),
+                        value: isLargeText,
+                        onChanged: (value) {
+                          context.read<SettingsCubit>().toggleLargeText(value);
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),

@@ -13,6 +13,8 @@ import 'package:health_food_search/features/search/domain/usecases/refine_local_
 
 import '../../domain/usecases/save_update_interval_usecase.dart';
 import '../../domain/usecases/force_expire_sync_time_usecase.dart';
+import '../../domain/usecases/save_theme_mode_usecase.dart'; // New
+import 'package:flutter/material.dart';
 
 part 'settings_state.dart';
 
@@ -25,6 +27,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final RefineLocalDataUseCase refineLocalDataUseCase;
   final SaveUpdateIntervalUseCase saveUpdateIntervalUseCase;
   final ForceExpireSyncTimeUseCase forceExpireSyncTimeUseCase;
+  final SaveThemeModeUseCase saveThemeModeUseCase; // New
 
   SettingsCubit(
     this.getSettingsUseCase,
@@ -34,6 +37,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     this.refineLocalDataUseCase,
     this.saveUpdateIntervalUseCase,
     this.forceExpireSyncTimeUseCase,
+    this.saveThemeModeUseCase, // New
   ) : super(SettingsInitial());
 
   Future<void> checkSettings() async {
@@ -134,6 +138,17 @@ class SettingsCubit extends Cubit<SettingsState> {
     result.fold(
       (failure) => emit(SettingsError(failure.message)),
       (_) => checkSettings(),
+    );
+  }
+
+  Future<void> saveThemeMode(ThemeMode mode) async {
+    // Optimistic update for UI responsiveness??
+    // Actually no, reloading settings is safer structure.
+    emit(SettingsLoading());
+    final result = await saveThemeModeUseCase(mode);
+    await result.fold(
+      (failure) async => emit(SettingsError(failure.message)),
+      (_) async => await checkSettings(),
     );
   }
 
