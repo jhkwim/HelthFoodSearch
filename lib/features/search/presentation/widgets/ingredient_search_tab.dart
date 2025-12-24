@@ -94,6 +94,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
               _buildSearchField(context),
               const SizedBox(height: 12),
               _buildSearchOptions(context),
+              _buildSelectedChips(context), // Added chips display
             ],
           ),
         ),
@@ -103,27 +104,62 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
     );
   }
 
+  Widget _buildSelectedChips(BuildContext context) {
+    return BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
+      builder: (context, state) {
+        if (state.selectedIngredients.isEmpty) return const SizedBox.shrink();
+        
+        return Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: state.selectedIngredients.map((ing) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Chip(
+                      label: Text(ing, style: const TextStyle(fontSize: 12)),
+                      onDeleted: () {
+                        context.read<IngredientSearchCubit>().removeIngredient(ing);
+                      },
+                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                      deleteIconColor: Theme.of(context).primaryColor,
+                      side: BorderSide.none,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    ),
+                  );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildSearchOptions(BuildContext context) {
     return BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
       builder: (context, state) {
-        return Row(
-          children: [
-            Text(AppLocalizations.of(context)!.searchModeLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-            const SizedBox(width: 12),
-            _buildModeChip(
-              context, 
-              label: AppLocalizations.of(context)!.searchModeInclude, 
-              isSelected: state.searchType == IngredientSearchType.include,
-              onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
-            ),
-            const SizedBox(width: 8),
-            _buildModeChip(
-              context, 
-              label: AppLocalizations.of(context)!.searchModeExclusive, 
-              isSelected: state.searchType == IngredientSearchType.exclusive,
-              onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
-            ),
-          ],
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Text(AppLocalizations.of(context)!.searchModeLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              const SizedBox(width: 12),
+              _buildModeChip(
+                context, 
+                label: AppLocalizations.of(context)!.searchModeInclude, 
+                isSelected: state.searchType == IngredientSearchType.include,
+                onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
+              ),
+              const SizedBox(width: 8),
+              _buildModeChip(
+                context, 
+                label: AppLocalizations.of(context)!.searchModeExclusive, 
+                isSelected: state.searchType == IngredientSearchType.exclusive,
+                onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -162,6 +198,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
                   title: Text(suggestion.name),
                   onTap: () {
                     context.read<IngredientSearchCubit>().addIngredient(suggestion.name);
+                    _controller.clear(); // Clear local controller
                     widget.onSuggestionSelected?.call();
                   },
                 );
@@ -327,7 +364,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
       decoration: InputDecoration(
         labelText: AppLocalizations.of(context)!.searchIngredientLabel,
         hintText: AppLocalizations.of(context)!.searchIngredientHintExample,
-        suffixIcon: const Icon(Icons.add_circle_outline),
+        suffixIcon: const Icon(Icons.add_circle),
       ),
       onChanged: (value) {
         context.read<IngredientSearchCubit>().updateSuggestions(value);
@@ -392,6 +429,7 @@ class _FoodItemCard extends StatelessWidget {
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                       color: Theme.of(context).primaryColor,
                       height: 1.2,
+                      // fontFamily: 'Pretendard', // Example usage
                     ),
               ),
               const SizedBox(height: 12),

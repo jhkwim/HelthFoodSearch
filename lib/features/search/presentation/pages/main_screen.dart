@@ -153,24 +153,27 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(AppLocalizations.of(context)!.searchModeLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                          const SizedBox(width: 12),
-                          _buildModeChip(
-                            context, 
-                            label: AppLocalizations.of(context)!.searchModeInclude, 
-                            isSelected: state.searchType == IngredientSearchType.include,
-                            onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
-                          ),
-                          const SizedBox(width: 8),
-                          _buildModeChip(
-                            context, 
-                            label: AppLocalizations.of(context)!.searchModeExclusive, 
-                            isSelected: state.searchType == IngredientSearchType.exclusive,
-                            onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
-                          ),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Text(AppLocalizations.of(context)!.searchModeLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                            const SizedBox(width: 12),
+                            _buildModeChip(
+                              context, 
+                              label: AppLocalizations.of(context)!.searchModeInclude, 
+                              isSelected: state.searchType == IngredientSearchType.include,
+                              onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.include),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildModeChip(
+                              context, 
+                              label: AppLocalizations.of(context)!.searchModeExclusive, 
+                              isSelected: state.searchType == IngredientSearchType.exclusive,
+                              onTap: () => context.read<IngredientSearchCubit>().setSearchType(IngredientSearchType.exclusive),
+                            ),
+                          ],
+                        ),
                       ),
                       if (state.selectedIngredients.isNotEmpty) ...[
                         const SizedBox(height: 12),
