@@ -75,13 +75,6 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
         // Search Header (Field + Options) moved to MainScreen
         
         // Selected Chips - Scroll away
-        SliverToBoxAdapter(
-          child: Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16), // Added top padding as header is gone from here
-            child: _buildSelectedChips(context),
-          ),
-        ),
         SliverToBoxAdapter(child: const Divider(height: 1)),
         _buildResultsArea(context, isSliver: true),
       ],
@@ -101,8 +94,6 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
               _buildSearchField(context),
               const SizedBox(height: 12),
               _buildSearchOptions(context),
-              const SizedBox(height: 12),
-              _buildSelectedChips(context),
             ],
           ),
         ),
@@ -138,37 +129,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent> with
     );
   }
 
-  Widget _buildSelectedChips(BuildContext context) {
-    return BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
-      builder: (context, state) {
-        if (state.selectedIngredients.isEmpty) return const SizedBox.shrink();
-        
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Divider(height: 1),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: state.selectedIngredients.map((ing) {
-                return Chip(
-                  label: Text(ing, style: const TextStyle(fontSize: 12)),
-                  onDeleted: () {
-                    context.read<IngredientSearchCubit>().removeIngredient(ing);
-                  },
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                );
-              }).toList(),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
   Widget _buildResultsArea(BuildContext context, {required bool isSliver}) {
     return BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
