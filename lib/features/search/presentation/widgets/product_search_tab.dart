@@ -322,23 +322,15 @@ class _FoodItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Hero(
-                tag: 'food_title_${item.reportNo}',
-                child: Material(
-                  color: Colors.transparent,
-                  child: Text(
-                    item.prdlstNm,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: 18,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w600,
-                      color: Theme.of(context).primaryColor,
-                      height: 1.2,
-                    ),
-                  ),
+              Text(
+                item.prdlstNm,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 18,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  color: Theme.of(context).primaryColor,
+                  height: 1.2,
                 ),
               ),
               const SizedBox(height: 12),
