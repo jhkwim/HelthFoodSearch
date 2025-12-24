@@ -369,9 +369,10 @@ class _FoodItemCard extends StatelessWidget {
                       Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            // Use a distinct color for highlight, e.g., errorColor or secondary
-                            color: Theme.of(context).colorScheme.error,
-                            decoration: TextDecoration.underline,
+                            color: Theme.of(context).primaryColor,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.2),
                             height: 1.2,
                           ) ??
                           const TextStyle(),

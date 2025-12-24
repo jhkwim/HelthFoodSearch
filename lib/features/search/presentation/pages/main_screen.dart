@@ -68,10 +68,9 @@ class _MainScreenState extends State<MainScreen>
       return PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor, // Match background
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          color: Theme.of(context).scaffoldBackgroundColor,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: TextField(
-            style: const TextStyle(color: Colors.black),
             controller: _productSearchController,
             focusNode: _productFocusNode,
             decoration: InputDecoration(
@@ -86,7 +85,7 @@ class _MainScreenState extends State<MainScreen>
                 },
               ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: Theme.of(context).cardColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -130,12 +129,11 @@ class _MainScreenState extends State<MainScreen>
         preferredSize: Size.fromHeight(headerHeight),
         child: Container(
           color: Theme.of(context).scaffoldBackgroundColor,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                style: const TextStyle(color: Colors.black),
                 controller: _ingredientSearchController,
                 focusNode: _ingredientFocusNode,
                 decoration: InputDecoration(
@@ -145,6 +143,7 @@ class _MainScreenState extends State<MainScreen>
                   hintText: AppLocalizations.of(
                     context,
                   )!.searchIngredientHintExample,
+                  prefixIcon: const Icon(Icons.search),
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.add_circle),
                     onPressed: () {
@@ -158,7 +157,7 @@ class _MainScreenState extends State<MainScreen>
                     },
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).cardColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
