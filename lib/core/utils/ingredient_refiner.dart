@@ -6,17 +6,21 @@ class IngredientRefiner {
     // 1. 키토산 Group
     '키토산': '키토산/키토올리고당',
     '키토산제품': '키토산/키토올리고당', // Derivative
-    '키토올리고당': '키토산/키토올리고당', // Should likely also map to target if encountered? User didn't specify but implied group.
-    
+    '키토올리고당':
+        '키토산/키토올리고당', // Should likely also map to target if encountered? User didn't specify but implied group.
     // 2. 식물스테롤 Group
     '식물스테롤': '식물스테롤/식물스테롤에스테르',
     '식물스테롤제품': '식물스테롤/식물스테롤에스테르',
+    '식물스타놀에스테르': '식물스테롤/식물스테롤에스테르',
+    '식물스테롤에스테르': '식물스테롤/식물스테롤에스테르',
 
     // 3. 이눌린/치커리추출물 Group
     '치커리추출물': '이눌린/치커리추출물',
-    
+    '이눌린': '이눌린/치커리추출물',
+
     // 4. N-아세틸글루코사민 Group
     'N-Acetylglucosamine': 'N-아세틸글루코사민',
+    'N-Acetylglucosamine)': 'N-아세틸글루코사민',
     'NAG(엔에이지': 'N-아세틸글루코사민', // As per specific text
     'NAG': 'N-아세틸글루코사민', // Common var
     '엔에이지': 'N-아세틸글루코사민', // Common var
@@ -28,34 +32,40 @@ class IngredientRefiner {
 
     // 6. MSM Group
     '엠에스엠(MSM, MSM)': 'MSM(엠에스엠)',
+    '엠에스엠(MSM': 'MSM(엠에스엠)',
+    'MSM)': 'MSM(엠에스엠)',
     'Methylsulfonylmethane': 'MSM(엠에스엠)',
     '디메틸설폰(Methylsulfonylmethane, 디메틸설폰)': 'MSM(엠에스엠)',
+    '디메틸설폰(Methylsulfonylmethane': 'MSM(엠에스엠)',
+    '디메틸설폰)': 'MSM(엠에스엠)',
     '엠에스엠': 'MSM(엠에스엠)', // Likely needed
     '디메틸설폰': 'MSM(엠에스엠)', // Likely needed
+    // 7. EPA및DHA함유유지 Group
+    '오메가-3지방산함유유지': 'EPA및DHA함유유지',
 
-    // 7. 뮤코다당 Group
+    // 8. 뮤코다당 Group
     '뮤코다당․단백': '뮤코다당․단백', // Normalized form (key match)
     '뮤코다당·단백': '뮤코다당․단백', // Backup
     '뮤코다당.단백': '뮤코다당․단백', // Backup for logic bypass
     '뮤코다당': '뮤코다당․단백',
     '뮤코다당단백': '뮤코다당․단백',
-    
+
     // 8. 마리골드꽃추출물 Group
     '마리골드추출물': '마리골드꽃추출물',
-    
+
     // 9. 가르시니아캄보지아추출물 Group
     '가르시니아캄보지아': '가르시니아캄보지아추출물',
     '가르시니아캄보지아껍질추출물HCA-600-SXS': '가르시니아캄보지아추출물',
 
     // 10. 코엔자임Q10 Group
     '코엔자임큐텐': '코엔자임Q10',
-    
+
     // Legacy / Others
     '차전자피': '차전자피식이섬유',
     '차전자피제품': '차전자피식이섬유',
     '클로렐라제품': '클로렐라',
-    '감마리놀렌산함유유지': '감마리놀렌산', 
-    '비타민 B1': '비타민B1', 
+    '감마리놀렌산함유유지': '감마리놀렌산',
+    '비타민 B1': '비타민B1',
   };
 
   /// Refines a raw ingredient string into a clean, searchable keyword.
@@ -81,14 +91,14 @@ class IngredientRefiner {
     if (_replacements.containsKey(refined)) {
       return _replacements[refined]!;
     }
-    
+
     // 4. "제품" suffix removal rule
     if (refined.endsWith('제품') && refined.length > 2) {
-       String trimmed = refined.substring(0, refined.length - 2);
-       if (_replacements.containsKey(trimmed)) {
-         return _replacements[trimmed]!;
-       }
-       return trimmed;
+      String trimmed = refined.substring(0, refined.length - 2);
+      if (_replacements.containsKey(trimmed)) {
+        return _replacements[trimmed]!;
+      }
+      return trimmed;
     }
 
     return refined;
@@ -98,10 +108,13 @@ class IngredientRefiner {
   /// and refines each of them.
   static List<String> refineAll(String rawList) {
     if (rawList.isEmpty) return [];
-    
-    return rawList.split(',')
+
+    return rawList
+        .split(',')
         .map((e) => refine(e))
-        .where((e) => e.isNotEmpty) // Removed length > 1 check to allow '철', '인'
+        .where(
+          (e) => e.isNotEmpty,
+        ) // Removed length > 1 check to allow '철', '인'
         .toSet() // Deduplicate
         .toList();
   }
@@ -110,22 +123,22 @@ class IngredientRefiner {
   /// Used for generating verification reports.
   static Map<String, String> analyze(String rawList) {
     if (rawList.isEmpty) return {};
-    
+
     final Map<String, String> result = {};
     final list = rawList.split(',');
-    
+
     for (var raw in list) {
       if (raw.trim().isEmpty) continue;
-      
+
       // We want to show "Raw Fragment" -> "Refined"
-      // But `refine` strips parentheses. 
+      // But `refine` strips parentheses.
       // The user wants to see "키토산제품" -> "키토산".
       // `refine("키토산제품(중국산)")` -> "키토산".
       // Raw Fragment should be "키토산제품(중국산)"? Or just the key part?
       // User example: "키토산제품" -> "키토산".
       // If input is "키토산제품(중국산)", `refine` returns "키토산".
       // Showing "키토산제품(중국산)" -> "키토산" is correct.
-      
+
       final refined = refine(raw);
       if (refined.isNotEmpty && refined.length > 1) {
         result[raw.trim()] = refined;
