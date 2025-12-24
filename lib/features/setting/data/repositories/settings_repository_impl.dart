@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart'; // Add this for ThemeMode
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/failures.dart';
@@ -16,6 +17,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   static const String textScaleKey = 'TEXT_SCALE';
   static const String lastSyncTimeKey = 'LAST_SYNC_TIME';
   static const String updateIntervalKey = 'UPDATE_INTERVAL';
+  static const String themeModeKey = 'THEME_MODE'; // New key
 
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {
@@ -24,6 +26,12 @@ class SettingsRepositoryImpl implements ISettingsRepository {
       final textScale = settingsBox.get(textScaleKey, defaultValue: 1.0) as double;
       final updateInterval = settingsBox.get(updateIntervalKey, defaultValue: 30) as int;
       
+      ThemeMode themeMode = ThemeMode.system;
+      final themeIndex = settingsBox.get(themeModeKey) as int?;
+      if (themeIndex != null && themeIndex >= 0 && themeIndex < ThemeMode.values.length) {
+        themeMode = ThemeMode.values[themeIndex];
+      }
+
       DateTime? lastSyncTime;
       final lastSyncStr = settingsBox.get(lastSyncTimeKey) as String?;
       if (lastSyncStr != null) {
@@ -35,6 +43,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
         textScale: textScale, 
         lastSyncTime: lastSyncTime,
         updateIntervalDays: updateInterval,
+        themeMode: themeMode,
       ));
     } catch (e) {
       return Left(CacheFailure(e.toString()));
@@ -87,6 +96,16 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> saveUpdateInterval(int days) async {
     try {
       await settingsBox.put(updateIntervalKey, days);
+      return Right(null);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveThemeMode(ThemeMode mode) async {
+    try {
+      await settingsBox.put(themeModeKey, mode.index);
       return Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));

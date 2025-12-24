@@ -47,7 +47,9 @@ class _DetailScreenState extends State<DetailScreen> {
         Container(
           height: 36,
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: Theme.of(context).brightness == Brightness.dark 
+                ? Colors.white.withOpacity(0.05) 
+                : Colors.grey[100],
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -75,9 +77,9 @@ class _DetailScreenState extends State<DetailScreen> {
         onTap: () => setState(() => _selectedTabIndex = index),
         child: Container(
           decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
+            color: isSelected ? Theme.of(context).cardColor : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
-            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 2, offset: const Offset(0, 1))] : null,
+            boxShadow: isSelected ? [BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.05), blurRadius: 2, offset: const Offset(0, 1))] : null,
           ),
           margin: const EdgeInsets.all(2),
             alignment: Alignment.center,
@@ -85,7 +87,7 @@ class _DetailScreenState extends State<DetailScreen> {
               label,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected ? Theme.of(context).primaryColor : Colors.grey[600],
+                    color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).hintColor,
                     fontSize: 13, // Slight adjustment if labelLarge is too big, but aim for consistency
                   ),
             ),
@@ -186,7 +188,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(AppLocalizations.of(context)!.detailLabelRawMaterialsSearchable, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.grey)),
+                                  Text(AppLocalizations.of(context)!.detailLabelRawMaterialsSearchable, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Theme.of(context).hintColor)),
                                   if (widget.onIngredientSelected != null)
                                     Text(AppLocalizations.of(context)!.detailSelectedCount(_selectedIngredients.length), style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
@@ -209,15 +211,15 @@ class _DetailScreenState extends State<DetailScreen> {
                                     avatar: isSelected 
                                       ? const Icon(Icons.check, size: 16, color: Colors.white)
                                       : CircleAvatar(
-                                          backgroundColor: Colors.grey[300],
+                                          backgroundColor: Theme.of(context).dividerColor,
                                           child: Text(
                                             '${index + 1}',
-                                            style: const TextStyle(fontSize: 10, color: Colors.black87),
+                                            style: TextStyle(fontSize: 10, color: Theme.of(context).textTheme.bodyMedium?.color),
                                           ),
                                         ),
                                     backgroundColor: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
                                     labelStyle: TextStyle(
-                                      color: isSelected ? Colors.white : Colors.black87,
+                                      color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
                                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                     ),
                                     side: BorderSide(
@@ -312,7 +314,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                 _buildSubTitle(AppLocalizations.of(context)!.detailLabelCautionIntake, color: Colors.red),
                                 Text(
                                   widget.item.iftknAtntMatrCn.isEmpty ? '-' : widget.item.iftknAtntMatrCn, 
-                                  style: const TextStyle(height: 1.5, color: Colors.black87)
+                                  style: TextStyle(height: 1.5, color: Theme.of(context).textTheme.bodyMedium?.color)
                                 ),
                                 const SizedBox(height: 16),
                               
@@ -355,7 +357,7 @@ class _DetailScreenState extends State<DetailScreen> {
           widget.item.prdlstNm,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.headlineMedium?.color,
           ),
         ),
       ],
@@ -369,7 +371,7 @@ class _DetailScreenState extends State<DetailScreen> {
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Colors.grey.withOpacity(0.2)),
       ),
-      color: color ?? Colors.white,
+      color: color ?? Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -411,7 +413,7 @@ class _DetailScreenState extends State<DetailScreen> {
               child: Text(
                 row.label,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey[700], // Darker grey for better legibility
+                      color: Theme.of(context).hintColor, // Darker grey for better legibility
                       fontWeight: FontWeight.w600, // Slightly bolder
                     ),
               ),
@@ -421,7 +423,7 @@ class _DetailScreenState extends State<DetailScreen> {
               child: Text(
                 row.value,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.black87,
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
                     ),
               ),
             ),
@@ -438,7 +440,7 @@ class _DetailScreenState extends State<DetailScreen> {
         text,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.bold,
-          color: color ?? Colors.black87,
+          color: color ?? Theme.of(context).textTheme.titleSmall?.color,
         ),
       ),
     );
@@ -501,7 +503,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 '${index + 1}. ',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black54,
+                      color: Theme.of(context).hintColor,
                     ),
               ),
               Expanded(
@@ -509,7 +511,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   list[index],
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         height: 1.5,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
                 ),
               ),
@@ -532,7 +534,7 @@ class _DetailScreenState extends State<DetailScreen> {
             children: [
               Text('•  ', 
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold, color: Colors.black54
+                  fontWeight: FontWeight.bold, color: Theme.of(context).hintColor
                 )
               ),
               Expanded(
@@ -540,7 +542,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   item,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     height: 1.5,
-                    color: Colors.black87,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                   ),
                 ),
               ),

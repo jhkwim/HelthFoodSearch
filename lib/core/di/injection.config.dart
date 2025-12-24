@@ -55,6 +55,8 @@ import '../../features/setting/domain/usecases/save_last_sync_time_usecase.dart'
     as _i526;
 import '../../features/setting/domain/usecases/save_text_scale_usecase.dart'
     as _i775;
+import '../../features/setting/domain/usecases/save_theme_mode_usecase.dart'
+    as _i944;
 import '../../features/setting/domain/usecases/save_update_interval_usecase.dart'
     as _i75;
 import '../../features/setting/presentation/bloc/settings_cubit.dart' as _i291;
@@ -85,6 +87,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i940.GetSettingsUseCase(gh<_i990.ISettingsRepository>()));
     gh.factory<_i152.SaveApiKeyUseCase>(
         () => _i152.SaveApiKeyUseCase(gh<_i990.ISettingsRepository>()));
+    gh.factory<_i944.SaveThemeModeUseCase>(
+        () => _i944.SaveThemeModeUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i775.SaveTextScaleUseCase>(
         () => _i775.SaveTextScaleUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i927.CheckUpdateNeededUseCase>(
@@ -128,6 +132,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i195.RefineLocalDataUseCase>(),
           gh<_i75.SaveUpdateIntervalUseCase>(),
           gh<_i318.ForceExpireSyncTimeUseCase>(),
+          gh<_i944.SaveThemeModeUseCase>(),
         ));
     gh.factory<_i548.IngredientSearchCubit>(() => _i548.IngredientSearchCubit(
           gh<_i337.SearchFoodByIngredientsUseCase>(),

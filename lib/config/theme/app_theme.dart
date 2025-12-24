@@ -14,6 +14,16 @@ class AppTheme {
   static const Color textSecondary = Color(0xFF64748B); // Slate 500
   static const Color border = Color(0xFFE2E8F0); // Slate 200
 
+  // Slate Dark Palette
+  static const Color backgroundDark = Color(0xFF0F172A); // Slate 900
+  static const Color surfaceDark = Color(0xFF1E293B); // Slate 800
+  static const Color textPrimaryDark = Color(0xFFF8FAFC); // Slate 50
+  static const Color textSecondaryDark = Color(0xFFCBD5E1); // Slate 300
+  static const Color borderDark = Color(0xFF334155); // Slate 700
+
+  // Emerald Dark Palette
+  static const Color primaryColorDark = Color(0xFF34D399); // Emerald 400
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -32,7 +42,7 @@ class AppTheme {
 
       fontFamily: 'Pretendard',
       textTheme: const TextTheme(
-        bodyMedium: TextStyle(fontSize: 14), // Base size standard
+        bodyMedium: TextStyle(fontSize: 14),
       ).apply(
         bodyColor: textPrimary,
         displayColor: textPrimary,
@@ -111,6 +121,110 @@ class AppTheme {
         secondaryLabelStyle: const TextStyle(color: Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      primaryColor: primaryColorDark,
+      scaffoldBackgroundColor: backgroundDark,
+      
+      colorScheme: const ColorScheme.dark(
+        primary: primaryColorDark,
+        secondary: primaryColorDark,
+        surface: surfaceDark,
+        background: backgroundDark,
+        onPrimary: backgroundDark, // Text on primary should be dark on light, but here emerald 400 is light? 
+                                   // Yes Emerald 400 is #34D399 (Light Green). Text should be dark.
+        onSurface: textPrimaryDark,
+      ),
+
+      fontFamily: 'Pretendard',
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(fontSize: 14),
+      ).apply(
+        bodyColor: textPrimaryDark,
+        displayColor: textPrimaryDark,
+      ),
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surfaceDark,
+        foregroundColor: textPrimaryDark,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          color: textPrimaryDark,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      cardTheme: CardThemeData(
+        color: surfaceDark,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: borderDark, width: 1),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: surfaceDark, // Input bg roughly same as card or slightly lighter? Usually surfaceDark
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: borderDark),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: borderDark),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: primaryColorDark, width: 2),
+        ),
+        hintStyle: const TextStyle(color: textSecondaryDark),
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColorDark,
+          foregroundColor: backgroundDark, // Dark text on light green button
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      
+      tabBarTheme: const TabBarThemeData(
+        labelColor: primaryColorDark,
+        unselectedLabelColor: textSecondaryDark,
+        indicatorColor: primaryColorDark,
+        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      
+      chipTheme: ChipThemeData(
+        backgroundColor: surfaceDark,
+        selectedColor: primaryColorDark,
+        side: const BorderSide(color: borderDark), // Dark border
+        labelStyle: const TextStyle(color: textPrimaryDark),
+        secondaryLabelStyle: const TextStyle(color: backgroundDark),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      
+      // Dialog & BottomSheet
+      // dialogTheme removed to avoid type mismatch with DialogThemeData
     );
   }
 }
