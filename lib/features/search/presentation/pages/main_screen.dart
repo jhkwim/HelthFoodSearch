@@ -507,7 +507,13 @@ class _MainScreenState extends State<MainScreen>
                   // 원료별 검색 결과 첫 항목 자동 선택
                   BlocListener<IngredientSearchCubit, IngredientSearchState>(
                     listener: (context, state) {
-                      if (state.status == IngredientSearchStatus.loaded &&
+                      // 선택된 원료가 없으면 상세 화면 비움
+                      if (state.selectedIngredients.isEmpty) {
+                        setState(() {
+                          _selectedItem = null;
+                        });
+                      } else if (state.status ==
+                              IngredientSearchStatus.loaded &&
                           state.searchResults.isNotEmpty) {
                         setState(() {
                           _selectedItem = state.searchResults.first;
