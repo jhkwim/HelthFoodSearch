@@ -120,10 +120,18 @@ jobs:
   create-release:
     needs: [build-android, build-windows, build-macos, build-ios]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/release'
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get Version
+        id: get_version
+        run: |
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //g' | cut -d'+' -f1)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Download Android Artifact
         uses: actions/download-artifact@v4
         with:
@@ -143,10 +151,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ios-app-unsigned
-
+      
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
           files: |
             app-release.apk
             windows-app.zip
