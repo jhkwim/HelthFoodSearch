@@ -9,6 +9,7 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../domain/entities/food_item.dart';
 import '../bloc/ingredient_search_cubit.dart';
 import '../../../../core/widgets/staggered_list_item.dart';
+import '../../../favorite/presentation/bloc/favorite_cubit.dart';
 
 class IngredientSearchTab extends StatelessWidget {
   final Function(FoodItem)? onItemSelected;
@@ -564,22 +565,50 @@ class _FoodItemCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  AppLocalizations.of(context)!.metaReportNo(item.reportNo),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)!.metaReportNo(item.reportNo),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                ),
+                  BlocBuilder<FavoriteCubit, FavoriteState>(
+                    builder: (context, state) {
+                      final isFav = state.isFavorite(item.reportNo);
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<FavoriteCubit>().toggleFavorite(
+                            reportNo: item.reportNo,
+                            prdlstNm: item.prdlstNm,
+                          );
+                        },
+                        child: Icon(
+                          isFav ? Icons.bookmark : Icons.bookmark_border,
+                          color: isFav
+                              ? Theme.of(context).primaryColor
+                              : Colors.grey,
+                          size: 20,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
               Text(
                 item.prdlstNm,

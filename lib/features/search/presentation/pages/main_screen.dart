@@ -18,7 +18,9 @@ import '../../../../core/enums/ingredient_search_type.dart';
 import '../../../favorite/presentation/bloc/favorite_cubit.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final List<String>? initialIngredients;
+
+  const MainScreen({super.key, this.initialIngredients});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -41,6 +43,16 @@ class _MainScreenState extends State<MainScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabSelection);
+
+    // 초기 원재료가 전달된 경우 원재료 탭으로 이동 후 검색
+    if (widget.initialIngredients != null &&
+        widget.initialIngredients!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _tabController.animateTo(1); // 원재료 탭으로 이동
+        final cubit = context.read<IngredientSearchCubit>();
+        cubit.replaceIngredients(widget.initialIngredients!);
+      });
+    }
   }
 
   @override

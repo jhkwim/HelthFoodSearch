@@ -25,7 +25,15 @@ final appRouter = GoRouter(
       path: '/download',
       builder: (context, state) => const DownloadScreen(),
     ),
-    GoRoute(path: '/main', builder: (context, state) => const MainScreen()),
+    GoRoute(
+      path: '/main',
+      builder: (context, state) {
+        final ingredients = state.extra is List<String>
+            ? state.extra as List<String>
+            : null;
+        return MainScreen(initialIngredients: ingredients);
+      },
+    ),
     GoRoute(
       path: '/favorites',
       builder: (context, state) => const FavoritesScreen(),

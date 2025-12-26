@@ -105,6 +105,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             : DetailScreen(
                                 item: _selectedItem!,
                                 showAppBar: false,
+                                onIngredientSelected: (ingredients) {
+                                  // 메인 화면으로 이동 후 원재료 검색
+                                  context.go('/main', extra: ingredients);
+                                },
                               ),
                       ),
                     ],
