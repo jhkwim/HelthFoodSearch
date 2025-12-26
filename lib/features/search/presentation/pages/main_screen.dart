@@ -379,113 +379,109 @@ class _MainScreenState extends State<MainScreen>
               // Mobile / Narrow Layout
               if (!isWide) {
                 return Scaffold(
-                  body: SafeArea(
-                    top: true,
-                    bottom: false,
-                    child: NestedScrollView(
-                      headerSliverBuilder:
-                          (BuildContext context, bool innerBoxIsScrolled) {
-                            return <Widget>[
-                              BlocBuilder<
-                                IngredientSearchCubit,
-                                IngredientSearchState
-                              >(
-                                builder: (context, state) {
-                                  return SliverAppBar(
-                                    title: Text(
-                                      AppLocalizations.of(context)!.appTitle,
+                  body: NestedScrollView(
+                    headerSliverBuilder:
+                        (BuildContext context, bool innerBoxIsScrolled) {
+                          return <Widget>[
+                            BlocBuilder<
+                              IngredientSearchCubit,
+                              IngredientSearchState
+                            >(
+                              builder: (context, state) {
+                                return SliverAppBar(
+                                  title: Text(
+                                    AppLocalizations.of(context)!.appTitle,
+                                  ),
+                                  centerTitle: false,
+                                  automaticallyImplyLeading: false,
+                                  floating: true,
+                                  snap: true,
+                                  pinned: false,
+                                  bottom: _buildHeaderBottom(
+                                    context,
+                                    state,
+                                  ), // Dynamic Search Area
+                                  actions: [
+                                    IconButton(
+                                      icon: const Icon(Icons.bookmark),
+                                      onPressed: () {
+                                        context.push('/favorites');
+                                      },
                                     ),
-                                    centerTitle: false,
-                                    automaticallyImplyLeading: false,
-                                    floating: true,
-                                    snap: true,
-                                    pinned: false,
-                                    bottom: _buildHeaderBottom(
-                                      context,
-                                      state,
-                                    ), // Dynamic Search Area
-                                    actions: [
-                                      IconButton(
-                                        icon: const Icon(Icons.bookmark),
-                                        onPressed: () {
-                                          context.push('/favorites');
-                                        },
+                                    IconButton(
+                                      icon: const Icon(Icons.settings),
+                                      onPressed: () {
+                                        context.push('/settings');
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+
+                            // Progress bar needs to be visible
+                            SliverToBoxAdapter(child: _buildSyncProgress()),
+
+                            SliverOverlapAbsorber(
+                              handle:
+                                  NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                    context,
+                                  ),
+                              sliver: SliverPersistentHeader(
+                                delegate: SliverTabBarDelegate(
+                                  TabBar(
+                                    controller: _tabController,
+                                    tabs: [
+                                      Tab(
+                                        text: AppLocalizations.of(
+                                          context,
+                                        )!.navProductSearch,
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.settings),
-                                        onPressed: () {
-                                          context.push('/settings');
-                                        },
+                                      Tab(
+                                        text: AppLocalizations.of(
+                                          context,
+                                        )!.navIngredientSearch,
                                       ),
                                     ],
-                                  );
-                                },
-                              ),
-
-                              // Progress bar needs to be visible
-                              SliverToBoxAdapter(child: _buildSyncProgress()),
-
-                              SliverOverlapAbsorber(
-                                handle:
-                                    NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                      context,
+                                    labelStyle: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                sliver: SliverPersistentHeader(
-                                  delegate: SliverTabBarDelegate(
-                                    TabBar(
-                                      controller: _tabController,
-                                      tabs: [
-                                        Tab(
-                                          text: AppLocalizations.of(
-                                            context,
-                                          )!.navProductSearch,
-                                        ),
-                                        Tab(
-                                          text: AppLocalizations.of(
-                                            context,
-                                          )!.navIngredientSearch,
-                                        ),
-                                      ],
-                                      labelStyle: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      indicatorWeight: 4,
-                                    ),
+                                    indicatorWeight: 4,
                                   ),
-                                  pinned: true,
                                 ),
+                                pinned: true,
                               ),
-                            ];
+                            ),
+                          ];
+                        },
+                    body: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        ProductSearchTab(
+                          useSlivers: true,
+                          onItemSelected: (item) => _navigateToDetailMobile(
+                            context,
+                            item,
+                            handleIngredientSelection,
+                          ),
+                        ),
+                        IngredientSearchTab(
+                          useSlivers: true,
+                          onItemSelected: (item) => _navigateToDetailMobile(
+                            context,
+                            item,
+                            handleIngredientSelection,
+                          ),
+                          onSuggestionSelected: () {
+                            _ingredientSearchController.clear();
+                            _ingredientFocusNode.unfocus();
+                            context
+                                .read<IngredientSearchCubit>()
+                                .updateSuggestions('');
                           },
-                      body: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          ProductSearchTab(
-                            useSlivers: true,
-                            onItemSelected: (item) => _navigateToDetailMobile(
-                              context,
-                              item,
-                              handleIngredientSelection,
-                            ),
-                          ),
-                          IngredientSearchTab(
-                            useSlivers: true,
-                            onItemSelected: (item) => _navigateToDetailMobile(
-                              context,
-                              item,
-                              handleIngredientSelection,
-                            ),
-                            onSuggestionSelected: () {
-                              _ingredientSearchController.clear();
-                              _ingredientFocusNode.unfocus();
-                              context
-                                  .read<IngredientSearchCubit>()
-                                  .updateSuggestions('');
-                            },
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
