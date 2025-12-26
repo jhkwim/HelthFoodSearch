@@ -10,17 +10,22 @@ import 'config/routes/app_router.dart';
 import 'config/theme/app_theme.dart';
 import 'core/di/injection.dart';
 
+import 'features/setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 import 'features/setting/presentation/bloc/settings_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await Hive.initFlutter();
   Hive.registerAdapter(FoodItemHiveModelAdapter());
   Hive.registerAdapter(RawMaterialHiveModelAdapter());
   await Hive.openBox('settings'); // Open settings box
-  
+
   configureDependencies();
+
+  // Initialize remote refinement rules (Fire and forget)
+  getIt<FetchAndApplyRemoteRulesUseCase>().execute();
+
   runApp(const MyApp());
 }
 
@@ -32,7 +37,9 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => getIt<DataSyncCubit>()),
-        BlocProvider(create: (context) => getIt<SettingsCubit>()..checkSettings()),
+        BlocProvider(
+          create: (context) => getIt<SettingsCubit>()..checkSettings(),
+        ),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
@@ -42,18 +49,17 @@ class MyApp extends StatelessWidget {
             textScale = state.settings.textScale;
             themeMode = state.settings.themeMode;
           }
-          
+
           return MaterialApp.router(
-            onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)!.appTitle,
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('ko'),
-            ],
+            supportedLocales: const [Locale('ko')],
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme, // New
             themeMode: themeMode, // New
@@ -61,9 +67,9 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             builder: (context, child) {
               return MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: TextScaler.linear(textScale),
-                ),
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(textScale)),
                 child: child!,
               );
             },

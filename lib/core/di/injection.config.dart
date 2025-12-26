@@ -45,6 +45,8 @@ import '../../features/setting/domain/usecases/check_update_needed_usecase.dart'
     as _i927;
 import '../../features/setting/domain/usecases/export_food_data_usecase.dart'
     as _i601;
+import '../../features/setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart'
+    as _i913;
 import '../../features/setting/domain/usecases/force_expire_sync_time_usecase.dart'
     as _i318;
 import '../../features/setting/domain/usecases/get_settings_usecase.dart'
@@ -60,6 +62,7 @@ import '../../features/setting/domain/usecases/save_theme_mode_usecase.dart'
 import '../../features/setting/domain/usecases/save_update_interval_usecase.dart'
     as _i75;
 import '../../features/setting/presentation/bloc/settings_cubit.dart' as _i291;
+import '../config/remote_config_service.dart' as _i203;
 import '../utils/excel_export_service.dart' as _i178;
 import 'register_module.dart' as _i291;
 
@@ -83,22 +86,24 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i990.ISettingsRepository>(
         () => _i1025.SettingsRepositoryImpl());
     gh.lazySingleton<_i688.LocalDataSource>(() => _i688.LocalDataSourceImpl());
+    gh.lazySingleton<_i203.RemoteConfigService>(
+        () => _i203.RemoteConfigService(gh<_i361.Dio>()));
     gh.factory<_i940.GetSettingsUseCase>(
         () => _i940.GetSettingsUseCase(gh<_i990.ISettingsRepository>()));
-    gh.factory<_i152.SaveApiKeyUseCase>(
-        () => _i152.SaveApiKeyUseCase(gh<_i990.ISettingsRepository>()));
     gh.factory<_i944.SaveThemeModeUseCase>(
         () => _i944.SaveThemeModeUseCase(gh<_i990.ISettingsRepository>()));
-    gh.lazySingleton<_i775.SaveTextScaleUseCase>(
-        () => _i775.SaveTextScaleUseCase(gh<_i990.ISettingsRepository>()));
+    gh.factory<_i152.SaveApiKeyUseCase>(
+        () => _i152.SaveApiKeyUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i318.ForceExpireSyncTimeUseCase>(() =>
+        _i318.ForceExpireSyncTimeUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i927.CheckUpdateNeededUseCase>(
         () => _i927.CheckUpdateNeededUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i526.SaveLastSyncTimeUseCase>(
         () => _i526.SaveLastSyncTimeUseCase(gh<_i990.ISettingsRepository>()));
+    gh.lazySingleton<_i775.SaveTextScaleUseCase>(
+        () => _i775.SaveTextScaleUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i75.SaveUpdateIntervalUseCase>(
         () => _i75.SaveUpdateIntervalUseCase(gh<_i990.ISettingsRepository>()));
-    gh.lazySingleton<_i318.ForceExpireSyncTimeUseCase>(() =>
-        _i318.ForceExpireSyncTimeUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i601.ExportFoodDataUseCase>(
         () => _i601.ExportFoodDataUseCase(
               gh<_i688.LocalDataSource>(),
@@ -108,6 +113,11 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i91.RemoteDataSource>(),
           gh<_i688.LocalDataSource>(),
         ));
+    gh.lazySingleton<_i913.FetchAndApplyRemoteRulesUseCase>(
+        () => _i913.FetchAndApplyRemoteRulesUseCase(
+              gh<_i203.RemoteConfigService>(),
+              gh<_i990.ISettingsRepository>(),
+            ));
     gh.lazySingleton<_i940.GetStorageInfoUseCase>(
         () => _i940.GetStorageInfoUseCase(gh<_i424.IFoodRepository>()));
     gh.lazySingleton<_i806.GetRawMaterialsUseCase>(

@@ -17,6 +17,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   static const String lastSyncTimeKey = 'LAST_SYNC_TIME';
   static const String updateIntervalKey = 'UPDATE_INTERVAL';
   static const String themeModeKey = 'THEME_MODE'; // New key
+  static const String refinementRulesKey = 'REFINEMENT_RULES';
 
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {
@@ -112,6 +113,31 @@ class SettingsRepositoryImpl implements ISettingsRepository {
     try {
       await settingsBox.put(themeModeKey, mode.index);
       return Right(null);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, String>>> getRefinementRules() async {
+    try {
+      final rules = settingsBox.get(refinementRulesKey);
+      if (rules != null && rules is Map) {
+        return Right(Map<String, String>.from(rules));
+      }
+      return const Right({});
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveRefinementRules(
+    Map<String, String> rules,
+  ) async {
+    try {
+      await settingsBox.put(refinementRulesKey, rules);
+      return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }

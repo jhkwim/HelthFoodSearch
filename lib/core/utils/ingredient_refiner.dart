@@ -68,6 +68,17 @@ class IngredientRefiner {
     '비타민 B1': '비타민B1',
   };
 
+  // Dynamic rules fetched from remote (Google Sheet)
+  static Map<String, String> _remoteReplacements = {};
+
+  /// Update dynamic rules from remote config
+  static void updateRules(Map<String, String> newRules) {
+    if (newRules.isNotEmpty) {
+      _remoteReplacements = newRules;
+      print('IngredientRefiner: Updated with ${newRules.length} remote rules');
+    }
+  }
+
   /// Refines a raw ingredient string into a clean, searchable keyword.
   static String refine(String raw) {
     if (raw.isEmpty) return '';
@@ -87,6 +98,11 @@ class IngredientRefiner {
     // Let's normalize variants to '․' (One Dot Leader) to match the existing key.
     refined = refined.replaceAll(RegExp(r'[·.・]'), '․');
 
+    // 3.0 Check Remote Dictionary First (Dynamic Coverage)
+    if (_remoteReplacements.containsKey(refined)) {
+      return _remoteReplacements[refined]!;
+    }
+
     // 3. Dictionary Replacement (Exact Match)
     if (_replacements.containsKey(refined)) {
       return _replacements[refined]!;
@@ -95,6 +111,12 @@ class IngredientRefiner {
     // 4. "제품" suffix removal rule
     if (refined.endsWith('제품') && refined.length > 2) {
       String trimmed = refined.substring(0, refined.length - 2);
+
+      // Check remote first for trimmed version too
+      if (_remoteReplacements.containsKey(trimmed)) {
+        return _remoteReplacements[trimmed]!;
+      }
+
       if (_replacements.containsKey(trimmed)) {
         return _replacements[trimmed]!;
       }
