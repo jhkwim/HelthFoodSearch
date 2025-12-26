@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../bloc/favorite_cubit.dart';
+import '../../../search/data/datasources/local_data_source.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -67,15 +69,18 @@ class FavoritesScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            l10n.favoritesViewDetail(item.prdlstNm),
-                          ),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
+                    onTap: () async {
+                      // reportNo로 FoodItem 조회 후 상세 화면 이동
+                      final localDataSource = getIt<LocalDataSource>();
+                      final foodItem = await localDataSource
+                          .getFoodItemByReportNo(item.reportNo);
+                      if (foodItem != null && context.mounted) {
+                        context.push('/detail', extra: foodItem.toEntity());
+                      } else if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('제품 정보를 찾을 수 없습니다')),
+                        );
+                      }
                     },
                   ),
                 );

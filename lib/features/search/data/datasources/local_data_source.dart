@@ -18,6 +18,7 @@ abstract class LocalDataSource {
     IngredientSearchType type = IngredientSearchType.include,
   });
   Future<List<String>?> getRawMaterials(String reportNo);
+  Future<FoodItemHiveModel?> getFoodItemByReportNo(String reportNo);
   Future<void> clearData();
   Future<bool> hasData();
   Future<StorageInfo> getStorageInfo();
@@ -132,6 +133,12 @@ class LocalDataSourceImpl implements LocalDataSource {
     final box = await Hive.openBox<RawMaterialHiveModel>(rawMaterialBoxName);
     final item = box.get(reportNo);
     return item?.rawMtrlNms;
+  }
+
+  @override
+  Future<FoodItemHiveModel?> getFoodItemByReportNo(String reportNo) async {
+    final box = await Hive.openBox<FoodItemHiveModel>(boxName);
+    return box.get(reportNo);
   }
 
   @override
