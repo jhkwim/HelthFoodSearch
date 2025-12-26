@@ -137,6 +137,14 @@
   "settingsThemeSelectTitle": "테마 선택",
   "settingsUpdateParamsTitle": "업데이트 안내 주기",
   "settingsUpdateParamsDesc": "데이터 업데이트 필요 여부를 체크하는 주기입니다.",
+  "updateIntervalDays": "{days}일",
+  "@updateIntervalDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "settingsDevToolsTitle": "개발자 도구 (테스트용)",
   "settingsDevForceExpire": "강제 업데이트 만료 처리",
   "settingsDevForceExpireDesc": "마지막 업데이트 시간을 30일 전으로 되돌립니다.\n앱 재시작 시 업데이트 팝업을 테스트할 수 있습니다.",

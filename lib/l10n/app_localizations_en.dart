@@ -27,6 +27,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchEmptyGuide => 'Select a product from the list on the left';
 
   @override
+  String searchResultCount(Object count) {
+    return '$count results found';
+  }
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -253,6 +258,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsUpdateParamsDesc => 'Frequency to check for data updates.';
+
+  @override
+  String updateIntervalDays(int days) {
+    return '$days Days';
+  }
 
   @override
   String get settingsDevToolsTitle => 'Developer Tools';

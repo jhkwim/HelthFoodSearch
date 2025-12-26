@@ -27,6 +27,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchEmptyGuide => '왼쪽 목록에서 제품을 선택하세요';
 
   @override
+  String searchResultCount(Object count) {
+    return '$count건이 검색되었습니다';
+  }
+
+  @override
   String get settingsTitle => '설정';
 
   @override
@@ -249,6 +254,11 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsUpdateParamsDesc => '데이터 업데이트 필요 여부를 체크하는 주기입니다.';
+
+  @override
+  String updateIntervalDays(int days) {
+    return '$days일';
+  }
 
   @override
   String get settingsDevToolsTitle => '개발자 도구 (테스트용)';

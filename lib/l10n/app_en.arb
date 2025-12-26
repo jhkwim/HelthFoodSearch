@@ -7,6 +7,7 @@
   "searchHintProduct": "Enter product name",
   "searchHintIngredient": "Enter ingredient name",
   "searchEmptyGuide": "Select a product from the list on the left",
+  "searchResultCount": "{count} results found",
 
   "settingsTitle": "Settings",
   "settingsDisplaySection": "Display",
@@ -136,6 +137,14 @@
   "settingsThemeSelectTitle": "Select Theme",
   "settingsUpdateParamsTitle": "Update Notification Interval",
   "settingsUpdateParamsDesc": "Frequency to check for data updates.",
+  "updateIntervalDays": "{days} Days",
+  "@updateIntervalDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "settingsDevToolsTitle": "Developer Tools",
   "settingsDevForceExpire": "Force Update Expiration",
   "settingsDevForceExpireDesc": "Resets last update time to 30 days ago.\nTests update popup on restart.",

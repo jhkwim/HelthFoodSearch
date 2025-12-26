@@ -122,10 +122,10 @@ class SettingsScreen extends StatelessWidget {
                         title: Text(l10n.settingsThemeTitle),
                         subtitle: Text(
                           themeMode == ThemeMode.system
-                              ? '시스템 설정'
+                              ? l10n.settingsThemeSystem
                               : themeMode == ThemeMode.light
-                              ? '라이트 모드'
-                              : '다크 모드',
+                              ? l10n.settingsThemeLight
+                              : l10n.settingsThemeDark,
                         ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
@@ -260,26 +260,36 @@ class SettingsScreen extends StatelessWidget {
                                       }
                                     },
                                     underline: Container(),
-                                    items: const [
+                                    items: [
                                       DropdownMenuItem(
                                         value: 15,
-                                        child: Text('15일'),
+                                        child: Text(
+                                          l10n.updateIntervalDays(15),
+                                        ),
                                       ),
                                       DropdownMenuItem(
                                         value: 30,
-                                        child: Text('30일'),
+                                        child: Text(
+                                          l10n.updateIntervalDays(30),
+                                        ),
                                       ),
                                       DropdownMenuItem(
                                         value: 45,
-                                        child: Text('45일'),
+                                        child: Text(
+                                          l10n.updateIntervalDays(45),
+                                        ),
                                       ),
                                       DropdownMenuItem(
                                         value: 60,
-                                        child: Text('60일'),
+                                        child: Text(
+                                          l10n.updateIntervalDays(60),
+                                        ),
                                       ),
                                       DropdownMenuItem(
                                         value: 90,
-                                        child: Text('90일'),
+                                        child: Text(
+                                          l10n.updateIntervalDays(90),
+                                        ),
                                       ),
                                     ],
                                   ),

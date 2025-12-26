@@ -134,6 +134,12 @@ abstract class AppLocalizations {
   /// **'왼쪽 목록에서 제품을 선택하세요'**
   String get searchEmptyGuide;
 
+  /// No description provided for @searchResultCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}건이 검색되었습니다'**
+  String searchResultCount(Object count);
+
   /// No description provided for @settingsTitle.
   ///
   /// In ko, this message translates to:
@@ -553,6 +559,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'데이터 업데이트 필요 여부를 체크하는 주기입니다.'**
   String get settingsUpdateParamsDesc;
+
+  /// No description provided for @updateIntervalDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'{days}일'**
+  String updateIntervalDays(int days);
 
   /// No description provided for @settingsDevToolsTitle.
   ///
