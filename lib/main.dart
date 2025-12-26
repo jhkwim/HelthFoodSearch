@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'features/search/data/models/food_item_hive_model.dart';
 import 'features/search/data/models/raw_material_hive_model.dart';
+import 'features/favorite/data/models/favorite_hive_model.dart';
+import 'features/favorite/data/models/search_history_hive_model.dart';
 import 'features/search/presentation/bloc/data_sync_cubit.dart';
 import 'config/routes/app_router.dart';
 import 'config/theme/app_theme.dart';
@@ -20,6 +22,8 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(FoodItemHiveModelAdapter());
   Hive.registerAdapter(RawMaterialHiveModelAdapter());
+  Hive.registerAdapter(FavoriteHiveModelAdapter());
+  Hive.registerAdapter(SearchHistoryHiveModelAdapter());
   await Hive.openBox('settings'); // Open settings box
 
   configureDependencies();

@@ -12,6 +12,17 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../features/favorite/data/repositories/favorite_repository_impl.dart'
+    as _i680;
+import '../../features/favorite/domain/repositories/i_favorite_repository.dart'
+    as _i558;
+import '../../features/favorite/domain/usecases/check_favorite_usecase.dart'
+    as _i1024;
+import '../../features/favorite/domain/usecases/get_favorites_usecase.dart'
+    as _i1005;
+import '../../features/favorite/domain/usecases/toggle_favorite_usecase.dart'
+    as _i557;
+import '../../features/favorite/presentation/bloc/favorite_cubit.dart' as _i998;
 import '../../features/search/data/datasources/local_data_source.dart' as _i688;
 import '../../features/search/data/datasources/remote_data_source.dart' as _i91;
 import '../../features/search/data/repositories/food_repository_impl.dart'
@@ -85,6 +96,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i91.RemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i990.ISettingsRepository>(
         () => _i1025.SettingsRepositoryImpl());
+    gh.lazySingleton<_i558.IFavoriteRepository>(
+        () => _i680.FavoriteRepositoryImpl());
     gh.lazySingleton<_i688.LocalDataSource>(() => _i688.LocalDataSourceImpl());
     gh.lazySingleton<_i203.RemoteConfigService>(
         () => _i203.RemoteConfigService(gh<_i361.Dio>()));
@@ -104,11 +117,22 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i775.SaveTextScaleUseCase(gh<_i990.ISettingsRepository>()));
     gh.lazySingleton<_i75.SaveUpdateIntervalUseCase>(
         () => _i75.SaveUpdateIntervalUseCase(gh<_i990.ISettingsRepository>()));
+    gh.factory<_i557.ToggleFavoriteUseCase>(
+        () => _i557.ToggleFavoriteUseCase(gh<_i558.IFavoriteRepository>()));
+    gh.factory<_i1024.CheckFavoriteUseCase>(
+        () => _i1024.CheckFavoriteUseCase(gh<_i558.IFavoriteRepository>()));
+    gh.factory<_i1005.GetFavoritesUseCase>(
+        () => _i1005.GetFavoritesUseCase(gh<_i558.IFavoriteRepository>()));
     gh.lazySingleton<_i601.ExportFoodDataUseCase>(
         () => _i601.ExportFoodDataUseCase(
               gh<_i688.LocalDataSource>(),
               gh<_i178.ExcelExportService>(),
             ));
+    gh.lazySingleton<_i998.FavoriteCubit>(() => _i998.FavoriteCubit(
+          gh<_i1005.GetFavoritesUseCase>(),
+          gh<_i557.ToggleFavoriteUseCase>(),
+          gh<_i1024.CheckFavoriteUseCase>(),
+        ));
     gh.lazySingleton<_i424.IFoodRepository>(() => _i64.FoodRepositoryImpl(
           gh<_i91.RemoteDataSource>(),
           gh<_i688.LocalDataSource>(),
