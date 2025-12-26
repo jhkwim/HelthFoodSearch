@@ -480,118 +480,148 @@ class _MainScreenState extends State<MainScreen>
               }
 
               // Desktop / Wide Layout (Split View)
-              return Scaffold(
-                appBar: _buildAppBar(context, isWide: true),
-                body: Center(
-                  child: Column(
-                    children: [
-                      _buildSyncProgress(),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            // Left Panel: Search Tabs
-                            Expanded(
-                              flex: 5,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    color: Theme.of(context).cardColor,
-                                    child: TabBar(
-                                      controller: _tabController,
-                                      tabs: [
-                                        Tab(
-                                          text: AppLocalizations.of(
-                                            context,
-                                          )!.navProductSearch,
-                                        ),
-                                        Tab(
-                                          text: AppLocalizations.of(
-                                            context,
-                                          )!.navIngredientSearch,
-                                        ),
-                                      ],
-                                      labelStyle: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      indicatorWeight: 3,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TabBarView(
-                                      controller: _tabController,
-                                      children: [
-                                        ProductSearchTab(
-                                          selectedReportNo:
-                                              _selectedItem?.reportNo,
-                                          onItemSelected: (item) {
-                                            setState(() {
-                                              _selectedItem = item;
-                                            });
-                                          },
-                                        ),
-                                        IngredientSearchTab(
-                                          selectedReportNo:
-                                              _selectedItem?.reportNo,
-                                          onItemSelected: (item) {
-                                            setState(() {
-                                              _selectedItem = item;
-                                            });
-                                          },
-                                          onSuggestionSelected: () {
-                                            _ingredientSearchController.clear();
-                                            // Desktop might not need unfocus, but good for consistency or if using touch
-                                            _ingredientSearchController.clear();
-                                            context
-                                                .read<IngredientSearchCubit>()
-                                                .updateSuggestions('');
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const VerticalDivider(width: 1),
-                            // Right Panel: Detail View
-                            Expanded(
-                              flex: 7,
-                              child: _selectedItem == null
-                                  ? Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.touch_app_outlined,
-                                            size: 64,
-                                            color: Colors.grey[400],
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Text(
-                                            AppLocalizations.of(
+              return MultiBlocListener(
+                listeners: [
+                  // 제품명 검색 결과 첫 항목 자동 선택
+                  BlocListener<SearchCubit, SearchState>(
+                    listener: (context, state) {
+                      if (state is SearchLoaded &&
+                          state.foods.isNotEmpty &&
+                          _selectedItem == null) {
+                        setState(() {
+                          _selectedItem = state.foods.first;
+                        });
+                      }
+                    },
+                  ),
+                  // 원료별 검색 결과 첫 항목 자동 선택
+                  BlocListener<IngredientSearchCubit, IngredientSearchState>(
+                    listener: (context, state) {
+                      if (state.status == IngredientSearchStatus.loaded &&
+                          state.searchResults.isNotEmpty &&
+                          _selectedItem == null) {
+                        setState(() {
+                          _selectedItem = state.searchResults.first;
+                        });
+                      }
+                    },
+                  ),
+                ],
+                child: Scaffold(
+                  appBar: _buildAppBar(context, isWide: true),
+                  body: Center(
+                    child: Column(
+                      children: [
+                        _buildSyncProgress(),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              // Left Panel: Search Tabs
+                              Expanded(
+                                flex: 5,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      color: Theme.of(context).cardColor,
+                                      child: TabBar(
+                                        controller: _tabController,
+                                        tabs: [
+                                          Tab(
+                                            text: AppLocalizations.of(
                                               context,
-                                            )!.searchEmptyGuide,
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.grey[600],
-                                            ),
+                                            )!.navProductSearch,
+                                          ),
+                                          Tab(
+                                            text: AppLocalizations.of(
+                                              context,
+                                            )!.navIngredientSearch,
+                                          ),
+                                        ],
+                                        labelStyle: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        indicatorWeight: 3,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: TabBarView(
+                                        controller: _tabController,
+                                        children: [
+                                          ProductSearchTab(
+                                            selectedReportNo:
+                                                _selectedItem?.reportNo,
+                                            onItemSelected: (item) {
+                                              setState(() {
+                                                _selectedItem = item;
+                                              });
+                                            },
+                                          ),
+                                          IngredientSearchTab(
+                                            selectedReportNo:
+                                                _selectedItem?.reportNo,
+                                            onItemSelected: (item) {
+                                              setState(() {
+                                                _selectedItem = item;
+                                              });
+                                            },
+                                            onSuggestionSelected: () {
+                                              _ingredientSearchController
+                                                  .clear();
+                                              // Desktop might not need unfocus, but good for consistency or if using touch
+                                              _ingredientSearchController
+                                                  .clear();
+                                              context
+                                                  .read<IngredientSearchCubit>()
+                                                  .updateSuggestions('');
+                                            },
                                           ),
                                         ],
                                       ),
-                                    )
-                                  : DetailScreen(
-                                      key: ValueKey(_selectedItem!.reportNo),
-                                      item: _selectedItem!,
-                                      onIngredientSelected:
-                                          handleIngredientSelection, // Use callback
                                     ),
-                            ),
-                          ],
+                                  ],
+                                ),
+                              ),
+                              const VerticalDivider(width: 1),
+                              // Right Panel: Detail View
+                              Expanded(
+                                flex: 7,
+                                child: _selectedItem == null
+                                    ? Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.touch_app_outlined,
+                                              size: 64,
+                                              color: Colors.grey[400],
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.searchEmptyGuide,
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : DetailScreen(
+                                        key: ValueKey(_selectedItem!.reportNo),
+                                        item: _selectedItem!,
+                                        onIngredientSelected:
+                                            handleIngredientSelection, // Use callback
+                                      ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
