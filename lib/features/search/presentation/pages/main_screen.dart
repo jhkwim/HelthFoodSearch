@@ -70,7 +70,9 @@ class _MainScreenState extends State<MainScreen>
 
   void _handleTabSelection() {
     if (_tabController.indexIsChanging) {
-      setState(() {});
+      setState(() {
+        _selectedItem = null; // 탭 변경 시 선택 리셋
+      });
     }
   }
 
