@@ -206,5 +206,25 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "updateNeededTitle": "Update Required",
+  "updateNeededContent": "It has been over 30 days since the last update.\nWould you like to update to the latest data?",
+  "updateLater": "Later",
+  "updateNow": "Update Now",
+  "downloadTitle": "Download Data",
+  "downloadCompletePercent": "{percent}% Complete",
+  "@downloadCompletePercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadRunInBackground": "Continue in Background",
+  "downloadStart": "Start Download",
+  "downloadingTitle": "Downloading Latest Data...",
+  "downloadingDesc": "This may take some time depending on data size.\nWi-Fi connection is recommended.",
+  "favoriteProductNotFound": "Product information not found.",
+  "errorInvalidArgs": "Invalid Arguments"
 }

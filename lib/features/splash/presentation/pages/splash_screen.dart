@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:health_food_search/features/setting/presentation/bloc/settings_cubit.dart';
 import 'package:health_food_search/features/search/presentation/bloc/data_sync_cubit.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,15 +31,16 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _handleSettingsLoaded(SettingsLoaded state) {
-     if (state.isApiKeyMissing) {
-        context.go('/api_key');
-      } else {
-        context.read<DataSyncCubit>().checkData();
-      }
+    if (state.isApiKeyMissing) {
+      context.go('/api_key');
+    } else {
+      context.read<DataSyncCubit>().checkData();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Removed MultiBlocProvider as Cubits are provided in main.dart
     return MultiBlocListener(
       listeners: [
@@ -47,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
             if (state is SettingsLoaded) {
               _handleSettingsLoaded(state);
             } else if (state is SettingsError) {
-               ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Settings Error: ${state.message}')),
               );
             }
@@ -57,37 +59,37 @@ class _SplashScreenState extends State<SplashScreen> {
           listener: (context, state) {
             if (state is DataSyncSuccess) {
               if (state.updateNeeded) {
-                 showDialog(
-                   context: context,
-                   barrierDismissible: false,
-                   builder: (context) => AlertDialog(
-                     title: const Text('데이터 업데이트 필요'),
-                     content: const Text('마지막 업데이트로부터 30일이 지났습니다.\n최신 데이터로 업데이트하시겠습니까?'),
-                     actions: [
-                       TextButton(
-                         onPressed: () {
-                           Navigator.of(context).pop();
-                           context.go('/main');
-                         },
-                         child: const Text('나중에'),
-                       ),
-                       TextButton(
-                         onPressed: () {
-                           Navigator.of(context).pop();
-                           context.go('/download');
-                         },
-                         child: const Text('업데이트'),
-                       ),
-                     ],
-                   ),
-                 );
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => AlertDialog(
+                    title: Text(l10n.updateNeededTitle),
+                    content: Text(l10n.updateNeededContent),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          context.go('/main');
+                        },
+                        child: Text(l10n.updateLater),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          context.go('/download');
+                        },
+                        child: Text(l10n.updateNow),
+                      ),
+                    ],
+                  ),
+                );
               } else {
                 context.go('/main');
               }
             } else if (state is DataSyncNeeded) {
               context.go('/download');
             } else if (state is DataSyncError) {
-               ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Data Check Error: ${state.message}')),
               );
             }
@@ -108,14 +110,12 @@ class _SplashScreenState extends State<SplashScreen> {
               const SizedBox(height: 24),
               Text(
                 '건강기능식품 검색',
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: Colors.white,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.displayMedium?.copyWith(color: Colors.white),
               ),
               const SizedBox(height: 24),
-              const CircularProgressIndicator(
-                color: Colors.white,
-              ),
+              const CircularProgressIndicator(color: Colors.white),
             ],
           ),
         ),

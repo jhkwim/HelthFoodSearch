@@ -351,4 +351,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String favoritesViewDetail(String name) {
     return 'View details for $name';
   }
+
+  @override
+  String get updateNeededTitle => 'Update Required';
+
+  @override
+  String get updateNeededContent =>
+      'It has been over 30 days since the last update.\nWould you like to update to the latest data?';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateNow => 'Update Now';
+
+  @override
+  String get downloadTitle => 'Download Data';
+
+  @override
+  String downloadCompletePercent(int percent) {
+    return '$percent% Complete';
+  }
+
+  @override
+  String get downloadRunInBackground => 'Continue in Background';
+
+  @override
+  String get downloadStart => 'Start Download';
+
+  @override
+  String get downloadingTitle => 'Downloading Latest Data...';
+
+  @override
+  String get downloadingDesc =>
+      'This may take some time depending on data size.\nWi-Fi connection is recommended.';
+
+  @override
+  String get favoriteProductNotFound => 'Product information not found.';
+
+  @override
+  String get errorInvalidArgs => 'Invalid Arguments';
 }

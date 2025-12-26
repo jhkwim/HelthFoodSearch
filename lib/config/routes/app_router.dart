@@ -8,6 +8,7 @@ import '../../features/search/presentation/pages/main_screen.dart';
 import '../../features/search/presentation/pages/detail_screen.dart';
 import '../../features/search/domain/entities/food_item.dart';
 import '../../features/favorite/presentation/pages/favorites_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -57,7 +58,11 @@ final appRouter = GoRouter(
             onIngredientSelected: extra['onIngredientSelected'],
           );
         }
-        return const Scaffold(body: Center(child: Text('Invalid Arguments')));
+        return Scaffold(
+          body: Center(
+            child: Text(AppLocalizations.of(context)!.errorInvalidArgs),
+          ),
+        );
       },
     ),
   ],

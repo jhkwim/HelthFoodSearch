@@ -146,6 +146,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     FavoriteState state, {
     required bool isWide,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: state.favorites.length,
@@ -213,7 +214,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               } else {
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('제품 정보를 찾을 수 없습니다')),
+                  SnackBar(content: Text(l10n.favoriteProductNotFound)),
                 );
               }
             },

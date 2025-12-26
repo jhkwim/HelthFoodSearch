@@ -345,4 +345,43 @@ class AppLocalizationsKo extends AppLocalizations {
   String favoritesViewDetail(String name) {
     return '$name 상세 보기';
   }
+
+  @override
+  String get updateNeededTitle => '데이터 업데이트 필요';
+
+  @override
+  String get updateNeededContent =>
+      '마지막 업데이트로부터 30일이 지났습니다.\n최신 데이터로 업데이트하시겠습니까?';
+
+  @override
+  String get updateLater => '나중에';
+
+  @override
+  String get updateNow => '업데이트';
+
+  @override
+  String get downloadTitle => '데이터 다운로드';
+
+  @override
+  String downloadCompletePercent(int percent) {
+    return '$percent% 완료';
+  }
+
+  @override
+  String get downloadRunInBackground => '백그라운드에서 계속하기';
+
+  @override
+  String get downloadStart => '다운로드 시작';
+
+  @override
+  String get downloadingTitle => '최신 데이터를 받아옵니다.';
+
+  @override
+  String get downloadingDesc => '데이터가 많아 시간이 소요될 수 있습니다.\n와이파이 환경을 권장합니다.';
+
+  @override
+  String get favoriteProductNotFound => '제품 정보를 찾을 수 없습니다';
+
+  @override
+  String get errorInvalidArgs => '잘못된 접근입니다';
 }

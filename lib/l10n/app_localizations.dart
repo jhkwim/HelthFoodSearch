@@ -715,6 +715,78 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{name} 상세 보기'**
   String favoritesViewDetail(String name);
+
+  /// No description provided for @updateNeededTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 업데이트 필요'**
+  String get updateNeededTitle;
+
+  /// No description provided for @updateNeededContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 업데이트로부터 30일이 지났습니다.\n최신 데이터로 업데이트하시겠습니까?'**
+  String get updateNeededContent;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In ko, this message translates to:
+  /// **'나중에'**
+  String get updateLater;
+
+  /// No description provided for @updateNow.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트'**
+  String get updateNow;
+
+  /// No description provided for @downloadTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 다운로드'**
+  String get downloadTitle;
+
+  /// No description provided for @downloadCompletePercent.
+  ///
+  /// In ko, this message translates to:
+  /// **'{percent}% 완료'**
+  String downloadCompletePercent(int percent);
+
+  /// No description provided for @downloadRunInBackground.
+  ///
+  /// In ko, this message translates to:
+  /// **'백그라운드에서 계속하기'**
+  String get downloadRunInBackground;
+
+  /// No description provided for @downloadStart.
+  ///
+  /// In ko, this message translates to:
+  /// **'다운로드 시작'**
+  String get downloadStart;
+
+  /// No description provided for @downloadingTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'최신 데이터를 받아옵니다.'**
+  String get downloadingTitle;
+
+  /// No description provided for @downloadingDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터가 많아 시간이 소요될 수 있습니다.\n와이파이 환경을 권장합니다.'**
+  String get downloadingDesc;
+
+  /// No description provided for @favoriteProductNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'제품 정보를 찾을 수 없습니다'**
+  String get favoriteProductNotFound;
+
+  /// No description provided for @errorInvalidArgs.
+  ///
+  /// In ko, this message translates to:
+  /// **'잘못된 접근입니다'**
+  String get errorInvalidArgs;
 }
 
 class _AppLocalizationsDelegate
