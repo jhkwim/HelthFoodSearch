@@ -184,5 +184,18 @@
   "apiInputLabel": "API Key",
   "apiInputHint": "Enter API Key",
   "apiInputError": "Please enter a key",
-  "apiSaveButton": "Save and Start"
+  "apiSaveButton": "Save and Start",
+
+  "favoritesTitle": "Favorites",
+  "favoritesEmpty": "No favorites yet",
+  "favoritesEmptyGuide": "Tap the heart icon on a product detail\nto add to favorites",
+  "favoritesErrorTitle": "An error occurred",
+  "favoritesViewDetail": "View details for {name}",
+  "@favoritesViewDetail": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

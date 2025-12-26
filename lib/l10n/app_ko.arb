@@ -184,5 +184,18 @@
   "apiInputLabel": "API 인증키",
   "apiInputHint": "인증키를 입력하세요",
   "apiInputError": "키를 입력해주세요",
-  "apiSaveButton": "저장하고 시작하기"
+  "apiSaveButton": "저장하고 시작하기",
+
+  "favoritesTitle": "즐겨찾기",
+  "favoritesEmpty": "즐겨찾기가 없습니다",
+  "favoritesEmptyGuide": "상세 화면에서 하트 아이콘을 눌러\n즐겨찾기에 추가하세요",
+  "favoritesErrorTitle": "오류가 발생했습니다",
+  "favoritesViewDetail": "{name} 상세 보기",
+  "@favoritesViewDetail": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

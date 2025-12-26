@@ -673,6 +673,36 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'저장하고 시작하기'**
   String get apiSaveButton;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'즐겨찾기'**
+  String get favoritesTitle;
+
+  /// No description provided for @favoritesEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'즐겨찾기가 없습니다'**
+  String get favoritesEmpty;
+
+  /// No description provided for @favoritesEmptyGuide.
+  ///
+  /// In ko, this message translates to:
+  /// **'상세 화면에서 하트 아이콘을 눌러\n즐겨찾기에 추가하세요'**
+  String get favoritesEmptyGuide;
+
+  /// No description provided for @favoritesErrorTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오류가 발생했습니다'**
+  String get favoritesErrorTitle;
+
+  /// No description provided for @favoritesViewDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 상세 보기'**
+  String favoritesViewDetail(String name);
 }
 
 class _AppLocalizationsDelegate

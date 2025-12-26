@@ -323,4 +323,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apiSaveButton => 'Save and Start';
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesEmpty => 'No favorites yet';
+
+  @override
+  String get favoritesEmptyGuide =>
+      'Tap the heart icon on a product detail\nto add to favorites';
+
+  @override
+  String get favoritesErrorTitle => 'An error occurred';
+
+  @override
+  String favoritesViewDetail(String name) {
+    return 'View details for $name';
+  }
 }

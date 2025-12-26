@@ -318,4 +318,21 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get apiSaveButton => '저장하고 시작하기';
+
+  @override
+  String get favoritesTitle => '즐겨찾기';
+
+  @override
+  String get favoritesEmpty => '즐겨찾기가 없습니다';
+
+  @override
+  String get favoritesEmptyGuide => '상세 화면에서 하트 아이콘을 눌러\n즐겨찾기에 추가하세요';
+
+  @override
+  String get favoritesErrorTitle => '오류가 발생했습니다';
+
+  @override
+  String favoritesViewDetail(String name) {
+    return '$name 상세 보기';
+  }
 }
