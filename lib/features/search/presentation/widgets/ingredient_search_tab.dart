@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
-import '../../../../core/enums/ingredient_search_type.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'product_list_skeleton.dart';
@@ -57,20 +57,11 @@ class _IngredientSearchContent extends StatefulWidget {
 
 class _IngredientSearchContentState extends State<_IngredientSearchContent>
     with AutomaticKeepAliveClientMixin {
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
   final Set<String> _shownItems = {};
   List<FoodItem>? _lastFoods;
 
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,99 +94,9 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
   Widget _buildStandardLayout(BuildContext context) {
     return Column(
       children: [
-        Container(
-          color: Theme.of(context).cardColor,
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildSearchField(context),
-              const SizedBox(height: 12),
-              _buildSearchOptions(context),
-              _buildSelectedChips(context), // Added chips display
-            ],
-          ),
-        ),
-        const Divider(height: 1),
+        const SizedBox(height: 16), // Slight spacing
         Expanded(child: _buildResultsArea(context, isSliver: false)),
       ],
-    );
-  }
-
-  Widget _buildSelectedChips(BuildContext context) {
-    return BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
-      builder: (context, state) {
-        if (state.selectedIngredients.isEmpty) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 12.0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: state.selectedIngredients.map((ing) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Chip(
-                    label: Text(ing, style: const TextStyle(fontSize: 12)),
-                    onDeleted: () {
-                      context.read<IngredientSearchCubit>().removeIngredient(
-                        ing,
-                      );
-                    },
-                    backgroundColor: Theme.of(
-                      context,
-                    ).primaryColor.withValues(alpha: 0.1),
-                    deleteIconColor: Theme.of(context).primaryColor,
-                    side: BorderSide.none,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSearchOptions(BuildContext context) {
-    return BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
-      builder: (context, state) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              Text(
-                AppLocalizations.of(context)!.searchModeLabel,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(width: 12),
-              _buildModeChip(
-                context,
-                label: AppLocalizations.of(context)!.searchModeInclude,
-                isSelected: state.searchType == IngredientSearchType.include,
-                onTap: () => context
-                    .read<IngredientSearchCubit>()
-                    .setSearchType(IngredientSearchType.include),
-              ),
-              const SizedBox(width: 8),
-              _buildModeChip(
-                context,
-                label: AppLocalizations.of(context)!.searchModeExclusive,
-                isSelected: state.searchType == IngredientSearchType.exclusive,
-                onTap: () => context
-                    .read<IngredientSearchCubit>()
-                    .setSearchType(IngredientSearchType.exclusive),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -231,7 +132,6 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                   context.read<IngredientSearchCubit>().addIngredient(
                     suggestion.name,
                   );
-                  _controller.clear(); // Clear local controller
                   widget.onSuggestionSelected?.call();
                 },
               );
@@ -523,58 +423,6 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
     } else {
       context.push('/detail', extra: item);
     }
-  }
-
-  Widget _buildModeChip(
-    BuildContext context, {
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).primaryColor
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Theme.of(context).dividerColor,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Theme.of(context).hintColor,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            fontSize: 12,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchField(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      focusNode: _focusNode,
-      decoration: InputDecoration(
-        labelText: AppLocalizations.of(context)!.searchIngredientLabel,
-        hintText: AppLocalizations.of(context)!.searchIngredientHintExample,
-        suffixIcon: const Icon(Icons.add_circle),
-      ),
-      onChanged: (value) {
-        context.read<IngredientSearchCubit>().updateSuggestions(value);
-      },
-      onSubmitted: (value) {
-        context.read<IngredientSearchCubit>().addIngredient(value);
-        _controller.clear();
-      },
-    );
   }
 }
 
