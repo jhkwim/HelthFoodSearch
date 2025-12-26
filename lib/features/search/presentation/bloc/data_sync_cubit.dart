@@ -9,6 +9,7 @@ import '../../../../core/usecases/usecase.dart';
 import '../../domain/entities/storage_info.dart';
 import '../../domain/usecases/get_storage_info_usecase.dart';
 import '../../../setting/domain/usecases/save_last_sync_time_usecase.dart';
+import '../../../setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 
 part 'data_sync_state.dart';
 
@@ -20,6 +21,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
   final GetStorageInfoUseCase getStorageInfoUseCase;
   final SaveLastSyncTimeUseCase saveLastSyncTimeUseCase;
   final CheckUpdateNeededUseCase checkUpdateNeededUseCase;
+  final FetchAndApplyRemoteRulesUseCase fetchAndApplyRemoteRulesUseCase;
 
   DataSyncCubit(
     this.syncDataUseCase,
@@ -28,6 +30,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
     this.getStorageInfoUseCase,
     this.saveLastSyncTimeUseCase,
     this.checkUpdateNeededUseCase,
+    this.fetchAndApplyRemoteRulesUseCase,
   ) : super(DataSyncInitial());
 
   Future<void> checkData() async {
@@ -69,6 +72,15 @@ class DataSyncCubit extends Cubit<DataSyncState> {
     }
 
     emit(const DataSyncInProgress(0.0));
+
+    // 0. Fetch Remote Rules First
+    // This ensures that when we download and parse data, we use the latest refinement rules.
+    try {
+      await fetchAndApplyRemoteRulesUseCase.execute();
+    } catch (e) {
+      // Proceed even if rule fetch fails (fallback to cached/hardcoded rules)
+      print('Rule fetch during sync failed: $e');
+    }
 
     final result = await syncDataUseCase(
       SyncDataParams(

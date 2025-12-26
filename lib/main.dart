@@ -12,6 +12,7 @@ import 'core/di/injection.dart';
 
 import 'features/setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 import 'features/setting/presentation/bloc/settings_cubit.dart';
+import 'features/search/domain/usecases/refine_local_data_usecase.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,8 +24,17 @@ void main() async {
 
   configureDependencies();
 
-  // Initialize remote refinement rules (Fire and forget)
-  getIt<FetchAndApplyRemoteRulesUseCase>().execute();
+  // Initialize remote refinement rules & Conditional Refinement
+  getIt<FetchAndApplyRemoteRulesUseCase>().execute().then((hasChanged) {
+    if (hasChanged) {
+      debugPrint('Remote rules updated. Starting background refinement...');
+      getIt<RefineLocalDataUseCase>().call().listen(
+        (progress) {},
+        onDone: () => debugPrint('Background refinement completed.'),
+        onError: (e) => debugPrint('Background refinement error: $e'),
+      );
+    }
+  });
 
   runApp(const MyApp());
 }

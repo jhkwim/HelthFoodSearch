@@ -158,6 +158,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i940.GetStorageInfoUseCase>(),
           gh<_i526.SaveLastSyncTimeUseCase>(),
           gh<_i927.CheckUpdateNeededUseCase>(),
+          gh<_i913.FetchAndApplyRemoteRulesUseCase>(),
         ));
     return this;
   }

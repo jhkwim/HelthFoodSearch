@@ -19,6 +19,7 @@ import 'package:health_food_search/features/setting/domain/usecases/get_settings
 import 'package:health_food_search/features/search/domain/usecases/get_storage_info_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/save_last_sync_time_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/check_update_needed_usecase.dart';
+import 'package:health_food_search/features/setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 import 'package:health_food_search/core/usecases/usecase.dart';
 import 'package:dartz/dartz.dart';
 import 'package:health_food_search/core/error/failures.dart';
@@ -80,6 +81,9 @@ class MockCheckUpdateNeededUseCase extends Mock
       Future.value(const Right(false));
 }
 
+class MockFetchAndApplyRemoteRulesUseCase extends Mock
+    implements FetchAndApplyRemoteRulesUseCase {}
+
 void main() {
   late IngredientSearchCubit ingredientSearchCubit;
   late SearchCubit searchCubit;
@@ -94,6 +98,7 @@ void main() {
   late MockGetStorageInfoUseCase mockGetStorageInfo;
   late MockSaveLastSyncTimeUseCase mockSaveLastSyncTime;
   late MockCheckUpdateNeededUseCase mockCheckUpdateNeeded;
+  late MockFetchAndApplyRemoteRulesUseCase mockFetchAndApplyRemoteRulesUseCase;
 
   setUpAll(() {
     registerFallbackValue(NoParams());
@@ -124,6 +129,7 @@ void main() {
     mockGetStorageInfo = MockGetStorageInfoUseCase();
     mockSaveLastSyncTime = MockSaveLastSyncTimeUseCase();
     mockCheckUpdateNeeded = MockCheckUpdateNeededUseCase();
+    mockFetchAndApplyRemoteRulesUseCase = MockFetchAndApplyRemoteRulesUseCase();
 
     // Mock behaviors for initializing MainScreen
     when(
@@ -156,6 +162,7 @@ void main() {
       mockGetStorageInfo,
       mockSaveLastSyncTime,
       mockCheckUpdateNeeded,
+      mockFetchAndApplyRemoteRulesUseCase,
     );
 
     final getIt = GetIt.instance;
