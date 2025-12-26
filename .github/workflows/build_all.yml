@@ -132,6 +132,12 @@ jobs:
           VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //g' | cut -d'+' -f1)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Extract Release Notes
+        id: extract_release_notes
+        run: |
+          awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > RELEASE_NOTES.txt
+          cat RELEASE_NOTES.txt
+
       - name: Download Android Artifact
         uses: actions/download-artifact@v4
         with:
@@ -157,11 +163,11 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           name: Release v${{ env.VERSION }}
+          body_path: RELEASE_NOTES.txt
           files: |
             app-release.apk
             windows-app.zip
             macos-app.zip
             ios-app-unsigned.ipa
-          generate_release_notes: true
           draft: false
           prerelease: false
