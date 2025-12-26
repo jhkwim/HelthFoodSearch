@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:health_food_search/l10n/app_localizations.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/settings_cubit.dart';
 
@@ -17,6 +18,7 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocProvider(
       create: (context) => getIt<SettingsCubit>(),
       child: BlocConsumer<SettingsCubit, SettingsState>(
@@ -24,16 +26,14 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
           if (state is SettingsLoaded && !state.isApiKeyMissing) {
             context.go('/download'); // Go to download screen to sync data
           } else if (state is SettingsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('API 설정'),
-            ),
+            appBar: AppBar(title: Text(l10n.apiParamsTitle)),
             body: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 400),
@@ -46,27 +46,27 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          '식품안전나라 API 키를 입력해주세요.',
+                          l10n.apiGuide1,
                           style: Theme.of(context).textTheme.headlineMedium,
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          '공공데이터포털에서 발급받은 키가 필요합니다.',
+                        Text(
+                          l10n.apiGuide2,
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey),
+                          style: const TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 48),
                         TextFormField(
                           controller: _controller,
-                          decoration: const InputDecoration(
-                            labelText: 'API 인증키',
-                            hintText: '인증키를 입력하세요',
-                            prefixIcon: Icon(Icons.vpn_key),
+                          decoration: InputDecoration(
+                            labelText: l10n.apiInputLabel,
+                            hintText: l10n.apiInputHint,
+                            prefixIcon: const Icon(Icons.vpn_key),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return '키를 입력해주세요';
+                              return l10n.apiInputError;
                             }
                             return null;
                           },
@@ -75,12 +75,16 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
                         ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              context.read<SettingsCubit>().saveApiKey(_controller.text.trim());
+                              context.read<SettingsCubit>().saveApiKey(
+                                _controller.text.trim(),
+                              );
                             }
                           },
                           child: state is SettingsLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text('저장하고 시작하기'),
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(l10n.apiSaveButton),
                         ),
                       ],
                     ),

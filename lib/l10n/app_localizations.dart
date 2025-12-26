@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_en.dart';
 import 'app_localizations_ko.dart';
 
 // ignore_for_file: type=lint
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('ko')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('ko'),
+  ];
 
   /// No description provided for @appTitle.
   ///
@@ -495,6 +499,180 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'{count}개 원료로 검색'**
   String detailFabSearchWithIngredients(int count);
+
+  /// No description provided for @settingsRefiningTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'원재료 정제 중'**
+  String get settingsRefiningTitle;
+
+  /// No description provided for @settingsRefiningComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'원재료 재정제가 완료되었습니다.'**
+  String get settingsRefiningComplete;
+
+  /// No description provided for @settingsThemeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 테마'**
+  String get settingsThemeTitle;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In ko, this message translates to:
+  /// **'시스템 설정'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In ko, this message translates to:
+  /// **'라이트 모드'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In ko, this message translates to:
+  /// **'다크 모드'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsThemeSelectTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'테마 선택'**
+  String get settingsThemeSelectTitle;
+
+  /// No description provided for @settingsUpdateParamsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트 안내 주기'**
+  String get settingsUpdateParamsTitle;
+
+  /// No description provided for @settingsUpdateParamsDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 업데이트 필요 여부를 체크하는 주기입니다.'**
+  String get settingsUpdateParamsDesc;
+
+  /// No description provided for @settingsDevToolsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'개발자 도구 (테스트용)'**
+  String get settingsDevToolsTitle;
+
+  /// No description provided for @settingsDevForceExpire.
+  ///
+  /// In ko, this message translates to:
+  /// **'강제 업데이트 만료 처리'**
+  String get settingsDevForceExpire;
+
+  /// No description provided for @settingsDevForceExpireDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'마지막 업데이트 시간을 30일 전으로 되돌립니다.\n앱 재시작 시 업데이트 팝업을 테스트할 수 있습니다.'**
+  String get settingsDevForceExpireDesc;
+
+  /// No description provided for @settingsDevForceExpireSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트 시간이 만료되었습니다. 앱을 재시작하세요.'**
+  String get settingsDevForceExpireSuccess;
+
+  /// No description provided for @settingsExportTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 엑셀 내보내기'**
+  String get settingsExportTitle;
+
+  /// No description provided for @settingsExportDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장된 식품 정보를 엑셀 파일로 저장하거나 공유합니다.'**
+  String get settingsExportDesc;
+
+  /// No description provided for @settingsExporting.
+  ///
+  /// In ko, this message translates to:
+  /// **'엑셀 파일 생성 중...'**
+  String get settingsExporting;
+
+  /// No description provided for @settingsErrorExport.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 내보내기 실패: {error}'**
+  String settingsErrorExport(String error);
+
+  /// No description provided for @settingsErrorRefine.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 재정제 실패: {error}'**
+  String settingsErrorRefine(String error);
+
+  /// No description provided for @ruleUpdatesAndRefinement.
+  ///
+  /// In ko, this message translates to:
+  /// **'정제 규칙 업데이트 및 재정제'**
+  String get ruleUpdatesAndRefinement;
+
+  /// No description provided for @ruleUpdatesDescWithTime.
+  ///
+  /// In ko, this message translates to:
+  /// **'최신 규칙으로 원재료명을 다시 정리합니다.\n최종 업데이트: {time}'**
+  String ruleUpdatesDescWithTime(String time);
+
+  /// No description provided for @ruleUpdatesDesc.
+  ///
+  /// In ko, this message translates to:
+  /// **'최신 규칙으로 원재료명을 다시 정리합니다.'**
+  String get ruleUpdatesDesc;
+
+  /// No description provided for @apiLastUpdate.
+  ///
+  /// In ko, this message translates to:
+  /// **'최종 업데이트: {time}'**
+  String apiLastUpdate(String time);
+
+  /// No description provided for @apiParamsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'API 설정'**
+  String get apiParamsTitle;
+
+  /// No description provided for @apiGuide1.
+  ///
+  /// In ko, this message translates to:
+  /// **'식품안전나라 API 키를 입력해주세요.'**
+  String get apiGuide1;
+
+  /// No description provided for @apiGuide2.
+  ///
+  /// In ko, this message translates to:
+  /// **'공공데이터포털에서 발급받은 키가 필요합니다.'**
+  String get apiGuide2;
+
+  /// No description provided for @apiInputLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'API 인증키'**
+  String get apiInputLabel;
+
+  /// No description provided for @apiInputHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'인증키를 입력하세요'**
+  String get apiInputHint;
+
+  /// No description provided for @apiInputError.
+  ///
+  /// In ko, this message translates to:
+  /// **'키를 입력해주세요'**
+  String get apiInputError;
+
+  /// No description provided for @apiSaveButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하고 시작하기'**
+  String get apiSaveButton;
 }
 
 class _AppLocalizationsDelegate
@@ -508,7 +686,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['ko'].contains(locale.languageCode);
+      <String>['en', 'ko'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -517,6 +695,8 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
     case 'ko':
       return AppLocalizationsKo();
   }

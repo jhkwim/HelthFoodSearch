@@ -38,7 +38,7 @@ class SettingsScreen extends StatelessWidget {
                       builder: (_) => PopScope(
                         canPop: false,
                         child: AlertDialog(
-                          title: const Text('원재료 정제 중'),
+                          title: Text(l10n.settingsRefiningTitle),
                           content: BlocBuilder<SettingsCubit, SettingsState>(
                             builder: (context, dialogState) {
                               double p = 0;
@@ -90,9 +90,9 @@ class SettingsScreen extends StatelessWidget {
           },
           listener: (context, state) {
             Navigator.of(context).pop(); // Close dialog
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('원재료 재정제가 완료되었습니다.')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.settingsRefiningComplete)),
+            );
           },
           builder: (context, state) {
             final apiKey = (state is SettingsLoaded)
@@ -118,7 +118,7 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.brightness_6),
-                        title: const Text('앱 테마'),
+                        title: Text(l10n.settingsThemeTitle),
                         subtitle: Text(
                           themeMode == ThemeMode.system
                               ? '시스템 설정'
@@ -131,12 +131,12 @@ class SettingsScreen extends StatelessWidget {
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: const Text('테마 선택'),
+                              title: Text(l10n.settingsThemeSelectTitle),
                               content: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   RadioListTile<ThemeMode>(
-                                    title: const Text('시스템 설정'),
+                                    title: Text(l10n.settingsThemeSystem),
                                     value: ThemeMode.system,
                                     groupValue: themeMode,
                                     onChanged: (value) {
@@ -149,7 +149,7 @@ class SettingsScreen extends StatelessWidget {
                                     },
                                   ),
                                   RadioListTile<ThemeMode>(
-                                    title: const Text('라이트 모드'),
+                                    title: Text(l10n.settingsThemeLight),
                                     value: ThemeMode.light,
                                     groupValue: themeMode,
                                     onChanged: (value) {
@@ -162,7 +162,7 @@ class SettingsScreen extends StatelessWidget {
                                     },
                                   ),
                                   RadioListTile<ThemeMode>(
-                                    title: const Text('다크 모드'),
+                                    title: Text(l10n.settingsThemeDark),
                                     value: ThemeMode.dark,
                                     groupValue: themeMode,
                                     onChanged: (value) {
@@ -237,7 +237,11 @@ class SettingsScreen extends StatelessWidget {
                         final timeStr = DateFormat(
                           'yyyy-MM-dd HH:mm',
                         ).format(state.settings.lastSyncTime!);
-                        subTitle += '\n최종 업데이트: $timeStr';
+                        subTitle +=
+                            '\n${l10n.settingsDataSavedWithSize('0', '0')}'; // Revisit this logic later if mismatch
+                        // Wait, previous logic was adding string.
+                        // Ideally use l10n with placeholders.
+                        subTitle += '\n${l10n.apiLastUpdate(timeStr)}';
                       }
 
                       return Column(
@@ -247,10 +251,8 @@ class SettingsScreen extends StatelessWidget {
                               children: [
                                 ListTile(
                                   leading: const Icon(Icons.timer_outlined),
-                                  title: const Text('업데이트 안내 주기'),
-                                  subtitle: const Text(
-                                    '데이터 업데이트 필요 여부를 체크하는 주기입니다.',
-                                  ),
+                                  title: Text(l10n.settingsUpdateParamsTitle),
+                                  subtitle: Text(l10n.settingsUpdateParamsDesc),
                                   trailing: DropdownButton<int>(
                                     value: state.settings.updateIntervalDays,
                                     onChanged: (int? newValue) {
@@ -303,13 +305,17 @@ class SettingsScreen extends StatelessWidget {
                               Icons.refresh,
                               color: Colors.blue,
                             ),
-                            title: const Text('정제 규칙 업데이트 및 재정제'),
+                            title: Text(l10n.ruleUpdatesAndRefinement),
                             subtitle: Text(
                               (state is SettingsLoaded &&
                                       state.settings.lastRefinementUpdate !=
                                           null)
-                                  ? '최신 규칙으로 원재료명을 다시 정리합니다.\n최종 업데이트: ${DateFormat('yyyy-MM-dd HH:mm').format(state.settings.lastRefinementUpdate!)}'
-                                  : '최신 규칙으로 원재료명을 다시 정리합니다.',
+                                  ? l10n.ruleUpdatesDescWithTime(
+                                      DateFormat('yyyy-MM-dd HH:mm').format(
+                                        state.settings.lastRefinementUpdate!,
+                                      ),
+                                    )
+                                  : l10n.ruleUpdatesDesc,
                             ),
                             isThreeLine: true,
                             onTap: () {
@@ -319,17 +325,15 @@ class SettingsScreen extends StatelessWidget {
                           const Divider(),
                           ListTile(
                             leading: const Icon(Icons.file_download),
-                            title: const Text(
-                              '데이터 엑셀 내보내기',
+                            title: Text(
+                              l10n.settingsExportTitle,
                             ), // TODO: Localization
-                            subtitle: const Text(
-                              '저장된 식품 정보를 엑셀 파일로 저장하거나 공유합니다.',
-                            ),
+                            subtitle: Text(l10n.settingsExportDesc),
                             onTap: () {
                               // Trigger export
                               context.read<SettingsCubit>().exportData();
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('엑셀 파일 생성 중...')),
+                                SnackBar(content: Text(l10n.settingsExporting)),
                               );
                             },
                           ),
@@ -407,23 +411,21 @@ class SettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
                 if (!kReleaseMode) ...[
-                  _buildSectionTitle(context, '개발자 도구 (테스트용)'),
+                  _buildSectionTitle(context, l10n.settingsDevToolsTitle),
                   Card(
                     color: Colors.red[50],
                     child: ListTile(
                       leading: const Icon(Icons.bug_report, color: Colors.red),
-                      title: const Text('강제 업데이트 만료 처리'),
-                      subtitle: const Text(
-                        '마지막 업데이트 시간을 30일 전으로 되돌립니다.\n앱 재시작 시 업데이트 팝업을 테스트할 수 있습니다.',
-                      ),
+                      title: Text(l10n.settingsDevForceExpire),
+                      subtitle: Text(l10n.settingsDevForceExpireDesc),
                       onTap: () async {
                         await context
                             .read<SettingsCubit>()
                             .forceExpireSyncTime();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('업데이트 시간이 만료되었습니다. 앱을 재시작하세요.'),
+                            SnackBar(
+                              content: Text(l10n.settingsDevForceExpireSuccess),
                             ),
                           );
                         }

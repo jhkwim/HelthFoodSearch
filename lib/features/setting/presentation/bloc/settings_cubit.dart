@@ -92,7 +92,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     try {
       await exportFoodDataUseCase();
     } catch (e) {
-      emit(SettingsError('데이터 내보내기 실패: $e'));
+      emit(SettingsError('Failed to export data: $e'));
     }
   }
 
@@ -146,7 +146,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       // Optionally show success message via side effect or snackbar managed by UI listener?
       // For now, returning to idle state implies completion.
     } catch (e) {
-      emit(SettingsError('데이터 재정제 실패: $e'));
+      emit(SettingsError('Failed to refine data: $e'));
     }
   }
 

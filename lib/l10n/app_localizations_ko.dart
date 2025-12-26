@@ -222,4 +222,100 @@ class AppLocalizationsKo extends AppLocalizations {
   String detailFabSearchWithIngredients(int count) {
     return '$count개 원료로 검색';
   }
+
+  @override
+  String get settingsRefiningTitle => '원재료 정제 중';
+
+  @override
+  String get settingsRefiningComplete => '원재료 재정제가 완료되었습니다.';
+
+  @override
+  String get settingsThemeTitle => '앱 테마';
+
+  @override
+  String get settingsThemeSystem => '시스템 설정';
+
+  @override
+  String get settingsThemeLight => '라이트 모드';
+
+  @override
+  String get settingsThemeDark => '다크 모드';
+
+  @override
+  String get settingsThemeSelectTitle => '테마 선택';
+
+  @override
+  String get settingsUpdateParamsTitle => '업데이트 안내 주기';
+
+  @override
+  String get settingsUpdateParamsDesc => '데이터 업데이트 필요 여부를 체크하는 주기입니다.';
+
+  @override
+  String get settingsDevToolsTitle => '개발자 도구 (테스트용)';
+
+  @override
+  String get settingsDevForceExpire => '강제 업데이트 만료 처리';
+
+  @override
+  String get settingsDevForceExpireDesc =>
+      '마지막 업데이트 시간을 30일 전으로 되돌립니다.\n앱 재시작 시 업데이트 팝업을 테스트할 수 있습니다.';
+
+  @override
+  String get settingsDevForceExpireSuccess => '업데이트 시간이 만료되었습니다. 앱을 재시작하세요.';
+
+  @override
+  String get settingsExportTitle => '데이터 엑셀 내보내기';
+
+  @override
+  String get settingsExportDesc => '저장된 식품 정보를 엑셀 파일로 저장하거나 공유합니다.';
+
+  @override
+  String get settingsExporting => '엑셀 파일 생성 중...';
+
+  @override
+  String settingsErrorExport(String error) {
+    return '데이터 내보내기 실패: $error';
+  }
+
+  @override
+  String settingsErrorRefine(String error) {
+    return '데이터 재정제 실패: $error';
+  }
+
+  @override
+  String get ruleUpdatesAndRefinement => '정제 규칙 업데이트 및 재정제';
+
+  @override
+  String ruleUpdatesDescWithTime(String time) {
+    return '최신 규칙으로 원재료명을 다시 정리합니다.\n최종 업데이트: $time';
+  }
+
+  @override
+  String get ruleUpdatesDesc => '최신 규칙으로 원재료명을 다시 정리합니다.';
+
+  @override
+  String apiLastUpdate(String time) {
+    return '최종 업데이트: $time';
+  }
+
+  @override
+  String get apiParamsTitle => 'API 설정';
+
+  @override
+  String get apiGuide1 => '식품안전나라 API 키를 입력해주세요.';
+
+  @override
+  String get apiGuide2 => '공공데이터포털에서 발급받은 키가 필요합니다.';
+
+  @override
+  String get apiInputLabel => 'API 인증키';
+
+  @override
+  String get apiInputHint => '인증키를 입력하세요';
+
+  @override
+  String get apiInputError => '키를 입력해주세요';
+
+  @override
+  String get apiSaveButton => '저장하고 시작하기';
 }

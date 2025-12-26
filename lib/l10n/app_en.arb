@@ -1,0 +1,188 @@
+{
+  "@@locale": "en",
+  "appTitle": "Health Food Search",
+  
+  "navProductSearch": "Product Search",
+  "navIngredientSearch": "Ingredient Search",
+  "searchHintProduct": "Enter product name",
+  "searchHintIngredient": "Enter ingredient name",
+  "searchEmptyGuide": "Select a product from the list on the left",
+
+  "settingsTitle": "Settings",
+  "settingsDisplaySection": "Display",
+  "settingsLargeText": "Large Text Mode",
+  "settingsLargeTextDesc": "Increases text size throughout the app.",
+  "settingsApiSection": "API Settings",
+  "settingsApiKey": "API Key",
+  "settingsDataSection": "Data Management",
+  "settingsDataRefresh": "Redownload Data",
+  "settingsDataRefreshDesc": "Fetch the latest data from the server.",
+  "settingsDataSaved": "Saved Data: {count} items",
+  "@settingsDataSaved": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDataSavedWithSize": "Saved Data: {count} items ({size} MB)",
+  "@settingsDataSavedWithSize": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDataDelete": "Delete Data",
+  "settingsDataDeleteDesc": "Delete all saved data.",
+  "settingsDataDeleteConfirmTitle": "Delete Data",
+  "settingsDataDeleteConfirmContent": "Are you sure you want to delete all data?",
+  "settingsDataDeleteCancel": "Cancel",
+  "settingsDataDeleteConfirm": "Delete",
+  "settingsDataRefreshNotice": "Data will be refreshed upon redownloading.",
+  "settingsAppInfoSection": "App Info",
+  "settingsVersion": "Version",
+  "settingsLoading": "Loading...",
+  "settingsNotSet": "Not Set",
+  
+  "syncProgress": "Downloading... ({percent}%) - Search Available",
+  "@syncProgress": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+
+  "searchProductHintExample": "Ex: Vitamin",
+  "searchProductEmpty": "No results found.",
+  "searchProductInitial": "Enter a product name to search.",
+  
+  "searchIngredientLabel": "Add Ingredient",
+  "searchIngredientHintExample": "Enter ingredient (Ex: Red Ginseng)",
+  "searchModeLabel": "Search Mode:",
+  "searchModeInclude": "Include (+α)",
+  "searchModeExclusive": "Exclusive (Only)",
+  "searchIngredientEmptyResult": "No products match your criteria.",
+  "searchIngredientInitial": "Add ingredients to start searching.",
+
+  "errorOccurred": "Error: {message}",
+  "@errorOccurred": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "metaReportNo": "Report No: {reportNo}",
+  "@metaReportNo": {
+    "placeholders": {
+      "reportNo": {
+        "type": "String"
+      }
+    }
+  },
+  "metaMainIngredients": "Main Ingredients: ",
+
+  "detailTitle": "Product Details",
+  "detailTabFuncRaw": "Functional Ingredients",
+  "detailTabEtcRaw": "Other Materials",
+  "detailTabCapRaw": "Capsule/Composite",
+  "detailSectionBasic": "Basic Info",
+  "detailLabelCompany": "Company",
+  "detailLabelReportNo": "Report No",
+  "detailLabelRegDate": "Reg. Date",
+  "detailLabelExpireDate": "Expiration Date",
+  "detailLabelAppearance": "Appearance",
+  "detailLabelForm": "Form",
+  "detailSectionPacking": "Packaging Info",
+  "detailLabelPackMaterial": "Material",
+  "detailLabelPackMethod": "Method",
+  "detailSectionIntake": "Intake Info",
+  "detailSectionFunc": "Functions",
+  "detailSectionStandard": "Standards",
+  "detailSectionCaution": "Cautions",
+  "detailLabelCautionIntake": "Intake Cautions",
+  "detailLabelCautionStorage": "Storage Cautions",
+  "detailSectionIngredients": "Ingredients",
+  "detailLabelRawMaterialsSearchable": "Ingredients (Searchable)",
+  "detailSelectedCount": "{count} selected",
+  "@detailSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailSectionRawMaterialsReport": "Reported Ingredients",
+  "detailFabSearchWithIngredients": "Search with {count} ingredients",
+  "@detailFabSearchWithIngredients": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "settingsRefiningTitle": "Refining Ingredients",
+  "settingsRefiningComplete": "Ingredient refinement completed.",
+  "settingsThemeTitle": "App Theme",
+  "settingsThemeSystem": "System Default",
+  "settingsThemeLight": "Light Mode",
+  "settingsThemeDark": "Dark Mode",
+  "settingsThemeSelectTitle": "Select Theme",
+  "settingsUpdateParamsTitle": "Update Notification Interval",
+  "settingsUpdateParamsDesc": "Frequency to check for data updates.",
+  "settingsDevToolsTitle": "Developer Tools",
+  "settingsDevForceExpire": "Force Update Expiration",
+  "settingsDevForceExpireDesc": "Resets last update time to 30 days ago.\nTests update popup on restart.",
+  "settingsDevForceExpireSuccess": "Update expired. Please restart the app.",
+  "settingsExportTitle": "Export to Excel",
+  "settingsExportDesc": "Save or share food data as an Excel file.",
+  "settingsExporting": "Generating Excel file...",
+  "settingsErrorExport": "Export failed: {error}",
+  "@settingsErrorExport": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsErrorRefine": "Refinement failed: {error}",
+  "@settingsErrorRefine": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleUpdatesAndRefinement": "Update Rules & Refine",
+  "ruleUpdatesDescWithTime": "Re-refines ingredients with latest rules.\nLast Updated: {time}",
+  "@ruleUpdatesDescWithTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleUpdatesDesc": "Re-refines ingredients with latest rules.",
+  "apiLastUpdate": "Final Update: {time}",
+  "@apiLastUpdate": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "apiParamsTitle": "API Settings",
+  "apiGuide1": "Please enter your Food Safety Korea API Key.",
+  "apiGuide2": "You need a key issued from the Public Data Portal.",
+  "apiInputLabel": "API Key",
+  "apiInputHint": "Enter API Key",
+  "apiInputError": "Please enter a key",
+  "apiSaveButton": "Save and Start"
+}
