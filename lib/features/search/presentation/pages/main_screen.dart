@@ -533,119 +533,128 @@ class _MainScreenState extends State<MainScreen>
                 ],
                 child: Scaffold(
                   appBar: _buildAppBar(context, isWide: true),
-                  body: Center(
-                    child: Column(
-                      children: [
-                        _buildSyncProgress(),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              // Left Panel: Search Tabs
-                              Expanded(
-                                flex: 5,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      color: Theme.of(context).cardColor,
-                                      child: TabBar(
-                                        controller: _tabController,
-                                        tabs: [
-                                          Tab(
-                                            text: AppLocalizations.of(
-                                              context,
-                                            )!.navProductSearch,
-                                          ),
-                                          Tab(
-                                            text: AppLocalizations.of(
-                                              context,
-                                            )!.navIngredientSearch,
-                                          ),
-                                        ],
-                                        labelStyle: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        indicatorWeight: 3,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: TabBarView(
-                                        controller: _tabController,
-                                        children: [
-                                          ProductSearchTab(
-                                            selectedReportNo:
-                                                _selectedItem?.reportNo,
-                                            onItemSelected: (item) {
-                                              setState(() {
-                                                _selectedItem = item;
-                                              });
-                                            },
-                                          ),
-                                          IngredientSearchTab(
-                                            selectedReportNo:
-                                                _selectedItem?.reportNo,
-                                            onItemSelected: (item) {
-                                              setState(() {
-                                                _selectedItem = item;
-                                              });
-                                            },
-                                            onSuggestionSelected: () {
-                                              _ingredientSearchController
-                                                  .clear();
-                                              // Desktop might not need unfocus, but good for consistency or if using touch
-                                              _ingredientSearchController
-                                                  .clear();
-                                              context
-                                                  .read<IngredientSearchCubit>()
-                                                  .updateSuggestions('');
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const VerticalDivider(width: 1),
-                              // Right Panel: Detail View
-                              Expanded(
-                                flex: 7,
-                                child: _selectedItem == null
-                                    ? Center(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.touch_app_outlined,
-                                              size: 64,
-                                              color: Colors.grey[400],
-                                            ),
-                                            const SizedBox(height: 16),
-                                            Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.searchEmptyGuide,
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.grey[600],
+                  body: BlocBuilder<IngredientSearchCubit, IngredientSearchState>(
+                    builder: (context, state) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            _buildSyncProgress(),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  // Left Panel: Search Tabs
+                                  Expanded(
+                                    flex: 5,
+                                    child: Column(
+                                      children: [
+                                        _buildHeaderBottom(context, state),
+                                        Container(
+                                          color: Theme.of(context).cardColor,
+                                          child: TabBar(
+                                            controller: _tabController,
+                                            tabs: [
+                                              Tab(
+                                                text: AppLocalizations.of(
+                                                  context,
+                                                )!.navProductSearch,
                                               ),
+                                              Tab(
+                                                text: AppLocalizations.of(
+                                                  context,
+                                                )!.navIngredientSearch,
+                                              ),
+                                            ],
+                                            labelStyle: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                          ],
+                                            indicatorWeight: 3,
+                                          ),
                                         ),
-                                      )
-                                    : DetailScreen(
-                                        key: ValueKey(_selectedItem!.reportNo),
-                                        item: _selectedItem!,
-                                        onIngredientSelected:
-                                            handleIngredientSelection, // Use callback
-                                      ),
+                                        Expanded(
+                                          child: TabBarView(
+                                            controller: _tabController,
+                                            children: [
+                                              ProductSearchTab(
+                                                selectedReportNo:
+                                                    _selectedItem?.reportNo,
+                                                onItemSelected: (item) {
+                                                  setState(() {
+                                                    _selectedItem = item;
+                                                  });
+                                                },
+                                              ),
+                                              IngredientSearchTab(
+                                                selectedReportNo:
+                                                    _selectedItem?.reportNo,
+                                                onItemSelected: (item) {
+                                                  setState(() {
+                                                    _selectedItem = item;
+                                                  });
+                                                },
+                                                onSuggestionSelected: () {
+                                                  _ingredientSearchController
+                                                      .clear();
+                                                  // Desktop might not need unfocus, but good for consistency or if using touch
+                                                  _ingredientSearchController
+                                                      .clear();
+                                                  context
+                                                      .read<
+                                                        IngredientSearchCubit
+                                                      >()
+                                                      .updateSuggestions('');
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const VerticalDivider(width: 1),
+                                  // Right Panel: Detail View
+                                  Expanded(
+                                    flex: 7,
+                                    child: _selectedItem == null
+                                        ? Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.touch_app_outlined,
+                                                  size: 64,
+                                                  color: Colors.grey[400],
+                                                ),
+                                                const SizedBox(height: 16),
+                                                Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.searchEmptyGuide,
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : DetailScreen(
+                                            key: ValueKey(
+                                              _selectedItem!.reportNo,
+                                            ),
+                                            item: _selectedItem!,
+                                            onIngredientSelected:
+                                                handleIngredientSelection, // Use callback
+                                          ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
               );
