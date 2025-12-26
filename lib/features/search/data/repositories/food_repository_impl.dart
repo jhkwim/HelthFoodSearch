@@ -276,4 +276,14 @@ class FoodRepositoryImpl implements IFoodRepository {
       return Left(CacheFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> clearData() async {
+    try {
+      await localDataSource.clearData();
+      return const Right(null);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
 }

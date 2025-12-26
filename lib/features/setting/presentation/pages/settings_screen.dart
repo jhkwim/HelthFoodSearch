@@ -392,10 +392,10 @@ class SettingsScreen extends StatelessWidget {
                                     ),
                                   ),
                                 );
-                                // Ideally trigger clear here via DataSyncCubit (missing clear method exposure?)
-                                // DataSyncCubit only has syncData.
-                                // Ideally we should add clearData to DataSyncCubit too. But user didn't ask explicitly.
-                                // The current code just shows snackbar. I will leave it as is.
+                                await context.read<DataSyncCubit>().clearData();
+                                if (context.mounted) {
+                                  context.push('/download');
+                                }
                               }
                             },
                           ),

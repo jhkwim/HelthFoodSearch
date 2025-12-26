@@ -31,6 +31,7 @@ import '../../features/search/domain/repositories/i_food_repository.dart'
     as _i424;
 import '../../features/search/domain/usecases/check_data_existence_usecase.dart'
     as _i938;
+import '../../features/search/domain/usecases/clear_data_usecase.dart' as _i923;
 import '../../features/search/domain/usecases/get_raw_materials_usecase.dart'
     as _i806;
 import '../../features/search/domain/usecases/get_storage_info_usecase.dart'
@@ -148,6 +149,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i806.GetRawMaterialsUseCase(gh<_i424.IFoodRepository>()));
     gh.lazySingleton<_i337.SearchFoodByIngredientsUseCase>(() =>
         _i337.SearchFoodByIngredientsUseCase(gh<_i424.IFoodRepository>()));
+    gh.lazySingleton<_i923.ClearDataUseCase>(
+        () => _i923.ClearDataUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i938.CheckDataExistenceUseCase>(
         () => _i938.CheckDataExistenceUseCase(gh<_i424.IFoodRepository>()));
     gh.factory<_i195.RefineLocalDataUseCase>(
@@ -183,6 +186,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i526.SaveLastSyncTimeUseCase>(),
           gh<_i927.CheckUpdateNeededUseCase>(),
           gh<_i913.FetchAndApplyRemoteRulesUseCase>(),
+          gh<_i923.ClearDataUseCase>(),
         ));
     return this;
   }

@@ -11,6 +11,7 @@ import '../../domain/entities/storage_info.dart';
 import '../../domain/usecases/get_storage_info_usecase.dart';
 import '../../../setting/domain/usecases/save_last_sync_time_usecase.dart';
 import '../../../setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
+import '../../domain/usecases/clear_data_usecase.dart';
 
 part 'data_sync_state.dart';
 
@@ -23,6 +24,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
   final SaveLastSyncTimeUseCase saveLastSyncTimeUseCase;
   final CheckUpdateNeededUseCase checkUpdateNeededUseCase;
   final FetchAndApplyRemoteRulesUseCase fetchAndApplyRemoteRulesUseCase;
+  final ClearDataUseCase clearDataUseCase;
 
   DataSyncCubit(
     this.syncDataUseCase,
@@ -32,6 +34,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
     this.saveLastSyncTimeUseCase,
     this.checkUpdateNeededUseCase,
     this.fetchAndApplyRemoteRulesUseCase,
+    this.clearDataUseCase,
   ) : super(DataSyncInitial());
 
   Future<void> checkData() async {
@@ -102,5 +105,14 @@ class DataSyncCubit extends Cubit<DataSyncState> {
         (info) => emit(DataSyncSuccess(storageInfo: info)),
       );
     });
+  }
+
+  Future<void> clearData() async {
+    emit(DataSyncLoading());
+    final result = await clearDataUseCase(NoParams());
+    result.fold(
+      (failure) => emit(DataSyncError(failure.message)),
+      (_) => emit(DataSyncNeeded()),
+    );
   }
 }

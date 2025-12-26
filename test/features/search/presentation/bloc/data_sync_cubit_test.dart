@@ -13,6 +13,7 @@ import 'package:health_food_search/features/setting/domain/usecases/check_update
 import 'package:health_food_search/features/setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/get_settings_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/save_last_sync_time_usecase.dart';
+import 'package:health_food_search/features/search/domain/usecases/clear_data_usecase.dart';
 import 'package:mocktail/mocktail.dart';
 
 // Mocks
@@ -34,6 +35,8 @@ class MockCheckUpdateNeededUseCase extends Mock
 class MockFetchAndApplyRemoteRulesUseCase extends Mock
     implements FetchAndApplyRemoteRulesUseCase {}
 
+class MockClearDataUseCase extends Mock implements ClearDataUseCase {}
+
 void main() {
   late DataSyncCubit cubit;
   late MockSyncDataUseCase mockSyncData;
@@ -43,6 +46,7 @@ void main() {
   late MockSaveLastSyncTimeUseCase mockSaveLastSyncTime;
   late MockCheckUpdateNeededUseCase mockCheckUpdateNeeded;
   late MockFetchAndApplyRemoteRulesUseCase mockFetchRules;
+  late MockClearDataUseCase mockClearDataUseCase;
 
   setUpAll(() {
     registerFallbackValue(NoParams());
@@ -58,6 +62,7 @@ void main() {
     mockSaveLastSyncTime = MockSaveLastSyncTimeUseCase();
     mockCheckUpdateNeeded = MockCheckUpdateNeededUseCase();
     mockFetchRules = MockFetchAndApplyRemoteRulesUseCase();
+    mockClearDataUseCase = MockClearDataUseCase();
 
     cubit = DataSyncCubit(
       mockSyncData,
@@ -67,6 +72,7 @@ void main() {
       mockSaveLastSyncTime,
       mockCheckUpdateNeeded,
       mockFetchRules,
+      mockClearDataUseCase,
     );
   });
 

@@ -11,6 +11,7 @@ import 'package:health_food_search/features/search/domain/usecases/get_suggested
 import 'package:health_food_search/features/search/domain/usecases/search_food_by_name_usecase.dart';
 import 'package:health_food_search/features/search/domain/usecases/sync_data_usecase.dart'; // Correct: search domain
 import 'package:health_food_search/features/search/domain/usecases/check_data_existence_usecase.dart'; // Correct: search domain
+import 'package:health_food_search/features/search/domain/usecases/clear_data_usecase.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:get_it/get_it.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
@@ -64,6 +65,8 @@ class MockCheckUpdateNeededUseCase extends Mock
 class MockFetchAndApplyRemoteRulesUseCase extends Mock
     implements FetchAndApplyRemoteRulesUseCase {}
 
+class MockClearDataUseCase extends Mock implements ClearDataUseCase {}
+
 void main() {
   late IngredientSearchCubit ingredientSearchCubit;
   late SearchCubit searchCubit;
@@ -84,6 +87,7 @@ void main() {
     final mockCheckUpdateNeeded = MockCheckUpdateNeededUseCase();
     final mockFetchAndApplyRemoteRulesUseCase =
         MockFetchAndApplyRemoteRulesUseCase();
+    final mockClearDataUseCase = MockClearDataUseCase();
 
     // Register fallback values
     registerFallbackValue(NoParams());
@@ -121,6 +125,7 @@ void main() {
       mockSaveLastSyncTime,
       mockCheckUpdateNeeded,
       mockFetchAndApplyRemoteRulesUseCase,
+      mockClearDataUseCase,
     );
 
     getIt.registerSingleton<IngredientSearchCubit>(ingredientSearchCubit);
