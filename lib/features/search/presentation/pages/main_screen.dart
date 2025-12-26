@@ -330,10 +330,12 @@ class _MainScreenState extends State<MainScreen>
               widget.initialIngredients != null &&
               widget.initialIngredients!.isNotEmpty) {
             _initialIngredientsHandled = true;
+            // Cubit 참조를 콜백 전에 캡처
+            final cubit = context.read<IngredientSearchCubit>();
+            final ingredients = widget.initialIngredients!;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _tabController.animateTo(1); // 원재료 탭으로 이동
-              final cubit = context.read<IngredientSearchCubit>();
-              cubit.replaceIngredients(widget.initialIngredients!);
+              cubit.replaceIngredients(ingredients);
               cubit.search();
             });
           }
