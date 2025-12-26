@@ -11,7 +11,6 @@ import '../../domain/entities/food_item.dart';
 import '../pages/detail_screen.dart';
 
 import '../bloc/ingredient_search_cubit.dart';
-import '../../../../core/utils/sliver_tab_bar_delegate.dart';
 
 import '../bloc/search_cubit.dart';
 import '../../../../core/enums/ingredient_search_type.dart';
@@ -84,217 +83,209 @@ class _MainScreenState extends State<MainScreen>
     BuildContext context,
     IngredientSearchState state,
   ) {
+    // 탭바 높이
+    const double tabBarHeight = 48.0;
+
+    Widget searchContent;
+    double searchContentHeight;
+
     if (_tabController.index == 0) {
-      // Product Search Header
-      return PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: TextField(
-            controller: _productSearchController,
-            focusNode: _productFocusNode,
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)!.navProductSearch,
-              hintText: AppLocalizations.of(context)!.searchProductHintExample,
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  _productSearchController.clear();
-                  context.read<SearchCubit>().search('');
-                },
-              ),
-              filled: true,
-              fillColor: Theme.of(context).cardColor,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
+      // Product Search Header Content
+      searchContentHeight = 80.0;
+      searchContent = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: TextField(
+          controller: _productSearchController,
+          focusNode: _productFocusNode,
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.navProductSearch,
+            hintText: AppLocalizations.of(context)!.searchProductHintExample,
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () {
+                _productSearchController.clear();
+                context.read<SearchCubit>().search('');
+              },
             ),
-            textInputAction: TextInputAction.search,
-            onSubmitted: (query) {
-              context.read<SearchCubit>().search(query);
-            },
+            filled: true,
+            fillColor: Theme.of(context).cardColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
+          textInputAction: TextInputAction.search,
+          onSubmitted: (query) {
+            context.read<SearchCubit>().search(query);
+          },
         ),
       );
     } else {
-      // Ingredient Search Header
-      // Check if any ingredients are selected to adjust height
-      // Actually we need to watch state to know if we need extra space?
-      // PreferredSize widget requires fixed size.
-      // If we want dynamic size in SliverAppBar, it's tricky.
-      // Let's set a height that accommodates chips if we use a scrolling row.
-      // Base height 120 (Text + Options). Chips row ~40-50. Total ~170?
-      // But if no chips, we want less space?
-      // Standard SliverAppBar bottom doesn't animate height easily.
-      // Let's stick to a reasonable fixed height that includes chips,
-      // OR use a layout that allows empty space (Container will just be empty).
-      // Let's try 160.
+      // Ingredient Search Header Content
       final ingredients = state.selectedIngredients;
       final bool hasChips = ingredients.isNotEmpty;
 
-      // Dynamic Height Calculation
-      // TextField + Label (~60-70)
-      // Options Row (~40)
-      // Chips Row (~40) + Padding
-      // Base: 120. With Chips: 170.
-      final double headerHeight = hasChips ? 180.0 : 130.0;
+      // Base: 130. With Chips: 180.
+      searchContentHeight = hasChips ? 180.0 : 130.0;
 
-      return PreferredSize(
-        preferredSize: Size.fromHeight(headerHeight),
-        child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _ingredientSearchController,
-                focusNode: _ingredientFocusNode,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(
-                    context,
-                  )!.searchIngredientLabel,
-                  hintText: AppLocalizations.of(
-                    context,
-                  )!.searchIngredientHintExample,
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.add_circle),
-                    onPressed: () {
-                      final val = _ingredientSearchController.text;
-                      if (val.isNotEmpty) {
-                        context.read<IngredientSearchCubit>().addIngredient(
-                          val,
-                        );
-                        _ingredientSearchController.clear();
-                      }
-                    },
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(context).cardColor,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+      searchContent = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _ingredientSearchController,
+              focusNode: _ingredientFocusNode,
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.searchIngredientLabel,
+                hintText: AppLocalizations.of(
+                  context,
+                )!.searchIngredientHintExample,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add_circle),
+                  onPressed: () {
+                    final val = _ingredientSearchController.text;
+                    if (val.isNotEmpty) {
+                      context.read<IngredientSearchCubit>().addIngredient(val);
+                      _ingredientSearchController.clear();
+                    }
+                  },
                 ),
-                onChanged: (value) {
-                  context.read<IngredientSearchCubit>().updateSuggestions(
-                    value,
-                  );
-                },
-                onSubmitted: (value) {
-                  context.read<IngredientSearchCubit>().addIngredient(value);
-                  _ingredientSearchController.clear();
-                },
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
-              const SizedBox(height: 8),
-              // Search Options Row
-              // Note: We already have state passed in, but the content below might use Builder?
-              // The logic below is static enough, we can use state directly.
-              Builder(
-                builder: (context) {
-                  // Reusing state passed from _buildHeaderBottom argument
-                  // But wait, the children need context too.
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              onChanged: (value) {
+                context.read<IngredientSearchCubit>().updateSuggestions(value);
+              },
+              onSubmitted: (value) {
+                context.read<IngredientSearchCubit>().addIngredient(value);
+                _ingredientSearchController.clear();
+              },
+            ),
+            const SizedBox(height: 8),
+            Builder(
+              builder: (context) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.searchModeLabel,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          _buildModeChip(
+                            context,
+                            label: AppLocalizations.of(
+                              context,
+                            )!.searchModeInclude,
+                            isSelected:
+                                state.searchType ==
+                                IngredientSearchType.include,
+                            onTap: () => context
+                                .read<IngredientSearchCubit>()
+                                .setSearchType(IngredientSearchType.include),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildModeChip(
+                            context,
+                            label: AppLocalizations.of(
+                              context,
+                            )!.searchModeExclusive,
+                            isSelected:
+                                state.searchType ==
+                                IngredientSearchType.exclusive,
+                            onTap: () => context
+                                .read<IngredientSearchCubit>()
+                                .setSearchType(IngredientSearchType.exclusive),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (state.selectedIngredients.isNotEmpty) ...[
+                      const SizedBox(height: 12),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: [
-                            Text(
-                              AppLocalizations.of(context)!.searchModeLabel,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
+                          children: state.selectedIngredients.map((ing) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Chip(
+                                label: Text(
+                                  ing,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                onDeleted: () {
+                                  context
+                                      .read<IngredientSearchCubit>()
+                                      .removeIngredient(ing);
+                                },
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).primaryColor.withValues(alpha: 0.1),
+                                deleteIconColor: Theme.of(context).primaryColor,
+                                side: BorderSide.none,
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            _buildModeChip(
-                              context,
-                              label: AppLocalizations.of(
-                                context,
-                              )!.searchModeInclude,
-                              isSelected:
-                                  state.searchType ==
-                                  IngredientSearchType.include,
-                              onTap: () => context
-                                  .read<IngredientSearchCubit>()
-                                  .setSearchType(IngredientSearchType.include),
-                            ),
-                            const SizedBox(width: 8),
-                            _buildModeChip(
-                              context,
-                              label: AppLocalizations.of(
-                                context,
-                              )!.searchModeExclusive,
-                              isSelected:
-                                  state.searchType ==
-                                  IngredientSearchType.exclusive,
-                              onTap: () => context
-                                  .read<IngredientSearchCubit>()
-                                  .setSearchType(
-                                    IngredientSearchType.exclusive,
-                                  ),
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
                       ),
-                      if (state.selectedIngredients.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        // Selected Chips Row
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: state.selectedIngredients.map((ing) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Chip(
-                                  label: Text(
-                                    ing,
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                  onDeleted: () {
-                                    context
-                                        .read<IngredientSearchCubit>()
-                                        .removeIngredient(ing);
-                                  },
-                                  materialTapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                  visualDensity: VisualDensity.compact,
-                                  backgroundColor: Theme.of(
-                                    context,
-                                  ).primaryColor.withValues(alpha: 0.1),
-                                  deleteIconColor: Theme.of(
-                                    context,
-                                  ).primaryColor,
-                                  side: BorderSide.none,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
                     ],
-                  );
-                },
-              ),
-            ],
-          ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       );
     }
+
+    return PreferredSize(
+      preferredSize: Size.fromHeight(searchContentHeight + tabBarHeight),
+      child: Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          children: [
+            searchContent,
+            TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(text: AppLocalizations.of(context)!.navProductSearch),
+                Tab(text: AppLocalizations.of(context)!.navIngredientSearch),
+              ],
+              labelStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              indicatorWeight: 4,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildModeChip(
@@ -420,42 +411,8 @@ class _MainScreenState extends State<MainScreen>
                             ),
 
                             // Progress bar needs to be visible
+                            // Progress bar needs to be visible
                             SliverToBoxAdapter(child: _buildSyncProgress()),
-
-                            SliverOverlapAbsorber(
-                              handle:
-                                  NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                    context,
-                                  ),
-                              sliver: SliverSafeArea(
-                                bottom: false,
-                                sliver: SliverPersistentHeader(
-                                  delegate: SliverTabBarDelegate(
-                                    TabBar(
-                                      controller: _tabController,
-                                      tabs: [
-                                        Tab(
-                                          text: AppLocalizations.of(
-                                            context,
-                                          )!.navProductSearch,
-                                        ),
-                                        Tab(
-                                          text: AppLocalizations.of(
-                                            context,
-                                          )!.navIngredientSearch,
-                                        ),
-                                      ],
-                                      labelStyle: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      indicatorWeight: 4,
-                                    ),
-                                  ),
-                                  pinned: true,
-                                ),
-                              ),
-                            ),
                           ];
                         },
                     body: TabBarView(
