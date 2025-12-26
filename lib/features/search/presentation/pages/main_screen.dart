@@ -427,30 +427,33 @@ class _MainScreenState extends State<MainScreen>
                                   NestedScrollView.sliverOverlapAbsorberHandleFor(
                                     context,
                                   ),
-                              sliver: SliverPersistentHeader(
-                                delegate: SliverTabBarDelegate(
-                                  TabBar(
-                                    controller: _tabController,
-                                    tabs: [
-                                      Tab(
-                                        text: AppLocalizations.of(
-                                          context,
-                                        )!.navProductSearch,
+                              sliver: SliverSafeArea(
+                                bottom: false,
+                                sliver: SliverPersistentHeader(
+                                  delegate: SliverTabBarDelegate(
+                                    TabBar(
+                                      controller: _tabController,
+                                      tabs: [
+                                        Tab(
+                                          text: AppLocalizations.of(
+                                            context,
+                                          )!.navProductSearch,
+                                        ),
+                                        Tab(
+                                          text: AppLocalizations.of(
+                                            context,
+                                          )!.navIngredientSearch,
+                                        ),
+                                      ],
+                                      labelStyle: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      Tab(
-                                        text: AppLocalizations.of(
-                                          context,
-                                        )!.navIngredientSearch,
-                                      ),
-                                    ],
-                                    labelStyle: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                      indicatorWeight: 4,
                                     ),
-                                    indicatorWeight: 4,
                                   ),
+                                  pinned: true,
                                 ),
-                                pinned: true,
                               ),
                             ),
                           ];
