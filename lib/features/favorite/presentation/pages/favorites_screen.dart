@@ -70,7 +70,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
                 if (state.favorites.isEmpty) {
                   return EmptyStateWidget(
-                    icon: Icons.favorite_border,
+                    icon: Icons.bookmark_border,
                     message: l10n.favoritesEmpty,
                     subMessage: l10n.favoritesEmptyGuide,
                   );
@@ -159,7 +159,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 : BorderSide.none,
           ),
           child: ListTile(
-            leading: const Icon(Icons.favorite, color: Colors.red),
+            leading: Icon(
+              Icons.bookmark,
+              color: Theme.of(context).primaryColor,
+            ),
             title: Text(
               item.prdlstNm,
               maxLines: 2,

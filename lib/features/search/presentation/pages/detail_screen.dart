@@ -150,8 +150,8 @@ class _DetailScreenState extends State<DetailScreen> {
                       final isFav = state.isFavorite(widget.item.reportNo);
                       return IconButton(
                         icon: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
-                          color: isFav ? Colors.red : null,
+                          isFav ? Icons.bookmark : Icons.bookmark_border,
+                          color: isFav ? Theme.of(context).primaryColor : null,
                         ),
                         onPressed: () {
                           context.read<FavoriteCubit>().toggleFavorite(

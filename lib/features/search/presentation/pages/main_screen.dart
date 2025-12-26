@@ -365,7 +365,7 @@ class _MainScreenState extends State<MainScreen>
                                     ), // Dynamic Search Area
                                     actions: [
                                       IconButton(
-                                        icon: const Icon(Icons.favorite),
+                                        icon: const Icon(Icons.bookmark),
                                         onPressed: () {
                                           context.push('/favorites');
                                         },
@@ -616,7 +616,7 @@ class _MainScreenState extends State<MainScreen>
             ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.favorite),
+          icon: const Icon(Icons.bookmark),
           onPressed: () {
             context.push('/favorites');
           },

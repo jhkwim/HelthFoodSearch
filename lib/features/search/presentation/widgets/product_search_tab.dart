@@ -398,8 +398,10 @@ class _FoodItemCard extends StatelessWidget {
                           );
                         },
                         child: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
-                          color: isFav ? Colors.red : Colors.grey,
+                          isFav ? Icons.bookmark : Icons.bookmark_border,
+                          color: isFav
+                              ? Theme.of(context).primaryColor
+                              : Colors.grey,
                           size: 20,
                         ),
                       );
