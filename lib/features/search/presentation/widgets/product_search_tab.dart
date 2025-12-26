@@ -96,14 +96,33 @@ class _ProductSearchTabState extends State<ProductSearchTab>
 
               return SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
+                  // 검색 결과 개수 헤더 (Index 0)
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.searchResultCount(state.foods.length),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  }
+
+                  // 실제 데이터 아이템 (Index - 1)
+                  final itemIndex = index - 1;
+
                   if (state.foods != _lastFoods) {
                     _shownItems.clear();
                     _lastFoods = state.foods;
                   }
 
-                  final item = state.foods[index];
+                  final item = state.foods[itemIndex];
                   final shouldAnimate =
-                      !_shownItems.contains(item.reportNo) && index < 12;
+                      !_shownItems.contains(item.reportNo) && itemIndex < 12;
                   if (shouldAnimate) _shownItems.add(item.reportNo);
 
                   final isSelected = item.reportNo == widget.selectedReportNo;
@@ -113,7 +132,7 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                       vertical: 8,
                     ),
                     child: StaggeredListItem(
-                      index: index,
+                      index: itemIndex,
                       shouldAnimate: shouldAnimate,
                       child: _FoodItemCard(
                         item: item,
@@ -129,7 +148,7 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                       ),
                     ),
                   );
-                }, childCount: state.foods.length),
+                }, childCount: state.foods.length + 1),
               );
             }
             return SliverFillRemaining(

@@ -65,7 +65,15 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
   }
 
   Future<void> search() async {
-    if (state.selectedIngredients.isEmpty) return;
+    if (state.selectedIngredients.isEmpty) {
+      emit(
+        state.copyWith(
+          status: IngredientSearchStatus.initial,
+          searchResults: [],
+        ),
+      );
+      return;
+    }
 
     emit(state.copyWith(status: IngredientSearchStatus.loading));
 

@@ -305,20 +305,30 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
           }
 
           if (isSliver) {
-            // For Sliver, we need to decide Grid or List based on constraints.
-            // But SilverLayoutBuilder is generic.
-            // Or we just use SliverList for simplicity on mobile since width is small.
-            // Mobile is usually small width.
-            // LayoutBuilder inside custom scroll view?
-            // Yes, specific slivers.
             return SliverLayoutBuilder(
               builder: (context, constraints) {
                 final isGrid = constraints.crossAxisExtent > 480;
+                // Header for result count
+                final countHeader = SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.searchResultCount(state.searchResults.length),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+
                 if (isGrid) {
                   final crossAxisCount = (constraints.crossAxisExtent / 300)
                       .floor()
                       .clamp(2, 4);
-                  return SliverGrid(
+                  final grid = SliverGrid(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 16,
@@ -329,12 +339,11 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                       final item = state.searchResults[index];
                       final isSelected =
                           item.reportNo == widget.selectedReportNo;
-
+                      // ... (rest of logic same as before)
                       if (state.searchResults != _lastFoods) {
                         _shownItems.clear();
                         _lastFoods = state.searchResults;
                       }
-
                       final shouldAnimate =
                           !_shownItems.contains(item.reportNo) && index < 12;
                       if (shouldAnimate) _shownItems.add(item.reportNo);
@@ -350,8 +359,11 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                       );
                     }, childCount: state.searchResults.length),
                   );
+                  return SliverMainAxisGroup(slivers: [countHeader, grid]);
                 }
-                return SliverList(
+
+                // List Layout (Mobile)
+                final list = SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final item = state.searchResults[index];
                     final isSelected = item.reportNo == widget.selectedReportNo;
@@ -369,7 +381,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
-                      ), // Padding for list
+                      ),
                       child: StaggeredListItem(
                         index: index,
                         shouldAnimate: shouldAnimate,
@@ -382,6 +394,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                     );
                   }, childCount: state.searchResults.length),
                 );
+                return SliverMainAxisGroup(slivers: [countHeader, list]);
               },
             );
           }
@@ -390,74 +403,105 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
           return LayoutBuilder(
             builder: (context, constraints) {
               final isGrid = constraints.maxWidth > 480;
+              final header = Padding(
+                padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+                child: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.searchResultCount(state.searchResults.length),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
 
               if (isGrid) {
                 final crossAxisCount = (constraints.maxWidth / 300)
                     .floor()
                     .clamp(2, 4);
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    mainAxisExtent: 240,
-                  ),
-                  itemCount: state.searchResults.length,
-                  itemBuilder: (context, index) {
-                    final item = state.searchResults[index];
-                    final isSelected = item.reportNo == widget.selectedReportNo;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    header,
+                    Expanded(
+                      child: GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          mainAxisExtent: 240,
+                        ),
+                        itemCount: state.searchResults.length,
+                        itemBuilder: (context, index) {
+                          final item = state.searchResults[index];
+                          final isSelected =
+                              item.reportNo == widget.selectedReportNo;
 
-                    if (state.searchResults != _lastFoods) {
-                      _shownItems.clear();
-                      _lastFoods = state.searchResults;
-                    }
+                          if (state.searchResults != _lastFoods) {
+                            _shownItems.clear();
+                            _lastFoods = state.searchResults;
+                          }
 
-                    final shouldAnimate =
-                        !_shownItems.contains(item.reportNo) && index < 12;
-                    if (shouldAnimate) _shownItems.add(item.reportNo);
+                          final shouldAnimate =
+                              !_shownItems.contains(item.reportNo) &&
+                              index < 12;
+                          if (shouldAnimate) _shownItems.add(item.reportNo);
 
-                    return StaggeredListItem(
-                      index: index,
-                      shouldAnimate: shouldAnimate,
-                      child: _FoodItemCard(
-                        item: item,
-                        isSelected: isSelected,
-                        onTap: () => _handleItemTap(context, item),
+                          return StaggeredListItem(
+                            index: index,
+                            shouldAnimate: shouldAnimate,
+                            child: _FoodItemCard(
+                              item: item,
+                              isSelected: isSelected,
+                              onTap: () => _handleItemTap(context, item),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 );
               }
 
-              return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: state.searchResults.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final item = state.searchResults[index];
-                  final isSelected = item.reportNo == widget.selectedReportNo;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  header,
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.searchResults.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final item = state.searchResults[index];
+                        final isSelected =
+                            item.reportNo == widget.selectedReportNo;
 
-                  if (state.searchResults != _lastFoods) {
-                    _shownItems.clear();
-                    _lastFoods = state.searchResults;
-                  }
+                        if (state.searchResults != _lastFoods) {
+                          _shownItems.clear();
+                          _lastFoods = state.searchResults;
+                        }
 
-                  final shouldAnimate =
-                      !_shownItems.contains(item.reportNo) && index < 12;
-                  if (shouldAnimate) _shownItems.add(item.reportNo);
+                        final shouldAnimate =
+                            !_shownItems.contains(item.reportNo) && index < 12;
+                        if (shouldAnimate) _shownItems.add(item.reportNo);
 
-                  return StaggeredListItem(
-                    index: index,
-                    shouldAnimate: shouldAnimate,
-                    child: _FoodItemCard(
-                      item: item,
-                      isSelected: isSelected,
-                      onTap: () => _handleItemTap(context, item),
+                        return StaggeredListItem(
+                          index: index,
+                          shouldAnimate: shouldAnimate,
+                          child: _FoodItemCard(
+                            item: item,
+                            isSelected: isSelected,
+                            onTap: () => _handleItemTap(context, item),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               );
             },
           );

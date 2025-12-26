@@ -7,6 +7,7 @@
   "searchHintProduct": "제품명을 입력하세요",
   "searchHintIngredient": "원료명을 입력하세요",
   "searchEmptyGuide": "왼쪽 목록에서 제품을 선택하세요",
+  "searchResultCount": "{count}건이 검색되었습니다",
 
   "settingsTitle": "설정",
   "settingsDisplaySection": "화면 설정",
