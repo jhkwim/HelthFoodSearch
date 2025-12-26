@@ -254,7 +254,7 @@ class _MainScreenState extends State<MainScreen>
                                   visualDensity: VisualDensity.compact,
                                   backgroundColor: Theme.of(
                                     context,
-                                  ).primaryColor.withOpacity(0.1),
+                                  ).primaryColor.withValues(alpha: 0.1),
                                   deleteIconColor: Theme.of(
                                     context,
                                   ).primaryColor,
@@ -624,7 +624,7 @@ class _MainScreenState extends State<MainScreen>
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
             child: Row(
               children: [
                 SizedBox(

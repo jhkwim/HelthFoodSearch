@@ -12,6 +12,6 @@ class GetRawMaterialsUseCase implements UseCase<List<String>?, String> {
 
   @override
   Future<Either<Failure, List<String>?>> call(String reportNo) async {
-    return await repository.getRawMaterials(reportNo);
+    return repository.getRawMaterials(reportNo);
   }
 }

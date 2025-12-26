@@ -113,13 +113,13 @@ class LocalDataSourceImpl implements LocalDataSource {
         if (item.mainIngredients.isEmpty) return false;
 
         // Condition A: All query ingredients must be present in item
-        bool hasAllQuery = ingredients.every(
+        final bool hasAllQuery = ingredients.every(
           (ing) => item.mainIngredients.any((main) => main.contains(ing)),
         );
         if (!hasAllQuery) return false;
 
         // Condition B: All item ingredients must be covered by query
-        bool hasOnlyQuery = item.mainIngredients.every(
+        final bool hasOnlyQuery = item.mainIngredients.every(
           (main) => ingredients.any((ing) => main.contains(ing)),
         );
         return hasOnlyQuery;

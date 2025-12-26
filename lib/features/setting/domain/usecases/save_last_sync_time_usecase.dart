@@ -12,6 +12,6 @@ class SaveLastSyncTimeUseCase implements UseCase<void, DateTime> {
 
   @override
   Future<Either<Failure, void>> call(DateTime time) async {
-    return await repository.saveLastSyncTime(time);
+    return repository.saveLastSyncTime(time);
   }
 }

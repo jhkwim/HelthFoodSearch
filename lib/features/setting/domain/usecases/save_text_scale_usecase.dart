@@ -12,6 +12,6 @@ class SaveTextScaleUseCase implements UseCase<void, double> {
 
   @override
   Future<Either<Failure, void>> call(double params) async {
-    return await repository.saveTextScale(params);
+    return repository.saveTextScale(params);
   }
 }

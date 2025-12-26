@@ -8,8 +8,11 @@ import 'package:health_food_search/features/search/domain/usecases/search_food_b
 import 'package:health_food_search/features/search/presentation/bloc/ingredient_search_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockSearchFoodByIngredientsUseCase extends Mock implements SearchFoodByIngredientsUseCase {}
-class MockGetSuggestedIngredientsUseCase extends Mock implements GetSuggestedIngredientsUseCase {}
+class MockSearchFoodByIngredientsUseCase extends Mock
+    implements SearchFoodByIngredientsUseCase {}
+
+class MockGetSuggestedIngredientsUseCase extends Mock
+    implements GetSuggestedIngredientsUseCase {}
 
 void main() {
   late IngredientSearchCubit cubit;
@@ -20,9 +23,14 @@ void main() {
     mockSearchUseCase = MockSearchFoodByIngredientsUseCase();
     mockSuggestUseCase = MockGetSuggestedIngredientsUseCase();
     cubit = IngredientSearchCubit(mockSearchUseCase, mockSuggestUseCase);
-    
+
     // Register fallback values if needed for Any()
-    registerFallbackValue(const SearchFoodByIngredientsParams(ingredients: [], type: IngredientSearchType.include));
+    registerFallbackValue(
+      const SearchFoodByIngredientsParams(
+        ingredients: [],
+        type: IngredientSearchType.include,
+      ),
+    );
     registerFallbackValue(IngredientSearchType.include);
   });
 
@@ -39,14 +47,23 @@ void main() {
       blocTest<IngredientSearchCubit, IngredientSearchState>(
         'adds ingredient and triggers search',
         build: () {
-          when(() => mockSearchUseCase(any())).thenAnswer((_) async => const Right([]));
+          when(
+            () => mockSearchUseCase(any()),
+          ).thenAnswer((_) async => const Right([]));
           return cubit;
         },
         act: (cubit) => cubit.addIngredient('Vitamin C'),
         expect: () => [
           const IngredientSearchState(selectedIngredients: ['Vitamin C']),
-          const IngredientSearchState(selectedIngredients: ['Vitamin C'], status: IngredientSearchStatus.loading),
-          const IngredientSearchState(selectedIngredients: ['Vitamin C'], status: IngredientSearchStatus.loaded, searchResults: []),
+          const IngredientSearchState(
+            selectedIngredients: ['Vitamin C'],
+            status: IngredientSearchStatus.loading,
+          ),
+          const IngredientSearchState(
+            selectedIngredients: ['Vitamin C'],
+            status: IngredientSearchStatus.loaded,
+            searchResults: [],
+          ),
         ],
         verify: (_) {
           verify(() => mockSearchUseCase(any())).called(1);
@@ -56,11 +73,12 @@ void main() {
       blocTest<IngredientSearchCubit, IngredientSearchState>(
         'does not add duplicate ingredient',
         build: () => cubit,
-        seed: () => const IngredientSearchState(selectedIngredients: ['Vitamin C']),
+        seed: () =>
+            const IngredientSearchState(selectedIngredients: ['Vitamin C']),
         act: (cubit) => cubit.addIngredient('Vitamin C'),
         expect: () => [], // No state change expected
       );
-      
+
       blocTest<IngredientSearchCubit, IngredientSearchState>(
         'does not add empty ingredient',
         build: () => cubit,
@@ -73,20 +91,30 @@ void main() {
       blocTest<IngredientSearchCubit, IngredientSearchState>(
         'removes ingredient and triggers search',
         build: () {
-           when(() => mockSearchUseCase(any())).thenAnswer((_) async => const Right([]));
-           return cubit;
+          when(
+            () => mockSearchUseCase(any()),
+          ).thenAnswer((_) async => const Right([]));
+          return cubit;
         },
-        seed: () => const IngredientSearchState(selectedIngredients: ['A', 'B']),
+        seed: () =>
+            const IngredientSearchState(selectedIngredients: ['A', 'B']),
         act: (cubit) => cubit.removeIngredient('A'),
         expect: () => [
           const IngredientSearchState(selectedIngredients: ['B']),
-           const IngredientSearchState(selectedIngredients: ['B'], status: IngredientSearchStatus.loading),
-          const IngredientSearchState(selectedIngredients: ['B'], status: IngredientSearchStatus.loaded, searchResults: []),
+          const IngredientSearchState(
+            selectedIngredients: ['B'],
+            status: IngredientSearchStatus.loading,
+          ),
+          const IngredientSearchState(
+            selectedIngredients: ['B'],
+            status: IngredientSearchStatus.loaded,
+            searchResults: [],
+          ),
         ],
       );
     });
-    
-     group('search', () {
+
+    group('search', () {
       final tFoodItems = [
         const FoodItem(
           reportNo: '1',
@@ -101,20 +129,29 @@ void main() {
           ntkMthd: '',
           iftknAtntMatrCn: '',
           stdrStnd: '',
-        )
+        ),
       ];
 
       blocTest<IngredientSearchCubit, IngredientSearchState>(
         'emits loaded with results when search is successful',
         build: () {
-          when(() => mockSearchUseCase(any())).thenAnswer((_) async => Right(tFoodItems));
+          when(
+            () => mockSearchUseCase(any()),
+          ).thenAnswer((_) async => Right(tFoodItems));
           return cubit;
         },
         seed: () => const IngredientSearchState(selectedIngredients: ['A']),
         act: (cubit) => cubit.search(),
         expect: () => [
-          const IngredientSearchState(selectedIngredients: ['A'], status: IngredientSearchStatus.loading),
-           IngredientSearchState(selectedIngredients: ['A'], status: IngredientSearchStatus.loaded, searchResults: tFoodItems),
+          const IngredientSearchState(
+            selectedIngredients: ['A'],
+            status: IngredientSearchStatus.loading,
+          ),
+          IngredientSearchState(
+            selectedIngredients: const ['A'],
+            status: IngredientSearchStatus.loaded,
+            searchResults: tFoodItems,
+          ),
         ],
       );
     });

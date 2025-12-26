@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class IngredientRefiner {
   static final RegExp _parenthesesPattern = RegExp(r'\(.*?\)|\[.*?\]');
 
@@ -75,7 +77,9 @@ class IngredientRefiner {
   static void updateRules(Map<String, String> newRules) {
     if (newRules.isNotEmpty) {
       _remoteReplacements = newRules;
-      print('IngredientRefiner: Updated with ${newRules.length} remote rules');
+      debugPrint(
+        'IngredientRefiner: Updated with ${newRules.length} remote rules',
+      );
     }
   }
 
@@ -110,7 +114,7 @@ class IngredientRefiner {
 
     // 4. "제품" suffix removal rule
     if (refined.endsWith('제품') && refined.length > 2) {
-      String trimmed = refined.substring(0, refined.length - 2);
+      final String trimmed = refined.substring(0, refined.length - 2);
 
       // Check remote first for trimmed version too
       if (_remoteReplacements.containsKey(trimmed)) {
@@ -133,7 +137,7 @@ class IngredientRefiner {
 
     return rawList
         .split(',')
-        .map((e) => refine(e))
+        .map(refine)
         .where(
           (e) => e.isNotEmpty,
         ) // Removed length > 1 check to allow '철', '인'

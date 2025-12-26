@@ -14,6 +14,6 @@ class ForceExpireSyncTimeUseCase implements UseCase<void, NoParams> {
   Future<Either<Failure, void>> call(NoParams params) async {
     // Set last sync time to 31 days ago (just enough to trigger default 30 days)
     final oldDate = DateTime.now().subtract(const Duration(days: 31));
-    return await repository.saveLastSyncTime(oldDate);
+    return repository.saveLastSyncTime(oldDate);
   }
 }

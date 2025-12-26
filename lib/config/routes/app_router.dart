@@ -11,10 +11,7 @@ import '../../features/search/domain/entities/food_item.dart';
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashScreen(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     GoRoute(
       path: '/api_key',
       builder: (context, state) => const ApiKeyScreen(),
@@ -27,10 +24,7 @@ final appRouter = GoRouter(
       path: '/download',
       builder: (context, state) => const DownloadScreen(),
     ),
-    GoRoute(
-      path: '/main',
-      builder: (context, state) => const MainScreen(),
-    ),
+    GoRoute(path: '/main', builder: (context, state) => const MainScreen()),
     GoRoute(
       path: '/detail',
       builder: (context, state) {
@@ -44,7 +38,7 @@ final appRouter = GoRouter(
             onIngredientSelected: extra['onIngredientSelected'],
           );
         }
-        return const Scaffold(body: Center(child: Text("Invalid Arguments")));
+        return const Scaffold(body: Center(child: Text('Invalid Arguments')));
       },
     ),
   ],

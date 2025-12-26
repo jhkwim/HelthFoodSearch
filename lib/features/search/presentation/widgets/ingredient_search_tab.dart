@@ -92,7 +92,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
         // Search Header (Field + Options) moved to MainScreen
 
         // Selected Chips - Scroll away
-        SliverToBoxAdapter(child: const Divider(height: 1)),
+        const SliverToBoxAdapter(child: Divider(height: 1)),
         _buildResultsArea(context, isSliver: true),
       ],
     );
@@ -143,7 +143,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
                     },
                     backgroundColor: Theme.of(
                       context,
-                    ).primaryColor.withOpacity(0.1),
+                    ).primaryColor.withValues(alpha: 0.1),
                     deleteIconColor: Theme.of(context).primaryColor,
                     side: BorderSide.none,
                     shape: RoundedRectangleBorder(
@@ -569,7 +569,7 @@ class _FoodItemCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.1)
+                      ? Colors.white.withValues(alpha: 0.1)
                       : Colors.grey[100],
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -611,7 +611,7 @@ class _FoodItemCard extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: item.mainIngredients.take(5).join(", "),
+                        text: item.mainIngredients.take(5).join(', '),
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ],

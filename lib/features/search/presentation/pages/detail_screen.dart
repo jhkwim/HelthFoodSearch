@@ -49,7 +49,7 @@ class _DetailScreenState extends State<DetailScreen> {
           height: 36,
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white.withOpacity(0.05)
+                ? Colors.white.withValues(alpha: 0.05)
                 : Colors.grey[100],
             borderRadius: BorderRadius.circular(8),
           ),
@@ -85,7 +85,9 @@ class _DetailScreenState extends State<DetailScreen> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Theme.of(context).shadowColor.withOpacity(0.05),
+                      color: Theme.of(
+                        context,
+                      ).shadowColor.withValues(alpha: 0.05),
                       blurRadius: 2,
                       offset: const Offset(0, 1),
                     ),
@@ -311,7 +313,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                     ? Colors.transparent
                                     : Theme.of(
                                         context,
-                                      ).primaryColor.withOpacity(0.2),
+                                      ).primaryColor.withValues(alpha: 0.2),
                               ),
                             );
                           },
@@ -357,9 +359,9 @@ class _DetailScreenState extends State<DetailScreen> {
                         );
                       });
                     }
-                    return Center(
+                    return const Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8.0),
                         child: CircularProgressIndicator(strokeWidth: 2),
                       ),
                     );
@@ -373,7 +375,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   context,
                   title: AppLocalizations.of(context)!.detailSectionFunc,
                   icon: Icons.verified_user_outlined,
-                  color: Theme.of(context).primaryColor.withOpacity(0.05),
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
                   child: Text(
                     widget.item.primaryFnclty.isEmpty
                         ? '-'
@@ -486,7 +488,7 @@ class _DetailScreenState extends State<DetailScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.withOpacity(0.2)),
+        side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
       ),
       color: color ?? Theme.of(context).cardColor,
       child: Padding(
@@ -576,12 +578,12 @@ class _DetailScreenState extends State<DetailScreen> {
 
   /// Splits a comma-separated string but ignores commas inside parentheses
   List<String> _splitRawMaterials(String raw) {
-    List<String> result = [];
+    final List<String> result = [];
     int parenDepth = 0;
-    StringBuffer buffer = StringBuffer();
+    final StringBuffer buffer = StringBuffer();
 
     for (int i = 0; i < raw.length; i++) {
-      String char = raw[i];
+      final String char = raw[i];
       if (char == '(' || char == '[') {
         parenDepth++;
       } else if (char == ')' || char == ']') {

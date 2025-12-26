@@ -35,9 +35,15 @@ class FoodRepositoryImpl implements IFoodRepository {
   }
 
   @override
-  Future<Either<Failure, List<FoodItem>>> searchFoodByIngredients(List<String> ingredients, {IngredientSearchType type = IngredientSearchType.include}) async {
+  Future<Either<Failure, List<FoodItem>>> searchFoodByIngredients(
+    List<String> ingredients, {
+    IngredientSearchType type = IngredientSearchType.include,
+  }) async {
     try {
-      final results = await localDataSource.searchFoodByIngredients(ingredients, type: type);
+      final results = await localDataSource.searchFoodByIngredients(
+        ingredients,
+        type: type,
+      );
       return Right(results.map((e) => e.toEntity()).toList());
     } catch (e) {
       return Left(CacheFailure(e.toString()));
@@ -45,50 +51,57 @@ class FoodRepositoryImpl implements IFoodRepository {
   }
 
   @override
-  Future<Either<Failure, List<Ingredient>>> getSuggestedIngredients(String query) async {
+  Future<Either<Failure, List<Ingredient>>> getSuggestedIngredients(
+    String query,
+  ) async {
     try {
       // Use dedicated ingredient search
       final ingredients = await localDataSource.searchIngredients(query);
-      return Right(ingredients.map((e) => Ingredient(name: e)).take(20).toList());
+      return Right(
+        ingredients.map((e) => Ingredient(name: e)).take(20).toList(),
+      );
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, void>> syncData(String apiKey, {Function(double)? onProgress}) async {
+  Future<Either<Failure, void>> syncData(
+    String apiKey, {
+    Function(double)? onProgress,
+  }) async {
     try {
       // --- Phase 1: Food Data (I0030) ---
       final initialFood = await remoteDataSource.fetchFoodData(apiKey, 1, 1);
       final foodTotalConfig = initialFood.data?.totalCount ?? '0';
-      int foodTotalCount = int.tryParse(foodTotalConfig) ?? 0;
+      final int foodTotalCount = int.tryParse(foodTotalConfig) ?? 0;
 
       if (foodTotalCount == 0) return const Right(null);
 
       // Clear existing data before starting full sync
       await localDataSource.clearData();
 
-      int batchSize = 1000;
+      final int batchSize = 1000;
       int foodFetched = 0;
-      
+
       for (int i = 1; i <= foodTotalCount; i += batchSize) {
         int end = i + batchSize - 1;
         if (end > foodTotalCount) end = foodTotalCount;
-        
+
         final response = await remoteDataSource.fetchFoodData(apiKey, i, end);
         final rows = response.data?.row;
-        
+
         if (rows != null) {
           final batch = rows.map((dto) {
-              final entity = dto.toEntity();
-              return FoodItemHiveModel.fromEntity(entity);
+            final entity = dto.toEntity();
+            return FoodItemHiveModel.fromEntity(entity);
           }).toList();
-          
+
           if (batch.isNotEmpty) {
-             await localDataSource.cacheFoodItems(batch);
+            await localDataSource.cacheFoodItems(batch);
           }
         }
-        
+
         foodFetched = end;
         if (onProgress != null) {
           // Map 0 -> 1 to 0.0 -> 1.0 (Since Phase 2 is removed)
@@ -98,9 +111,7 @@ class FoodRepositoryImpl implements IFoodRepository {
         }
       }
 
-      
       return const Right(null);
-
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
@@ -116,25 +127,25 @@ class FoodRepositoryImpl implements IFoodRepository {
       yield 0.1; // Loaded
 
       // Run refinement in Isolate to avoid blocking UI
-      // Isolate communication is tricky with Stream. 
+      // Isolate communication is tricky with Stream.
       // Simplified approach: Yield progress periodically.
-      // Or use compute for batches? 
+      // Or use compute for batches?
       // Let's use batch processing in main thread with delays to yield? No, Isolate is better.
       // But passing Stream back from Isolate is hard.
       // Better: Process entirely in compute, but we need progress updates.
       // Standard compute doesn't support progress.
       // Alternative: Use batch processing with `await Future.delayed(Duration.zero)` to yield control.
       // This is simpler and sufficient for ~30k items if batch size is small.
-      
+
       int processed = 0;
-      int batchSize = 500;
-      
+      final int batchSize = 500;
+
       final List<FoodItemHiveModel> updatedItems = [];
-      
+
       for (int i = 0; i < total; i += batchSize) {
         int end = i + batchSize;
         if (end > total) end = total;
-        
+
         // Process batch
         final batch = items.sublist(i, end);
         for (var item in batch) {
@@ -144,10 +155,10 @@ class FoodRepositoryImpl implements IFoodRepository {
           // Just update everything to be safe and consistent with new rules.
           updatedItems.add(item.copyWith(mainIngredients: newMain));
         }
-        
+
         // Async yield to UI every batch to prevent frame drop
         await Future.delayed(Duration.zero);
-        
+
         processed += batch.length;
         // Emit progress: Phase 1 (Refining) 10% -> 70%
         yield 0.1 + (processed / total) * 0.6;
@@ -161,23 +172,25 @@ class FoodRepositoryImpl implements IFoodRepository {
       // Split save into chunks too?
       // updateFoodItems implementation uses putAll.
       // Let's do chunked save to show progress.
-      
+
       int saved = 0;
       for (int i = 0; i < total; i += batchSize) {
         int end = i + batchSize;
         if (end > total) end = total;
-        
+
         final batch = updatedItems.sublist(i, end);
-        await localDataSource.updateFoodItems(batch); // This appends/overwrites by key
-        
+        await localDataSource.updateFoodItems(
+          batch,
+        ); // This appends/overwrites by key
+
         // Async yield
         await Future.delayed(Duration.zero);
-        
+
         saved += batch.length;
         // Emit progress: Phase 2 (Saving) 75% -> 100%
         yield 0.75 + (saved / total) * 0.25;
       }
-      
+
       yield 1.0;
     } catch (e) {
       debugPrint('Refine Error: $e');
@@ -185,18 +198,13 @@ class FoodRepositoryImpl implements IFoodRepository {
     }
   }
 
-  // Helper for compute if valid
-  static List<FoodItemHiveModel> _refineBatch(List<FoodItemHiveModel> list) {
-    // ...
-    return list;
-  }
-
-
   @override
-  Future<Either<Failure, List<String>?>> getRawMaterials(String reportNo) async {
+  Future<Either<Failure, List<String>?>> getRawMaterials(
+    String reportNo,
+  ) async {
     try {
       // 1. Try Local First
-      var result = await localDataSource.getRawMaterials(reportNo);
+      final result = await localDataSource.getRawMaterials(reportNo);
       if (result != null && result.isNotEmpty) {
         return Right(result);
       }
@@ -205,39 +213,44 @@ class FoodRepositoryImpl implements IFoodRepository {
       // Retrieve API Key from Settings
       final settingsRepo = getIt<ISettingsRepository>();
       final settingsResult = await settingsRepo.getSettings();
-      
+
       return await settingsResult.fold(
-        (failure) => Right(null), // If settings fail, just return null (no data shown)
+        (failure) => const Right(
+          null,
+        ), // If settings fail, just return null (no data shown)
         (settings) async {
           final apiKey = settings.apiKey;
-          if (apiKey == null || apiKey.isEmpty) return Right(null);
+          if (apiKey == null || apiKey.isEmpty) return const Right(null);
 
           try {
-            final response = await remoteDataSource.fetchRawMaterialsByReportNo(apiKey, reportNo);
+            final response = await remoteDataSource.fetchRawMaterialsByReportNo(
+              apiKey,
+              reportNo,
+            );
             final rows = response.data?.row;
 
             if (rows != null && rows.isNotEmpty) {
-               // Aggregate (though filtering by reportNo should return rows for one report)
-               final Set<String> rawMaterials = {};
-               for (var row in rows) {
-                 rawMaterials.add(row.rawMtrlNm);
-               }
-               
-               // Cache it!
-               final model = RawMaterialHiveModel(
-                 reportNo: reportNo,
-                 rawMtrlNms: rawMaterials.toList(),
-               );
-               await localDataSource.cacheRawMaterials([model]);
-               
-               return Right(rawMaterials.toList());
+              // Aggregate (though filtering by reportNo should return rows for one report)
+              final Set<String> rawMaterials = {};
+              for (var row in rows) {
+                rawMaterials.add(row.rawMtrlNm);
+              }
+
+              // Cache it!
+              final model = RawMaterialHiveModel(
+                reportNo: reportNo,
+                rawMtrlNms: rawMaterials.toList(),
+              );
+              await localDataSource.cacheRawMaterials([model]);
+
+              return Right(rawMaterials.toList());
             }
           } catch (e) {
-             debugPrint('On-Demand C003 Fetch Failed: $e');
-             // Ignore remote failure and return null (graceful degradation)
+            debugPrint('On-Demand C003 Fetch Failed: $e');
+            // Ignore remote failure and return null (graceful degradation)
           }
-          return Right(null);
-        }
+          return const Right(null);
+        },
       );
     } catch (e) {
       return Left(CacheFailure(e.toString()));

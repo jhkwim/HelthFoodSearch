@@ -12,6 +12,6 @@ class SaveUpdateIntervalUseCase implements UseCase<void, int> {
 
   @override
   Future<Either<Failure, void>> call(int days) async {
-    return await repository.saveUpdateInterval(days);
+    return repository.saveUpdateInterval(days);
   }
 }

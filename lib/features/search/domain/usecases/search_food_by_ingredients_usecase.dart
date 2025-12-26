@@ -8,14 +8,17 @@ import '../entities/food_item.dart';
 import '../repositories/i_food_repository.dart';
 
 @lazySingleton
-class SearchFoodByIngredientsUseCase implements UseCase<List<FoodItem>, SearchFoodByIngredientsParams> {
+class SearchFoodByIngredientsUseCase
+    implements UseCase<List<FoodItem>, SearchFoodByIngredientsParams> {
   final IFoodRepository repository;
 
   SearchFoodByIngredientsUseCase(this.repository);
 
   @override
-  Future<Either<Failure, List<FoodItem>>> call(SearchFoodByIngredientsParams params) async {
-    return await repository.searchFoodByIngredients(
+  Future<Either<Failure, List<FoodItem>>> call(
+    SearchFoodByIngredientsParams params,
+  ) async {
+    return repository.searchFoodByIngredients(
       params.ingredients,
       type: params.type,
     );

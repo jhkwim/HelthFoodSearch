@@ -106,16 +106,18 @@ void main() {
 
     final getIt = GetIt.instance;
     // Clearing existing if any (safe)
-    if (getIt.isRegistered<SearchFoodByIngredientsUseCase>())
+    if (getIt.isRegistered<SearchFoodByIngredientsUseCase>()) {
       getIt.unregister<SearchFoodByIngredientsUseCase>();
-    if (getIt.isRegistered<GetSuggestedIngredientsUseCase>())
+    }
+    if (getIt.isRegistered<GetSuggestedIngredientsUseCase>()) {
       getIt.unregister<GetSuggestedIngredientsUseCase>();
+    }
 
     getIt.registerLazySingleton<SearchFoodByIngredientsUseCase>(
-      () => MockSearchFoodByIngredientsUseCase(),
+      MockSearchFoodByIngredientsUseCase.new,
     );
     getIt.registerLazySingleton<GetSuggestedIngredientsUseCase>(
-      () => MockGetSuggestedIngredientsUseCase(),
+      MockGetSuggestedIngredientsUseCase.new,
     );
   });
 
@@ -166,10 +168,15 @@ void main() {
     );
 
     final getIt = GetIt.instance;
-    if (getIt.isRegistered<IngredientSearchCubit>())
+    if (getIt.isRegistered<IngredientSearchCubit>()) {
       getIt.unregister<IngredientSearchCubit>();
-    if (getIt.isRegistered<SearchCubit>()) getIt.unregister<SearchCubit>();
-    if (getIt.isRegistered<DataSyncCubit>()) getIt.unregister<DataSyncCubit>();
+    }
+    if (getIt.isRegistered<SearchCubit>()) {
+      getIt.unregister<SearchCubit>();
+    }
+    if (getIt.isRegistered<DataSyncCubit>()) {
+      getIt.unregister<DataSyncCubit>();
+    }
 
     getIt.registerSingleton<IngredientSearchCubit>(ingredientSearchCubit);
     getIt.registerSingleton<SearchCubit>(searchCubit);

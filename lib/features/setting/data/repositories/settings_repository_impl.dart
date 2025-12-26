@@ -69,7 +69,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> saveApiKey(String apiKey) async {
     try {
       await settingsBox.put(apiKeyKey, apiKey);
-      return Right(null);
+      return const Right(null);
     } catch (e, stackTrace) {
       debugPrint('Error saving API key: $e');
       debugPrint('Stack trace: $stackTrace');
@@ -81,7 +81,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> clearData() async {
     try {
       await settingsBox.clear();
-      return Right(null);
+      return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -91,7 +91,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> saveTextScale(double scale) async {
     try {
       await settingsBox.put(textScaleKey, scale);
-      return Right(null);
+      return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -101,7 +101,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> saveLastSyncTime(DateTime time) async {
     try {
       await settingsBox.put(lastSyncTimeKey, time.toIso8601String());
-      return Right(null);
+      return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -111,7 +111,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> saveUpdateInterval(int days) async {
     try {
       await settingsBox.put(updateIntervalKey, days);
-      return Right(null);
+      return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }
@@ -121,7 +121,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   Future<Either<Failure, void>> saveThemeMode(ThemeMode mode) async {
     try {
       await settingsBox.put(themeModeKey, mode.index);
-      return Right(null);
+      return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
     }

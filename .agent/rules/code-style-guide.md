@@ -17,6 +17,12 @@ Your goal is to write production-ready, clean, and maintainable code.
 - **State Management**: **BLoC**
     - *Note: Do NOT suggest other state management solutions unless explicitly asked.*
 - **Linting**: Follow `flutter_lints` and Effective Dart guidelines strictly.
+    ## Line Count Limits (Manual Enforcement)
+    This project enforces strict line count limits to ensure maintainability.
+
+    - **Widget Files**: Must be under **500 lines**.
+    - **Other Files** (Logic, Repository, etc.): Must be under **300 lines**.
+    - **Functions**: Must be under **50 lines**.
 
 # Development Principles
 1.  **Multi-Platform**: Ensure compatibility for Android, iOS, Web, and Desktop.

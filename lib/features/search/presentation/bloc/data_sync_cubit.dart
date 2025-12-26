@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/usecases/check_data_existence_usecase.dart';
@@ -79,7 +80,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
       await fetchAndApplyRemoteRulesUseCase.execute();
     } catch (e) {
       // Proceed even if rule fetch fails (fallback to cached/hardcoded rules)
-      print('Rule fetch during sync failed: $e');
+      debugPrint('Rule fetch during sync failed: $e');
     }
 
     final result = await syncDataUseCase(

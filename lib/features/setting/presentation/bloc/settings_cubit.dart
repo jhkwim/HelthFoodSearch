@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:injectable/injectable.dart';
 import 'package:health_food_search/core/usecases/usecase.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -166,7 +166,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     final result = await saveThemeModeUseCase(mode);
     await result.fold(
       (failure) async => emit(SettingsError(failure.message)),
-      (_) async => await checkSettings(),
+      (_) => checkSettings(),
     );
   }
 

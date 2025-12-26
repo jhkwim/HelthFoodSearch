@@ -57,7 +57,7 @@ class FetchAndApplyRemoteRulesUseCase {
       }
     } catch (e) {
       // Log or ignore network errors silently
-      print('Failed to sync remote rules: $e');
+      debugPrint('Failed to sync remote rules: $e');
     }
     return false;
   }

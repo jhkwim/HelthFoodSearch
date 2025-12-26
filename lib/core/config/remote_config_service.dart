@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
@@ -21,7 +22,7 @@ class RemoteConfigService {
       return {};
     } catch (e) {
       // Create a specific error log or rethrow if needed
-      print('Failed to fetch remote config: $e');
+      debugPrint('Failed to fetch remote config: $e');
       return {};
     }
   }

@@ -318,7 +318,7 @@ class _ProductSearchTabState extends State<ProductSearchTab>
         prefixIcon: const Icon(Icons.search),
         suffixIcon: IconButton(
           icon: const Icon(Icons.clear),
-          onPressed: () => _controller.clear(),
+          onPressed: _controller.clear,
         ),
       ),
       style: Theme.of(context).textTheme.bodyLarge,
@@ -368,7 +368,7 @@ class _FoodItemCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white.withOpacity(0.1)
+                      ? Colors.white.withValues(alpha: 0.1)
                       : Colors.grey[100],
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -412,7 +412,7 @@ class _FoodItemCard extends StatelessWidget {
                             color: Theme.of(context).primaryColor,
                             backgroundColor: Theme.of(
                               context,
-                            ).primaryColor.withOpacity(0.2),
+                            ).primaryColor.withValues(alpha: 0.2),
                             height: 1.2,
                           ) ??
                           const TextStyle(),
