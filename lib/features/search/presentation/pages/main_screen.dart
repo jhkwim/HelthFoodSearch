@@ -37,22 +37,13 @@ class _MainScreenState extends State<MainScreen>
 
   late TabController _tabController;
   FoodItem? _selectedItem;
+  bool _initialIngredientsHandled = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabSelection);
-
-    // 초기 원재료가 전달된 경우 원재료 탭으로 이동 후 검색
-    if (widget.initialIngredients != null &&
-        widget.initialIngredients!.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _tabController.animateTo(1); // 원재료 탭으로 이동
-        final cubit = context.read<IngredientSearchCubit>();
-        cubit.replaceIngredients(widget.initialIngredients!);
-      });
-    }
   }
 
   @override
@@ -334,6 +325,19 @@ class _MainScreenState extends State<MainScreen>
       ],
       child: Builder(
         builder: (context) {
+          // 초기 원재료가 전달된 경우 원재료 탭으로 이동 후 검색
+          if (!_initialIngredientsHandled &&
+              widget.initialIngredients != null &&
+              widget.initialIngredients!.isNotEmpty) {
+            _initialIngredientsHandled = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _tabController.animateTo(1); // 원재료 탭으로 이동
+              final cubit = context.read<IngredientSearchCubit>();
+              cubit.replaceIngredients(widget.initialIngredients!);
+              cubit.search();
+            });
+          }
+
           return LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 700;
