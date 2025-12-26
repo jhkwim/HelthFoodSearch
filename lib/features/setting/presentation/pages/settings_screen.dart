@@ -238,10 +238,6 @@ class SettingsScreen extends StatelessWidget {
                         final timeStr = DateFormat(
                           'yyyy-MM-dd HH:mm',
                         ).format(state.settings.lastSyncTime!);
-                        subTitle +=
-                            '\n${l10n.settingsDataSavedWithSize('0', '0')}'; // Revisit this logic later if mismatch
-                        // Wait, previous logic was adding string.
-                        // Ideally use l10n with placeholders.
                         subTitle += '\n${l10n.apiLastUpdate(timeStr)}';
                       }
 
