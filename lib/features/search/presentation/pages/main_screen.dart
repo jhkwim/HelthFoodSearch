@@ -374,43 +374,51 @@ class _MainScreenState extends State<MainScreen>
                     headerSliverBuilder:
                         (BuildContext context, bool innerBoxIsScrolled) {
                           return <Widget>[
-                            BlocBuilder<
-                              IngredientSearchCubit,
-                              IngredientSearchState
-                            >(
-                              builder: (context, state) {
-                                return SliverAppBar(
-                                  title: Text(
-                                    AppLocalizations.of(context)!.appTitle,
-                                  ),
-                                  centerTitle: false,
-                                  automaticallyImplyLeading: false,
-                                  floating: true,
-                                  snap: true,
-                                  pinned: false,
-                                  bottom: _buildHeaderBottom(
+                            SliverOverlapAbsorber(
+                              handle:
+                                  NestedScrollView.sliverOverlapAbsorberHandleFor(
                                     context,
-                                    state,
-                                  ), // Dynamic Search Area
-                                  actions: [
-                                    IconButton(
-                                      icon: const Icon(Icons.bookmark),
-                                      onPressed: () {
-                                        context.push('/favorites');
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.settings),
-                                      onPressed: () {
-                                        context.push('/settings');
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
+                                  ),
+                              sliver:
+                                  BlocBuilder<
+                                    IngredientSearchCubit,
+                                    IngredientSearchState
+                                  >(
+                                    builder: (context, state) {
+                                      return SliverAppBar(
+                                        title: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.appTitle,
+                                        ),
+                                        centerTitle: false,
+                                        automaticallyImplyLeading: false,
+                                        floating: true,
+                                        snap: true,
+                                        pinned: false,
+                                        bottom: _buildHeaderBottom(
+                                          context,
+                                          state,
+                                        ), // Dynamic Search Area
+                                        actions: [
+                                          IconButton(
+                                            icon: const Icon(Icons.bookmark),
+                                            onPressed: () {
+                                              context.push('/favorites');
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.settings),
+                                            onPressed: () {
+                                              context.push('/settings');
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
                             ),
 
-                            // Progress bar needs to be visible
                             // Progress bar needs to be visible
                             SliverToBoxAdapter(child: _buildSyncProgress()),
                           ];
@@ -504,29 +512,7 @@ class _MainScreenState extends State<MainScreen>
                                     child: Column(
                                       children: [
                                         _buildHeaderBottom(context, state),
-                                        Container(
-                                          color: Theme.of(context).cardColor,
-                                          child: TabBar(
-                                            controller: _tabController,
-                                            tabs: [
-                                              Tab(
-                                                text: AppLocalizations.of(
-                                                  context,
-                                                )!.navProductSearch,
-                                              ),
-                                              Tab(
-                                                text: AppLocalizations.of(
-                                                  context,
-                                                )!.navIngredientSearch,
-                                              ),
-                                            ],
-                                            labelStyle: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            indicatorWeight: 3,
-                                          ),
-                                        ),
+
                                         Expanded(
                                           child: TabBarView(
                                             controller: _tabController,
