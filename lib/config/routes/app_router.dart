@@ -7,6 +7,7 @@ import '../../features/search/presentation/pages/download_screen.dart';
 import '../../features/search/presentation/pages/main_screen.dart';
 import '../../features/search/presentation/pages/detail_screen.dart';
 import '../../features/search/domain/entities/food_item.dart';
+import '../../features/favorite/presentation/pages/favorites_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -25,6 +26,10 @@ final appRouter = GoRouter(
       builder: (context, state) => const DownloadScreen(),
     ),
     GoRoute(path: '/main', builder: (context, state) => const MainScreen()),
+    GoRoute(
+      path: '/favorites',
+      builder: (context, state) => const FavoritesScreen(),
+    ),
     GoRoute(
       path: '/detail',
       builder: (context, state) {

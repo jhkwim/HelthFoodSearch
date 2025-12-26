@@ -15,6 +15,7 @@ import '../../../../core/utils/sliver_tab_bar_delegate.dart';
 
 import '../bloc/search_cubit.dart';
 import '../../../../core/enums/ingredient_search_type.dart';
+import '../../../favorite/presentation/bloc/favorite_cubit.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -315,6 +316,9 @@ class _MainScreenState extends State<MainScreen>
       providers: [
         BlocProvider(create: (context) => getIt<IngredientSearchCubit>()),
         BlocProvider(create: (context) => getIt<SearchCubit>()),
+        BlocProvider(
+          create: (context) => getIt<FavoriteCubit>()..loadFavorites(),
+        ),
       ],
       child: Builder(
         builder: (context) {
@@ -360,6 +364,12 @@ class _MainScreenState extends State<MainScreen>
                                       state,
                                     ), // Dynamic Search Area
                                     actions: [
+                                      IconButton(
+                                        icon: const Icon(Icons.favorite),
+                                        onPressed: () {
+                                          context.push('/favorites');
+                                        },
+                                      ),
                                       IconButton(
                                         icon: const Icon(Icons.settings),
                                         onPressed: () {
@@ -605,6 +615,12 @@ class _MainScreenState extends State<MainScreen>
               indicatorWeight: 4,
             ),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.favorite),
+          onPressed: () {
+            context.push('/favorites');
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.settings),
           onPressed: () {

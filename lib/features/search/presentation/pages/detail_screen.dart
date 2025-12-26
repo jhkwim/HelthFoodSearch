@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
-import 'package:dartz/dartz.dart' show Either; // or just dartz
+import 'package:dartz/dartz.dart' show Either;
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/usecases/get_raw_materials_usecase.dart';
 import '../../domain/entities/food_item.dart';
+import '../../../favorite/presentation/bloc/favorite_cubit.dart';
 
 class DetailScreen extends StatefulWidget {
   final FoodItem item;
@@ -133,332 +135,375 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.detailTitle),
-        elevation: 0,
-      ),
-      body: Center(
-        child: SelectionArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header Section (Product Name)
-                _buildHeader(context),
-                const SizedBox(height: 24),
-
-                // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
-                // 2. Basic Info
-                _buildInfoCard(
-                  context,
-                  title: AppLocalizations.of(context)!.detailSectionBasic,
-                  icon: Icons.info_outline,
-                  child: _buildTable([
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelCompany,
-                      widget.item.bsshNm,
-                    ),
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelReportNo,
-                      widget.item.reportNo,
-                    ),
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelRegDate,
-                      widget.item.prmsDt,
-                    ),
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelExpireDate,
-                      widget.item.pogDaycnt,
-                    ),
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelAppearance,
-                      widget.item.dispos,
-                    ),
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelForm,
-                      widget.item.prdtShapCdNm,
-                    ),
-                  ]),
-                ),
-                const SizedBox(height: 16),
-
-                // 3. Packaging (Material/Method)
-                // 3. Packaging
-                _buildInfoCard(
-                  context,
-                  title: AppLocalizations.of(context)!.detailSectionPacking,
-                  icon: Icons.inventory_2_outlined,
-                  child: _buildTable([
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelPackMaterial,
-                      widget.item.frmlcMtrqlt,
-                    ),
-                    _InfoRow(
-                      AppLocalizations.of(context)!.detailLabelPackMethod,
-                      widget.item.frmlcMthd,
-                    ),
-                  ]),
-                ),
-                const SizedBox(height: 16),
-
-                // 4. Intake (Method/Amount)
-                // 4. Intake
-                _buildInfoCard(
-                  context,
-                  title: AppLocalizations.of(context)!.detailSectionIntake,
-                  icon: Icons.restaurant_menu,
-                  child: Text(
-                    widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd,
-                    style: const TextStyle(height: 1.5),
+    return BlocProvider.value(
+      value: getIt<FavoriteCubit>(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.detailTitle),
+          elevation: 0,
+          actions: [
+            BlocBuilder<FavoriteCubit, FavoriteState>(
+              builder: (context, state) {
+                final isFav = state.isFavorite(widget.item.reportNo);
+                return IconButton(
+                  icon: Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    color: isFav ? Colors.red : null,
                   ),
-                ),
-                const SizedBox(height: 16),
-
-                // 8. Ingredients (Moved here)
-                _buildInfoCard(
-                  context,
-                  title: AppLocalizations.of(context)!.detailSectionIngredients,
-                  icon: Icons.grass,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 8.1 Primary
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.detailLabelRawMaterialsSearchable,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: Theme.of(context).hintColor,
-                            ),
-                          ),
-                          if (widget.onIngredientSelected != null)
-                            Text(
-                              AppLocalizations.of(context)!.detailSelectedCount(
-                                _selectedIngredients.length,
-                              ),
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
-                        children: _getCombinedIngredients().asMap().entries.map(
-                          (entry) {
-                            final index = entry.key;
-                            final ing = entry.value;
-                            final isSelected = _selectedIngredients.contains(
-                              ing,
-                            );
-                            return ActionChip(
-                              label: Text(ing),
-                              onPressed: () {
-                                if (widget.onIngredientSelected != null) {
-                                  _toggleIngredient(ing);
-                                }
-                              },
-                              avatar: isSelected
-                                  ? const Icon(
-                                      Icons.check,
-                                      size: 16,
-                                      color: Colors.white,
-                                    )
-                                  : CircleAvatar(
-                                      radius: 9,
-                                      backgroundColor:
-                                          Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? Colors.grey[700]
-                                          : Colors.grey[300],
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? Colors.white
-                                              : Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                              backgroundColor: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : Theme.of(context).cardColor,
-                              labelStyle: TextStyle(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.color,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                              side: BorderSide(
-                                color: isSelected
-                                    ? Colors.transparent
-                                    : Theme.of(
-                                        context,
-                                      ).primaryColor.withValues(alpha: 0.2),
-                              ),
-                            );
-                          },
-                        ).toList(),
-                      ),
-                      const Divider(height: 32),
-
-                      // 8.2 Secondary: Detail Tabs (Functional, Etc, Capsule)
-                      _buildIngredientTabs(),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // C003 Raw Materials Section (Async On-Demand) (Moved here)
-                FutureBuilder<Either<Failure, List<String>?>>(
-                  future: getIt<GetRawMaterialsUseCase>()(widget.item.reportNo),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return snapshot.data!.fold((l) => const SizedBox(), (r) {
-                        if (r == null || r.isEmpty) {
-                          // Fallback to I0030 if C003 is empty/failed
-                          if (widget.item.rawmtrlNm.isNotEmpty) {
-                            return _buildInfoCard(
-                              context,
-                              title: AppLocalizations.of(
-                                context,
-                              )!.detailSectionRawMaterialsReport,
-                              icon: Icons.science_outlined,
-                              child: _buildNumberedList(widget.item.rawmtrlNm),
-                            );
-                          }
-                          return const SizedBox();
-                        }
-
-                        return _buildInfoCard(
-                          context,
-                          title: AppLocalizations.of(
-                            context,
-                          )!.detailSectionRawMaterialsReport,
-                          icon: Icons.science_outlined,
-                          child: _buildBulletList(r),
-                        );
-                      });
-                    }
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
+                  onPressed: () {
+                    context.read<FavoriteCubit>().toggleFavorite(
+                      reportNo: widget.item.reportNo,
+                      prdlstNm: widget.item.prdlstNm,
                     );
                   },
-                ),
-                const SizedBox(height: 16),
+                );
+              },
+            ),
+          ],
+        ),
+        body: Center(
+          child: SelectionArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header Section (Product Name)
+                  _buildHeader(context),
+                  const SizedBox(height: 24),
 
-                // 5. Functionality Content
-                // 5. Functionality
-                _buildInfoCard(
-                  context,
-                  title: AppLocalizations.of(context)!.detailSectionFunc,
-                  icon: Icons.verified_user_outlined,
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-                  child: Text(
-                    widget.item.primaryFnclty.isEmpty
-                        ? '-'
-                        : widget.item.primaryFnclty,
-                    style: Theme.of(
+                  // 2. Basic Info (Company, Report, Date, Expiration, Appearance, Form)
+                  // 2. Basic Info
+                  _buildInfoCard(
+                    context,
+                    title: AppLocalizations.of(context)!.detailSectionBasic,
+                    icon: Icons.info_outline,
+                    child: _buildTable([
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelCompany,
+                        widget.item.bsshNm,
+                      ),
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelReportNo,
+                        widget.item.reportNo,
+                      ),
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelRegDate,
+                        widget.item.prmsDt,
+                      ),
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelExpireDate,
+                        widget.item.pogDaycnt,
+                      ),
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelAppearance,
+                        widget.item.dispos,
+                      ),
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelForm,
+                        widget.item.prdtShapCdNm,
+                      ),
+                    ]),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 3. Packaging (Material/Method)
+                  // 3. Packaging
+                  _buildInfoCard(
+                    context,
+                    title: AppLocalizations.of(context)!.detailSectionPacking,
+                    icon: Icons.inventory_2_outlined,
+                    child: _buildTable([
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelPackMaterial,
+                        widget.item.frmlcMtrqlt,
+                      ),
+                      _InfoRow(
+                        AppLocalizations.of(context)!.detailLabelPackMethod,
+                        widget.item.frmlcMthd,
+                      ),
+                    ]),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 4. Intake (Method/Amount)
+                  // 4. Intake
+                  _buildInfoCard(
+                    context,
+                    title: AppLocalizations.of(context)!.detailSectionIntake,
+                    icon: Icons.restaurant_menu,
+                    child: Text(
+                      widget.item.ntkMthd.isEmpty ? '-' : widget.item.ntkMthd,
+                      style: const TextStyle(height: 1.5),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 8. Ingredients (Moved here)
+                  _buildInfoCard(
+                    context,
+                    title: AppLocalizations.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(height: 1.6),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 6. Standards
-                // 6. Standards
-                _buildInfoCard(
-                  context,
-                  title: AppLocalizations.of(context)!.detailSectionStandard,
-                  icon: Icons.gavel_outlined,
-                  child: Text(
-                    widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd,
-                    style: const TextStyle(height: 1.5),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 7. Cautions & Storage
-                // 7. Cautions
-                _buildInfoCard(
-                  context,
-                  title: AppLocalizations.of(context)!.detailSectionCaution,
-                  icon: Icons.warning_amber_rounded,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSubTitle(
-                        AppLocalizations.of(context)!.detailLabelCautionIntake,
-                        color: Colors.red,
-                      ),
-                      Text(
-                        widget.item.iftknAtntMatrCn.isEmpty
-                            ? '-'
-                            : widget.item.iftknAtntMatrCn,
-                        style: TextStyle(
-                          height: 1.5,
-                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                    )!.detailSectionIngredients,
+                    icon: Icons.grass,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 8.1 Primary
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.detailLabelRawMaterialsSearchable,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Theme.of(context).hintColor,
+                              ),
+                            ),
+                            if (widget.onIngredientSelected != null)
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.detailSelectedCount(
+                                  _selectedIngredients.length,
+                                ),
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: _getCombinedIngredients()
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                                final index = entry.key;
+                                final ing = entry.value;
+                                final isSelected = _selectedIngredients
+                                    .contains(ing);
+                                return ActionChip(
+                                  label: Text(ing),
+                                  onPressed: () {
+                                    if (widget.onIngredientSelected != null) {
+                                      _toggleIngredient(ing);
+                                    }
+                                  },
+                                  avatar: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                      : CircleAvatar(
+                                          radius: 9,
+                                          backgroundColor:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Colors.grey[700]
+                                              : Colors.grey[300],
+                                          child: Text(
+                                            '${index + 1}',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  Theme.of(
+                                                        context,
+                                                      ).brightness ==
+                                                      Brightness.dark
+                                                  ? Colors.white
+                                                  : Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                  backgroundColor: isSelected
+                                      ? Theme.of(context).primaryColor
+                                      : Theme.of(context).cardColor,
+                                  labelStyle: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium?.color,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                  side: BorderSide(
+                                    color: isSelected
+                                        ? Colors.transparent
+                                        : Theme.of(
+                                            context,
+                                          ).primaryColor.withValues(alpha: 0.2),
+                                  ),
+                                );
+                              })
+                              .toList(),
+                        ),
+                        const Divider(height: 32),
 
-                      _buildSubTitle(
-                        AppLocalizations.of(context)!.detailLabelCautionStorage,
-                      ),
-                      Text(
-                        widget.item.cstdyMthd.isEmpty
-                            ? '-'
-                            : widget.item.cstdyMthd,
-                        style: const TextStyle(height: 1.5),
-                      ),
-                    ],
+                        // 8.2 Secondary: Detail Tabs (Functional, Etc, Capsule)
+                        _buildIngredientTabs(),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                const SizedBox(height: 80), // Space for FAB
-              ],
+                  // C003 Raw Materials Section (Async On-Demand) (Moved here)
+                  FutureBuilder<Either<Failure, List<String>?>>(
+                    future: getIt<GetRawMaterialsUseCase>()(
+                      widget.item.reportNo,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return snapshot.data!.fold((l) => const SizedBox(), (
+                          r,
+                        ) {
+                          if (r == null || r.isEmpty) {
+                            // Fallback to I0030 if C003 is empty/failed
+                            if (widget.item.rawmtrlNm.isNotEmpty) {
+                              return _buildInfoCard(
+                                context,
+                                title: AppLocalizations.of(
+                                  context,
+                                )!.detailSectionRawMaterialsReport,
+                                icon: Icons.science_outlined,
+                                child: _buildNumberedList(
+                                  widget.item.rawmtrlNm,
+                                ),
+                              );
+                            }
+                            return const SizedBox();
+                          }
+
+                          return _buildInfoCard(
+                            context,
+                            title: AppLocalizations.of(
+                              context,
+                            )!.detailSectionRawMaterialsReport,
+                            icon: Icons.science_outlined,
+                            child: _buildBulletList(r),
+                          );
+                        });
+                      }
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 5. Functionality Content
+                  // 5. Functionality
+                  _buildInfoCard(
+                    context,
+                    title: AppLocalizations.of(context)!.detailSectionFunc,
+                    icon: Icons.verified_user_outlined,
+                    color: Theme.of(
+                      context,
+                    ).primaryColor.withValues(alpha: 0.05),
+                    child: Text(
+                      widget.item.primaryFnclty.isEmpty
+                          ? '-'
+                          : widget.item.primaryFnclty,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(height: 1.6),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 6. Standards
+                  // 6. Standards
+                  _buildInfoCard(
+                    context,
+                    title: AppLocalizations.of(context)!.detailSectionStandard,
+                    icon: Icons.gavel_outlined,
+                    child: Text(
+                      widget.item.stdrStnd.isEmpty ? '-' : widget.item.stdrStnd,
+                      style: const TextStyle(height: 1.5),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 7. Cautions & Storage
+                  // 7. Cautions
+                  _buildInfoCard(
+                    context,
+                    title: AppLocalizations.of(context)!.detailSectionCaution,
+                    icon: Icons.warning_amber_rounded,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSubTitle(
+                          AppLocalizations.of(
+                            context,
+                          )!.detailLabelCautionIntake,
+                          color: Colors.red,
+                        ),
+                        Text(
+                          widget.item.iftknAtntMatrCn.isEmpty
+                              ? '-'
+                              : widget.item.iftknAtntMatrCn,
+                          style: TextStyle(
+                            height: 1.5,
+                            color: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.color,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildSubTitle(
+                          AppLocalizations.of(
+                            context,
+                          )!.detailLabelCautionStorage,
+                        ),
+                        Text(
+                          widget.item.cstdyMthd.isEmpty
+                              ? '-'
+                              : widget.item.cstdyMthd,
+                          style: const TextStyle(height: 1.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 80), // Space for FAB
+                ],
+              ),
             ),
           ),
         ),
+        floatingActionButton: _selectedIngredients.isNotEmpty
+            ? FloatingActionButton.extended(
+                onPressed: () {
+                  if (widget.onIngredientSelected != null) {
+                    widget.onIngredientSelected!(_selectedIngredients.toList());
+                  }
+                },
+                icon: const Icon(Icons.search),
+                label: Text(
+                  AppLocalizations.of(context)!.detailFabSearchWithIngredients(
+                    _selectedIngredients.length,
+                  ),
+                ),
+              )
+            : null,
       ),
-      floatingActionButton: _selectedIngredients.isNotEmpty
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                if (widget.onIngredientSelected != null) {
-                  widget.onIngredientSelected!(_selectedIngredients.toList());
-                }
-              },
-              icon: const Icon(Icons.search),
-              label: Text(
-                AppLocalizations.of(
-                  context,
-                )!.detailFabSearchWithIngredients(_selectedIngredients.length),
-              ),
-            )
-          : null,
     );
   }
 
