@@ -43,7 +43,13 @@ final appRouter = GoRouter(
       builder: (context, state) {
         if (state.extra is FoodItem) {
           final item = state.extra as FoodItem;
-          return DetailScreen(item: item);
+          return DetailScreen(
+            item: item,
+            onIngredientSelected: (ingredients) {
+              // 모바일에서 원재료 선택 시 메인 화면으로 이동
+              context.go('/main', extra: ingredients);
+            },
+          );
         } else if (state.extra is Map) {
           final extra = state.extra as Map<String, dynamic>;
           return DetailScreen(
