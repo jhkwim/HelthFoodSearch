@@ -487,9 +487,7 @@ class _MainScreenState extends State<MainScreen>
                   // 제품명 검색 결과 첫 항목 자동 선택
                   BlocListener<SearchCubit, SearchState>(
                     listener: (context, state) {
-                      if (state is SearchLoaded &&
-                          state.foods.isNotEmpty &&
-                          _selectedItem == null) {
+                      if (state is SearchLoaded && state.foods.isNotEmpty) {
                         setState(() {
                           _selectedItem = state.foods.first;
                         });
@@ -500,8 +498,7 @@ class _MainScreenState extends State<MainScreen>
                   BlocListener<IngredientSearchCubit, IngredientSearchState>(
                     listener: (context, state) {
                       if (state.status == IngredientSearchStatus.loaded &&
-                          state.searchResults.isNotEmpty &&
-                          _selectedItem == null) {
+                          state.searchResults.isNotEmpty) {
                         setState(() {
                           _selectedItem = state.searchResults.first;
                         });
