@@ -28,18 +28,11 @@ class ProductSearchTab extends StatefulWidget {
 
 class _ProductSearchTabState extends State<ProductSearchTab>
     with AutomaticKeepAliveClientMixin {
-  final TextEditingController _controller = TextEditingController();
   final Set<String> _shownItems = {};
   List<FoodItem>? _lastFoods;
 
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,69 +159,79 @@ class _ProductSearchTabState extends State<ProductSearchTab>
 
   // Desktop/Tablet Layout (Standard Column)
   Widget _buildStandardLayout(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _buildSearchField(context),
-        ),
-        Expanded(
-          child: BlocBuilder<SearchCubit, SearchState>(
-            builder: (context, state) {
-              if (state is SearchLoading) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isGrid = constraints.maxWidth > 480;
-                    if (isGrid) {
-                      final crossAxisCount = (constraints.maxWidth / 250)
-                          .floor()
-                          .clamp(2, 6);
-                      return GridView.builder(
-                        padding: const EdgeInsets.all(16),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          mainAxisExtent: 240,
-                        ),
-                        itemCount: 8,
-                        itemBuilder: (context, index) =>
-                            const ProductListItemSkeleton(),
-                      );
-                    }
-                    return ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: 6,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 16),
-                      itemBuilder: (context, index) =>
-                          const ProductListItemSkeleton(),
-                    );
-                  },
-                );
-              } else if (state is SearchError) {
-                return Center(
-                  child: Text(
-                    AppLocalizations.of(context)!.errorOccurred(state.message),
+    return BlocBuilder<SearchCubit, SearchState>(
+      builder: (context, state) {
+        if (state is SearchLoading) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isGrid = constraints.maxWidth > 480;
+              if (isGrid) {
+                final crossAxisCount = (constraints.maxWidth / 250)
+                    .floor()
+                    .clamp(2, 6);
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    mainAxisExtent: 240,
                   ),
+                  itemCount: 8,
+                  itemBuilder: (context, index) =>
+                      const ProductListItemSkeleton(),
                 );
-              } else if (state is SearchLoaded) {
-                // Reuse existing grid/list logic for desktop
-                if (state.foods.isEmpty) {
-                  return EmptyStateWidget(
-                    message: AppLocalizations.of(context)!.searchProductEmpty,
-                    icon: Icons.search_off,
-                  );
-                }
+              }
+              return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: 6,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 16),
+                itemBuilder: (context, index) =>
+                    const ProductListItemSkeleton(),
+              );
+            },
+          );
+        } else if (state is SearchError) {
+          return Center(
+            child: Text(
+              AppLocalizations.of(context)!.errorOccurred(state.message),
+            ),
+          );
+        } else if (state is SearchLoaded) {
+          if (state.foods.isEmpty) {
+            return EmptyStateWidget(
+              message: AppLocalizations.of(context)!.searchProductEmpty,
+              icon: Icons.search_off,
+            );
+          }
 
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isGrid = constraints.maxWidth > 480;
-                    if (isGrid) {
-                      final crossAxisCount = (constraints.maxWidth / 250)
-                          .floor()
-                          .clamp(2, 6);
-                      return GridView.builder(
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isGrid = constraints.maxWidth > 480;
+              final header = Padding(
+                padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+                child: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.searchResultCount(state.foods.length),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+
+              if (isGrid) {
+                final crossAxisCount = (constraints.maxWidth / 250)
+                    .floor()
+                    .clamp(2, 6);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    header,
+                    Expanded(
+                      child: GridView.builder(
                         padding: const EdgeInsets.all(16),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
@@ -270,9 +273,17 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                             ),
                           );
                         },
-                      );
-                    }
-                    return ListView.separated(
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  header,
+                  Expanded(
+                    child: ListView.separated(
                       padding: const EdgeInsets.all(16),
                       itemCount: state.foods.length,
                       separatorBuilder: (context, index) =>
@@ -312,39 +323,18 @@ class _ProductSearchTabState extends State<ProductSearchTab>
                           ),
                         );
                       },
-                    );
-                  },
-                );
-              }
-              return EmptyStateWidget(
-                message: AppLocalizations.of(context)!.searchProductInitial,
-                icon: Icons.search,
-                iconSize: 48,
+                    ),
+                  ),
+                ],
               );
             },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSearchField(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return TextField(
-      controller: _controller,
-      decoration: InputDecoration(
-        labelText: l10n.navProductSearch,
-        hintText: l10n.searchProductHintExample,
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.clear),
-          onPressed: _controller.clear,
-        ),
-      ),
-      style: Theme.of(context).textTheme.bodyLarge,
-      textInputAction: TextInputAction.search,
-      onSubmitted: (query) {
-        context.read<SearchCubit>().search(query);
+          );
+        }
+        return EmptyStateWidget(
+          message: AppLocalizations.of(context)!.searchProductInitial,
+          icon: Icons.search,
+          iconSize: 48,
+        );
       },
     );
   }
