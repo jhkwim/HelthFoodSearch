@@ -102,7 +102,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         flex: 7,
                         child: _selectedItem == null
                             ? _buildEmptyDetailView(l10n)
-                            : DetailScreen(item: _selectedItem!),
+                            : DetailScreen(
+                                item: _selectedItem!,
+                                showAppBar: false,
+                              ),
                       ),
                     ],
                   );

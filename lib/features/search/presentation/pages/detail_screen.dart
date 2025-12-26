@@ -11,11 +11,13 @@ import '../../../favorite/presentation/bloc/favorite_cubit.dart';
 class DetailScreen extends StatefulWidget {
   final FoodItem item;
   final Function(List<String>)? onIngredientSelected;
+  final bool showAppBar;
 
   const DetailScreen({
     super.key,
     required this.item,
     this.onIngredientSelected,
+    this.showAppBar = true,
   });
 
   @override
@@ -138,29 +140,31 @@ class _DetailScreenState extends State<DetailScreen> {
     return BlocProvider.value(
       value: getIt<FavoriteCubit>(),
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.detailTitle),
-          elevation: 0,
-          actions: [
-            BlocBuilder<FavoriteCubit, FavoriteState>(
-              builder: (context, state) {
-                final isFav = state.isFavorite(widget.item.reportNo);
-                return IconButton(
-                  icon: Icon(
-                    isFav ? Icons.favorite : Icons.favorite_border,
-                    color: isFav ? Colors.red : null,
+        appBar: widget.showAppBar
+            ? AppBar(
+                title: Text(AppLocalizations.of(context)!.detailTitle),
+                elevation: 0,
+                actions: [
+                  BlocBuilder<FavoriteCubit, FavoriteState>(
+                    builder: (context, state) {
+                      final isFav = state.isFavorite(widget.item.reportNo);
+                      return IconButton(
+                        icon: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.red : null,
+                        ),
+                        onPressed: () {
+                          context.read<FavoriteCubit>().toggleFavorite(
+                            reportNo: widget.item.reportNo,
+                            prdlstNm: widget.item.prdlstNm,
+                          );
+                        },
+                      );
+                    },
                   ),
-                  onPressed: () {
-                    context.read<FavoriteCubit>().toggleFavorite(
-                      reportNo: widget.item.reportNo,
-                      prdlstNm: widget.item.prdlstNm,
-                    );
-                  },
-                );
-              },
-            ),
-          ],
-        ),
+                ],
+              )
+            : null,
         body: Center(
           child: SelectionArea(
             child: SingleChildScrollView(
