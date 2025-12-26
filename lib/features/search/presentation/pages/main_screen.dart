@@ -47,6 +47,17 @@ class _MainScreenState extends State<MainScreen>
   }
 
   @override
+  void didUpdateWidget(covariant MainScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 새로운 원재료가 전달되면 플래그 리셋
+    if (widget.initialIngredients != oldWidget.initialIngredients &&
+        widget.initialIngredients != null &&
+        widget.initialIngredients!.isNotEmpty) {
+      _initialIngredientsHandled = false;
+    }
+  }
+
+  @override
   void dispose() {
     _tabController.removeListener(_handleTabSelection);
     _tabController.dispose();
