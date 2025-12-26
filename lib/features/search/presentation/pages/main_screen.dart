@@ -69,11 +69,10 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleTabSelection() {
-    if (_tabController.indexIsChanging) {
-      setState(() {
-        _selectedItem = null; // 탭 변경 시 선택 리셋
-      });
-    }
+    // 탭 변경 시 (탭 클릭 또는 스와이프 완료) 선택 리셋 및 UI 업데이트
+    setState(() {
+      _selectedItem = null;
+    });
   }
 
   PreferredSizeWidget _buildHeaderBottom(
