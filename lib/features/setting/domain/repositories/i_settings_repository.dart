@@ -20,4 +20,5 @@ abstract class ISettingsRepository {
 
   Future<Either<Failure, Map<String, String>>> getRefinementRules();
   Future<Either<Failure, void>> saveRefinementRules(Map<String, String> rules);
+  Future<Either<Failure, DateTime?>> getLastRefinementUpdateTime();
 }

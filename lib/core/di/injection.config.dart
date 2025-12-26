@@ -143,6 +143,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i75.SaveUpdateIntervalUseCase>(),
           gh<_i318.ForceExpireSyncTimeUseCase>(),
           gh<_i944.SaveThemeModeUseCase>(),
+          gh<_i913.FetchAndApplyRemoteRulesUseCase>(),
         ));
     gh.factory<_i548.IngredientSearchCubit>(() => _i548.IngredientSearchCubit(
           gh<_i337.SearchFoodByIngredientsUseCase>(),

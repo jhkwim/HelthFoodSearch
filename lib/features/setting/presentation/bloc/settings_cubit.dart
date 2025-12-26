@@ -14,6 +14,7 @@ import 'package:health_food_search/features/search/domain/usecases/refine_local_
 import '../../domain/usecases/save_update_interval_usecase.dart';
 import '../../domain/usecases/force_expire_sync_time_usecase.dart';
 import '../../domain/usecases/save_theme_mode_usecase.dart'; // New
+import '../../domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 import 'package:flutter/material.dart';
 
 part 'settings_state.dart';
@@ -28,6 +29,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final SaveUpdateIntervalUseCase saveUpdateIntervalUseCase;
   final ForceExpireSyncTimeUseCase forceExpireSyncTimeUseCase;
   final SaveThemeModeUseCase saveThemeModeUseCase; // New
+  final FetchAndApplyRemoteRulesUseCase fetchAndApplyRemoteRulesUseCase;
 
   SettingsCubit(
     this.getSettingsUseCase,
@@ -38,6 +40,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     this.saveUpdateIntervalUseCase,
     this.forceExpireSyncTimeUseCase,
     this.saveThemeModeUseCase, // New
+    this.fetchAndApplyRemoteRulesUseCase,
   ) : super(SettingsInitial());
 
   Future<void> checkSettings() async {
@@ -107,6 +110,14 @@ class SettingsCubit extends Cubit<SettingsState> {
       ),
     );
 
+    // 1. Update rules from remote (Google Sheet)
+    try {
+      await fetchAndApplyRemoteRulesUseCase.execute();
+      // Even if it fails (false), we proceed with whatever rules we have (old cache or defaults)
+    } catch (e) {
+      debugPrint('Rule sync failed: $e');
+    }
+
     try {
       await for (final progress in refineLocalDataUseCase()) {
         emit(
@@ -128,6 +139,9 @@ class SettingsCubit extends Cubit<SettingsState> {
           refinementProgress: null,
         ),
       );
+
+      // Reload settings to get updated 'lastRefinementUpdate' time
+      await checkSettings();
 
       // Optionally show success message via side effect or snackbar managed by UI listener?
       // For now, returning to idle state implies completion.

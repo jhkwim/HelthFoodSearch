@@ -16,31 +16,38 @@ class SettingsLoaded extends SettingsState {
   final bool isApiKeyMissing;
   final String appVersion;
   final double? refinementProgress; // null = idle, 0.0-1.0 = progressing
+  final DateTime? lastRefinementUpdate;
 
-  const SettingsLoaded(this.settings, {
+  const SettingsLoaded(
+    this.settings, {
     this.isApiKeyMissing = false,
     this.appVersion = '',
     this.refinementProgress,
+    this.lastRefinementUpdate,
   });
 
   @override
-  List<Object?> get props => [settings, isApiKeyMissing, appVersion, refinementProgress];
-  
+  List<Object?> get props => [
+    settings,
+    isApiKeyMissing,
+    appVersion,
+    refinementProgress,
+    lastRefinementUpdate,
+  ];
+
   SettingsLoaded copyWith({
     AppSettings? settings,
     bool? isApiKeyMissing,
     String? appVersion,
     double? refinementProgress,
+    DateTime? lastRefinementUpdate,
   }) {
     return SettingsLoaded(
       settings ?? this.settings,
       isApiKeyMissing: isApiKeyMissing ?? this.isApiKeyMissing,
       appVersion: appVersion ?? this.appVersion,
-      refinementProgress: refinementProgress, // explicit null override not needed for this usage, usually strictly setting it. 
-      // But for "resetting" to null, we might need a way.
-      // actually copyWith is usually matching non-null.
-      // Let's rely on creating new instances in Cubit for clarity.
-      // But copyWith is useful.
+      refinementProgress: refinementProgress ?? this.refinementProgress,
+      lastRefinementUpdate: lastRefinementUpdate ?? this.lastRefinementUpdate,
     );
   }
 }

@@ -15,15 +15,29 @@ import 'package:health_food_search/features/setting/domain/usecases/export_food_
 import 'package:health_food_search/features/search/domain/usecases/refine_local_data_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/save_update_interval_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/force_expire_sync_time_usecase.dart';
+import 'package:health_food_search/features/setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 
 class MockGetSettingsUseCase extends Mock implements GetSettingsUseCase {}
+
 class MockSaveApiKeyUseCase extends Mock implements SaveApiKeyUseCase {}
+
 class MockSaveTextScaleUseCase extends Mock implements SaveTextScaleUseCase {}
+
 class MockExportFoodDataUseCase extends Mock implements ExportFoodDataUseCase {}
-class MockRefineLocalDataUseCase extends Mock implements RefineLocalDataUseCase {}
-class MockSaveUpdateIntervalUseCase extends Mock implements SaveUpdateIntervalUseCase {}
-class MockForceExpireSyncTimeUseCase extends Mock implements ForceExpireSyncTimeUseCase {}
+
+class MockRefineLocalDataUseCase extends Mock
+    implements RefineLocalDataUseCase {}
+
+class MockSaveUpdateIntervalUseCase extends Mock
+    implements SaveUpdateIntervalUseCase {}
+
+class MockForceExpireSyncTimeUseCase extends Mock
+    implements ForceExpireSyncTimeUseCase {}
+
 class MockSaveThemeModeUseCase extends Mock implements SaveThemeModeUseCase {}
+
+class MockFetchAndApplyRemoteRulesUseCase extends Mock
+    implements FetchAndApplyRemoteRulesUseCase {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +51,7 @@ void main() {
   late MockSaveUpdateIntervalUseCase mockSaveUpdateIntervalUseCase;
   late MockForceExpireSyncTimeUseCase mockForceExpireSyncTimeUseCase;
   late MockSaveThemeModeUseCase mockSaveThemeModeUseCase;
+  late MockFetchAndApplyRemoteRulesUseCase mockFetchAndApplyRemoteRulesUseCase;
 
   setUp(() {
     mockGetSettingsUseCase = MockGetSettingsUseCase();
@@ -47,6 +62,7 @@ void main() {
     mockSaveUpdateIntervalUseCase = MockSaveUpdateIntervalUseCase();
     mockForceExpireSyncTimeUseCase = MockForceExpireSyncTimeUseCase();
     mockSaveThemeModeUseCase = MockSaveThemeModeUseCase();
+    mockFetchAndApplyRemoteRulesUseCase = MockFetchAndApplyRemoteRulesUseCase();
 
     cubit = SettingsCubit(
       mockGetSettingsUseCase,
@@ -57,6 +73,7 @@ void main() {
       mockSaveUpdateIntervalUseCase,
       mockForceExpireSyncTimeUseCase,
       mockSaveThemeModeUseCase,
+      mockFetchAndApplyRemoteRulesUseCase,
     );
   });
 
@@ -65,9 +82,7 @@ void main() {
   });
 
   group('SettingsCubit ThemeMode', () {
-    const tSettings = AppSettings(
-      themeMode: ThemeMode.system,
-    );
+    const tSettings = AppSettings(themeMode: ThemeMode.system);
 
     test('initial state is SettingsInitial', () {
       expect(cubit.state, equals(SettingsInitial()));
@@ -76,31 +91,42 @@ void main() {
     blocTest<SettingsCubit, SettingsState>(
       'emits [SettingsLoading, SettingsLoaded] when checkSettings is called',
       build: () {
-        when(() => mockGetSettingsUseCase(NoParams()))
-            .thenAnswer((_) async => const Right(tSettings));
+        when(
+          () => mockGetSettingsUseCase(NoParams()),
+        ).thenAnswer((_) async => const Right(tSettings));
         return cubit;
       },
       act: (cubit) => cubit.checkSettings(),
       expect: () => [
         SettingsLoading(),
-        isA<SettingsLoaded>().having((s) => s.settings.themeMode, 'themeMode', ThemeMode.system),
+        isA<SettingsLoaded>().having(
+          (s) => s.settings.themeMode,
+          'themeMode',
+          ThemeMode.system,
+        ),
       ],
     );
 
     blocTest<SettingsCubit, SettingsState>(
       'emits correct states when saveThemeMode is called',
       build: () {
-        when(() => mockSaveThemeModeUseCase(ThemeMode.dark))
-            .thenAnswer((_) async => const Right(null));
-        when(() => mockGetSettingsUseCase(NoParams()))
-            .thenAnswer((_) async => const Right(AppSettings(themeMode: ThemeMode.dark)));
+        when(
+          () => mockSaveThemeModeUseCase(ThemeMode.dark),
+        ).thenAnswer((_) async => const Right(null));
+        when(() => mockGetSettingsUseCase(NoParams())).thenAnswer(
+          (_) async => const Right(AppSettings(themeMode: ThemeMode.dark)),
+        );
         return cubit;
       },
       act: (cubit) => cubit.saveThemeMode(ThemeMode.dark),
       expect: () => [
         SettingsLoading(),
         // Second SettingsLoading skipped because state didn't change (Loading -> Loading)
-        isA<SettingsLoaded>().having((s) => s.settings.themeMode, 'themeMode', ThemeMode.dark),
+        isA<SettingsLoaded>().having(
+          (s) => s.settings.themeMode,
+          'themeMode',
+          ThemeMode.dark,
+        ),
       ],
       verify: (_) {
         verify(() => mockSaveThemeModeUseCase(ThemeMode.dark)).called(1);

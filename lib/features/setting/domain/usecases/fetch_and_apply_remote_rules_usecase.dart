@@ -15,7 +15,7 @@ class FetchAndApplyRemoteRulesUseCase {
 
   /// 1. Load cached rules -> Apply
   /// 2. Fetch remote rules -> Apply -> Store
-  Future<void> execute() async {
+  Future<bool> execute() async {
     // 1. Load cached rules first (Fast)
     final cachedResult = await _settingsRepository.getRefinementRules();
     cachedResult.fold(
@@ -36,10 +36,12 @@ class FetchAndApplyRemoteRulesUseCase {
 
         // Save to cache
         await _settingsRepository.saveRefinementRules(remoteRules);
+        return true;
       }
     } catch (e) {
       // Log or ignore network errors silently
       print('Failed to sync remote rules: $e');
     }
+    return false;
   }
 }

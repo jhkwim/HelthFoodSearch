@@ -18,6 +18,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   static const String updateIntervalKey = 'UPDATE_INTERVAL';
   static const String themeModeKey = 'THEME_MODE'; // New key
   static const String refinementRulesKey = 'REFINEMENT_RULES';
+  static const String refinementRulesUpdatedKey = 'REFINEMENT_RULES_UPDATED_AT';
 
   @override
   Future<Either<Failure, AppSettings>> getSettings() async {
@@ -42,6 +43,13 @@ class SettingsRepositoryImpl implements ISettingsRepository {
         lastSyncTime = DateTime.tryParse(lastSyncStr);
       }
 
+      DateTime? lastRefinementUpdate;
+      final lastRefinementStr =
+          settingsBox.get(refinementRulesUpdatedKey) as String?;
+      if (lastRefinementStr != null) {
+        lastRefinementUpdate = DateTime.tryParse(lastRefinementStr);
+      }
+
       return Right(
         AppSettings(
           apiKey: apiKey,
@@ -49,6 +57,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
           lastSyncTime: lastSyncTime,
           updateIntervalDays: updateInterval,
           themeMode: themeMode,
+          lastRefinementUpdate: lastRefinementUpdate,
         ),
       );
     } catch (e) {
@@ -137,6 +146,23 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   ) async {
     try {
       await settingsBox.put(refinementRulesKey, rules);
+      await settingsBox.put(
+        refinementRulesUpdatedKey,
+        DateTime.now().toIso8601String(),
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DateTime?>> getLastRefinementUpdateTime() async {
+    try {
+      final str = settingsBox.get(refinementRulesUpdatedKey) as String?;
+      if (str != null) {
+        return Right(DateTime.tryParse(str));
+      }
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
