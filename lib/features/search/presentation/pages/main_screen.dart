@@ -39,6 +39,8 @@ class _MainScreenState extends State<MainScreen>
   FoodItem? _selectedItem;
   bool _initialIngredientsHandled = false;
 
+  int _previousTabIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -69,10 +71,13 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _handleTabSelection() {
-    // 탭 변경 시 (탭 클릭 또는 스와이프 완료) 선택 리셋 및 UI 업데이트
-    setState(() {
-      _selectedItem = null;
-    });
+    // 스와이프 중 index가 변경되면 즉시 헤더 업데이트
+    if (_tabController.index != _previousTabIndex) {
+      _previousTabIndex = _tabController.index;
+      setState(() {
+        _selectedItem = null;
+      });
+    }
   }
 
   PreferredSizeWidget _buildHeaderBottom(
@@ -345,10 +350,16 @@ class _MainScreenState extends State<MainScreen>
             // Cubit 참조를 콜백 전에 캡처
             final cubit = context.read<IngredientSearchCubit>();
             final ingredients = widget.initialIngredients!;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
               _tabController.animateTo(1); // 원재료 탭으로 이동
               cubit.replaceIngredients(ingredients);
-              cubit.search();
+              await cubit.search();
+              // 검색 완료 후 첫 항목 선택
+              if (cubit.state.searchResults.isNotEmpty && mounted) {
+                setState(() {
+                  _selectedItem = cubit.state.searchResults.first;
+                });
+              }
             });
           }
 
