@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
+import '../../../../core/extensions/failure_extension.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../bloc/favorite_cubit.dart';
@@ -64,7 +65,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   return EmptyStateWidget(
                     icon: Icons.error_outline,
                     message: l10n.favoritesErrorTitle,
-                    subMessage: state.errorMessage,
+                    subMessage: state.failure?.toUserMessage(context) ?? '',
                   );
                 }
 

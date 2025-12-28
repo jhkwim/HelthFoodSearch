@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../bloc/data_sync_cubit.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
 
+import '../../../../core/extensions/failure_extension.dart';
+
 class DownloadScreen extends StatelessWidget {
   const DownloadScreen({super.key});
 
@@ -28,9 +30,9 @@ class DownloadScreen extends StatelessWidget {
             context.go('/main');
           }
         } else if (state is DataSyncError) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.failure.toUserMessage(context))),
+          );
         }
       },
       builder: (context, state) {

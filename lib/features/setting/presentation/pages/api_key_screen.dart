@@ -5,6 +5,8 @@ import 'package:health_food_search/l10n/app_localizations.dart';
 import '../../../../core/di/injection.dart';
 import '../bloc/settings_cubit.dart';
 
+import '../../../../core/extensions/failure_extension.dart';
+
 class ApiKeyScreen extends StatefulWidget {
   const ApiKeyScreen({super.key});
 
@@ -26,9 +28,9 @@ class _ApiKeyScreenState extends State<ApiKeyScreen> {
           if (state is SettingsLoaded && !state.isApiKeyMissing) {
             context.go('/download'); // Go to download screen to sync data
           } else if (state is SettingsError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.failure.toUserMessage(context))),
+            );
           }
         },
         builder: (context, state) {

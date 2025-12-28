@@ -9,6 +9,7 @@ import 'product_list_skeleton.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/staggered_list_item.dart';
 import '../../../favorite/presentation/bloc/favorite_cubit.dart';
+import '../../../../core/extensions/failure_extension.dart';
 
 class ProductSearchTab extends StatefulWidget {
   final Function(FoodItem)? onItemSelected;
@@ -73,7 +74,9 @@ class _ProductSearchTabState extends State<ProductSearchTab>
               return SliverFillRemaining(
                 child: Center(
                   child: Text(
-                    AppLocalizations.of(context)!.errorOccurred(state.message),
+                    AppLocalizations.of(
+                      context,
+                    )!.errorOccurred(state.failure.toUserMessage(context)),
                   ),
                 ),
               );
@@ -195,7 +198,9 @@ class _ProductSearchTabState extends State<ProductSearchTab>
         } else if (state is SearchError) {
           return Center(
             child: Text(
-              AppLocalizations.of(context)!.errorOccurred(state.message),
+              AppLocalizations.of(
+                context,
+              )!.errorOccurred(state.failure.toUserMessage(context)),
             ),
           );
         } else if (state is SearchLoaded) {

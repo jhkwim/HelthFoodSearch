@@ -9,6 +9,8 @@ import 'package:health_food_search/features/search/presentation/bloc/data_sync_c
 import 'package:intl/intl.dart';
 import '../bloc/settings_cubit.dart';
 
+import '../../../../core/extensions/failure_extension.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -22,17 +24,10 @@ class SettingsScreen extends StatelessWidget {
           BlocListener<SettingsCubit, SettingsState>(
             listener: (context, state) {
               if (state is SettingsLoaded) {
-                // Handle Progress Dialog
+                // ... existing dialog logic ...
                 if (state.refinementProgress != null) {
-                  // Show dialog if not already shown (check barrier? hard to check)
-                  // Simplest way: check if we are already showing?
-                  // Better: The dialog itself subscribes.
-                  // But how to trigger show?
-                  // Trigger show when progress goes from null to non-null.
-                  // But we don't have previous state here easily without listenWhen or distinct.
-                  // Just show it. Use a flag in State?
-                  // Let's assume progress start = 0.0.
                   if (state.refinementProgress == 0.0) {
+                    // show dialog logic
                     showDialog(
                       context: context,
                       barrierDismissible: false,
@@ -61,19 +56,11 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     );
                   }
-                } else {
-                  // If progress is null, ensure dialog is closed.
-                  // This is tricky if we don't know if it's open.
-                  // Can use Navigator.of(context).pop() if we know we opened it.
-                  // A naive way: rely on the fact that 0.0 triggers open, and completion triggers close.
-                  // We need a way to know if we are the ones who opened it.
-                  // Or, just use a "Processing" overlay in the body stack instead of Dialog. Reference: "Stack overlay" is much robust.
-                  // But user wants "background processing" which usually implies non-blocking UI or at least minimal blocking.
-                  // Let's go with the Listener-pop approach check.
-                  // If we just finished (null), pop.
-                  // But listener fires for every progress update.
-                  // We need 'listenWhen'.
                 }
+              } else if (state is SettingsError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.failure.toUserMessage(context))),
+                );
               }
             },
           ),

@@ -5,6 +5,8 @@ import 'package:health_food_search/features/setting/presentation/bloc/settings_c
 import 'package:health_food_search/features/search/presentation/bloc/data_sync_cubit.dart';
 import 'package:health_food_search/l10n/app_localizations.dart';
 
+import '../../../../core/extensions/failure_extension.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -50,7 +52,11 @@ class _SplashScreenState extends State<SplashScreen> {
               _handleSettingsLoaded(state);
             } else if (state is SettingsError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Settings Error: ${state.message}')),
+                SnackBar(
+                  content: Text(
+                    'Settings Error: ${state.failure.toUserMessage(context)}',
+                  ),
+                ),
               );
             }
           },
@@ -90,7 +96,11 @@ class _SplashScreenState extends State<SplashScreen> {
               context.go('/download');
             } else if (state is DataSyncError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Data Check Error: ${state.message}')),
+                SnackBar(
+                  content: Text(
+                    'Data Check Error: ${state.failure.toUserMessage(context)}',
+                  ),
+                ),
               );
             }
           },

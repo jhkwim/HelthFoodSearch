@@ -10,6 +10,7 @@ import '../../domain/entities/food_item.dart';
 import '../bloc/ingredient_search_cubit.dart';
 import '../../../../core/widgets/staggered_list_item.dart';
 import '../../../favorite/presentation/bloc/favorite_cubit.dart';
+import '../../../../core/extensions/failure_extension.dart';
 
 class IngredientSearchTab extends StatelessWidget {
   final Function(FoodItem)? onItemSelected;
@@ -187,7 +188,7 @@ class _IngredientSearchContentState extends State<_IngredientSearchContent>
             child: Text(
               AppLocalizations.of(
                 context,
-              )!.errorOccurred(state.errorMessage ?? ''),
+              )!.errorOccurred(state.failure?.toUserMessage(context) ?? ''),
             ),
           );
           return isSliver ? SliverFillRemaining(child: errWidget) : errWidget;
