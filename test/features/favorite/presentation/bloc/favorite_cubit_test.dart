@@ -99,7 +99,7 @@ void main() {
           ),
           isA<FavoriteState>()
               .having((s) => s.status, 'status', FavoriteStatus.error)
-              .having((s) => s.errorMessage, 'error', isNotNull),
+              .having((s) => s.failure, 'error', isNotNull),
         ],
       );
     });

@@ -5,6 +5,7 @@ import 'package:health_food_search/features/search/presentation/pages/main_scree
 import 'package:health_food_search/features/search/presentation/bloc/ingredient_search_cubit.dart';
 import 'package:health_food_search/features/search/presentation/bloc/search_cubit.dart';
 import 'package:health_food_search/features/search/presentation/bloc/data_sync_cubit.dart'; // Correct path
+import 'package:health_food_search/features/favorite/presentation/bloc/favorite_cubit.dart';
 
 import 'package:health_food_search/features/search/domain/usecases/search_food_by_ingredients_usecase.dart';
 import 'package:health_food_search/features/search/domain/usecases/get_suggested_ingredients_usecase.dart';
@@ -67,10 +68,13 @@ class MockFetchAndApplyRemoteRulesUseCase extends Mock
 
 class MockClearDataUseCase extends Mock implements ClearDataUseCase {}
 
+class MockFavoriteCubit extends Mock implements FavoriteCubit {}
+
 void main() {
   late IngredientSearchCubit ingredientSearchCubit;
   late SearchCubit searchCubit;
   late DataSyncCubit dataSyncCubit;
+  // late MockFavoriteCubit favoriteCubit; // Local variable is enough in setUp
 
   setUp(() {
     final getIt = GetIt.instance;
@@ -117,6 +121,16 @@ void main() {
       mockGetSuggestedIngredients,
     );
     searchCubit = SearchCubit(mockSearchFoodByName);
+
+    // Create and stub FavoriteCubit
+    final favoriteCubit = MockFavoriteCubit();
+    when(() => favoriteCubit.state).thenReturn(const FavoriteState());
+    when(
+      () => favoriteCubit.stream,
+    ).thenAnswer((_) => Stream.value(const FavoriteState()));
+    when(() => favoriteCubit.loadFavorites()).thenAnswer((_) async {});
+    when(() => favoriteCubit.close()).thenAnswer((_) async {});
+
     dataSyncCubit = DataSyncCubit(
       mockSyncData,
       mockCheckData,
@@ -130,11 +144,13 @@ void main() {
 
     getIt.registerSingleton<IngredientSearchCubit>(ingredientSearchCubit);
     getIt.registerSingleton<SearchCubit>(searchCubit);
+    getIt.registerSingleton<FavoriteCubit>(favoriteCubit);
     getIt.registerSingleton<DataSyncCubit>(dataSyncCubit);
   });
 
   Widget createWidgetUnderTest() {
     return MaterialApp(
+      locale: const Locale('ko'), // Force Korean locale for test
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: BlocProvider.value(value: dataSyncCubit, child: const MainScreen()),

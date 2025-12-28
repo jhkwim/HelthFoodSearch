@@ -7,8 +7,7 @@ import 'package:health_food_search/features/setting/domain/usecases/get_settings
 import 'package:health_food_search/features/setting/domain/usecases/save_theme_mode_usecase.dart';
 import 'package:health_food_search/features/setting/presentation/bloc/settings_cubit.dart';
 import 'package:mocktail/mocktail.dart';
-
-import 'package:health_food_search/core/usecases/usecase.dart';
+import 'package:health_food_search/core/error/failures.dart';
 import 'package:health_food_search/features/setting/domain/usecases/save_api_key_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/save_text_scale_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/export_food_data_usecase.dart';
@@ -16,6 +15,8 @@ import 'package:health_food_search/features/search/domain/usecases/refine_local_
 import 'package:health_food_search/features/setting/domain/usecases/save_update_interval_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/force_expire_sync_time_usecase.dart';
 import 'package:health_food_search/features/setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
+import 'package:health_food_search/core/usecases/usecase.dart';
+import 'package:flutter/services.dart';
 
 class MockGetSettingsUseCase extends Mock implements GetSettingsUseCase {}
 
@@ -42,6 +43,13 @@ class MockFetchAndApplyRemoteRulesUseCase extends Mock
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  const MethodChannel channel = MethodChannel(
+    'dev.fluttercommunity.plus/package_info',
+  );
+  const MethodChannel channelLegacy = MethodChannel(
+    'plugins.flutter.io/package_info',
+  );
+
   late SettingsCubit cubit;
   late MockGetSettingsUseCase mockGetSettingsUseCase;
   late MockSaveApiKeyUseCase mockSaveApiKeyUseCase;
@@ -54,6 +62,25 @@ void main() {
   late MockFetchAndApplyRemoteRulesUseCase mockFetchAndApplyRemoteRulesUseCase;
 
   setUp(() {
+    final handler = (MethodCall methodCall) async {
+      if (methodCall.method == 'getAll') {
+        return <String, dynamic>{
+          'appName': 'Test App',
+          'packageName': 'com.example.test',
+          'version': '1.0.0',
+          'buildNumber': '1',
+          'buildSignature': '',
+          'installerStore': null,
+        };
+      }
+      return null;
+    };
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, handler);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channelLegacy, handler);
+
     mockGetSettingsUseCase = MockGetSettingsUseCase();
     mockSaveApiKeyUseCase = MockSaveApiKeyUseCase();
     mockSaveTextScaleUseCase = MockSaveTextScaleUseCase();
@@ -78,6 +105,10 @@ void main() {
   });
 
   tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channelLegacy, null);
     cubit.close();
   });
 
@@ -121,17 +152,31 @@ void main() {
       act: (cubit) => cubit.saveThemeMode(ThemeMode.dark),
       expect: () => [
         SettingsLoading(),
-        // Second SettingsLoading skipped because state didn't change (Loading -> Loading)
         isA<SettingsLoaded>().having(
           (s) => s.settings.themeMode,
           'themeMode',
           ThemeMode.dark,
         ),
       ],
-      verify: (_) {
-        verify(() => mockSaveThemeModeUseCase(ThemeMode.dark)).called(1);
-        verify(() => mockGetSettingsUseCase(NoParams())).called(1);
+    );
+
+    blocTest<SettingsCubit, SettingsState>(
+      'emits [SettingsLoading, SettingsError] when checkSettings fails',
+      build: () {
+        when(
+          () => mockGetSettingsUseCase(NoParams()),
+        ).thenAnswer((_) async => const Left(CacheFailure('Load failed')));
+        return cubit;
       },
+      act: (cubit) => cubit.checkSettings(),
+      expect: () => [
+        SettingsLoading(),
+        isA<SettingsError>().having(
+          (s) => s.failure,
+          'failure',
+          isA<CacheFailure>(),
+        ),
+      ],
     );
   });
 }

@@ -76,7 +76,11 @@ void main() {
       act: (cubit) => cubit.search(tQuery),
       expect: () => [
         isA<SearchLoading>(),
-        isA<SearchError>().having((s) => s.message, 'error message', 'DB 오류'),
+        isA<SearchError>().having(
+          (s) => s.failure,
+          'failure',
+          isA<CacheFailure>(),
+        ),
       ],
     );
 

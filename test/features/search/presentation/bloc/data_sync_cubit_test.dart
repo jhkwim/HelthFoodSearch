@@ -130,7 +130,11 @@ void main() {
         act: (cubit) => cubit.checkData(),
         expect: () => [
           isA<DataSyncLoading>(),
-          isA<DataSyncError>().having((s) => s.message, 'message', 'DB 오류'),
+          isA<DataSyncError>().having(
+            (s) => s.failure,
+            'failure',
+            isA<CacheFailure>(),
+          ),
         ],
       );
 
@@ -174,9 +178,9 @@ void main() {
         act: (cubit) => cubit.syncData(),
         expect: () => [
           isA<DataSyncError>().having(
-            (s) => s.message,
-            'message',
-            'API Key not found',
+            (s) => s.failure,
+            'failure',
+            isA<ApiKeyMissingFailure>(),
           ),
         ],
       );
@@ -225,7 +229,11 @@ void main() {
         act: (cubit) => cubit.syncData(),
         expect: () => [
           isA<DataSyncInProgress>(),
-          isA<DataSyncError>().having((s) => s.message, 'message', '서버 오류'),
+          isA<DataSyncError>().having(
+            (s) => s.failure,
+            'failure',
+            isA<ServerFailure>(),
+          ),
         ],
       );
     });
