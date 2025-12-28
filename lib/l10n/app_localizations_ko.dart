@@ -137,6 +137,30 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchIngredientInitial => '원료를 추가하면 자동으로 검색됩니다.';
 
   @override
+  String get errorNetwork => '인터넷 연결을 확인해주세요.';
+
+  @override
+  String get errorServer => '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.';
+
+  @override
+  String get errorCache => '데이터 저장에 실패했습니다.';
+
+  @override
+  String get errorUnknown => '알 수 없는 오류가 발생했습니다.';
+
+  @override
+  String get errorApiKeyMissing => 'API 키가 설정되지 않았습니다.';
+
+  @override
+  String get errorDataParsing => '데이터 처리에 실패했습니다.';
+
+  @override
+  String get errorExport => '데이터 내보내기 실패';
+
+  @override
+  String get errorRefine => '데이터 정제 실패';
+
+  @override
   String errorOccurred(String message) {
     return '오류 발생: $message';
   }

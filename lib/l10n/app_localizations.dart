@@ -338,6 +338,54 @@ abstract class AppLocalizations {
   /// **'원료를 추가하면 자동으로 검색됩니다.'**
   String get searchIngredientInitial;
 
+  /// No description provided for @errorNetwork.
+  ///
+  /// In ko, this message translates to:
+  /// **'인터넷 연결을 확인해주세요.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorServer.
+  ///
+  /// In ko, this message translates to:
+  /// **'서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.'**
+  String get errorServer;
+
+  /// No description provided for @errorCache.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 저장에 실패했습니다.'**
+  String get errorCache;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'알 수 없는 오류가 발생했습니다.'**
+  String get errorUnknown;
+
+  /// No description provided for @errorApiKeyMissing.
+  ///
+  /// In ko, this message translates to:
+  /// **'API 키가 설정되지 않았습니다.'**
+  String get errorApiKeyMissing;
+
+  /// No description provided for @errorDataParsing.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 처리에 실패했습니다.'**
+  String get errorDataParsing;
+
+  /// No description provided for @errorExport.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 내보내기 실패'**
+  String get errorExport;
+
+  /// No description provided for @errorRefine.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 정제 실패'**
+  String get errorRefine;
+
   /// No description provided for @errorOccurred.
   ///
   /// In ko, this message translates to:

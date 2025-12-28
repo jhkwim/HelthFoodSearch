@@ -70,6 +70,15 @@
   "searchIngredientEmptyResult": "No products match your criteria.",
   "searchIngredientInitial": "Add ingredients to start searching.",
 
+  "errorNetwork": "Please check your internet connection.",
+  "errorServer": "Server connection failed. Please try again later.",
+  "errorCache": "Failed to save data.",
+  "errorUnknown": "An unknown error occurred.",
+  "errorApiKeyMissing": "API Key is missing.",
+  "errorDataParsing": "Data processing failed.",
+  "errorExport": "Export failed",
+  "errorRefine": "Refinement failed",
+
   "errorOccurred": "Error: {message}",
   "@errorOccurred": {
     "placeholders": {

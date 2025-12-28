@@ -24,12 +24,15 @@ class DataSyncSuccess extends DataSyncState {
   final bool updateNeeded;
   const DataSyncSuccess({this.storageInfo, this.updateNeeded = false});
   @override
-  List<Object> get props => [if (storageInfo != null) storageInfo!, updateNeeded];
+  List<Object> get props => [
+    if (storageInfo != null) storageInfo!,
+    updateNeeded,
+  ];
 }
 
 class DataSyncError extends DataSyncState {
-  final String message;
-  const DataSyncError(this.message);
+  final Failure failure;
+  const DataSyncError(this.failure);
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [failure];
 }

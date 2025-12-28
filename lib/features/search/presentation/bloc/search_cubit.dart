@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/food_item.dart';
 import '../../domain/usecases/search_food_by_name_usecase.dart';
+import '../../../../core/error/failures.dart';
 
 part 'search_state.dart';
 
@@ -21,7 +22,7 @@ class SearchCubit extends Cubit<SearchState> {
     emit(SearchLoading());
     final result = await searchFoodByNameUseCase(query);
     result.fold(
-      (failure) => emit(SearchError(failure.message)),
+      (failure) => emit(SearchError(failure)),
       (foods) => emit(SearchLoaded(foods, query: query)),
     );
   }

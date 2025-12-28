@@ -53,10 +53,10 @@ class SettingsLoaded extends SettingsState {
 }
 
 class SettingsError extends SettingsState {
-  final String message;
+  final Failure failure;
 
-  const SettingsError(this.message);
+  const SettingsError(this.failure);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [failure];
 }

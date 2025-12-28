@@ -12,6 +12,7 @@ import '../../domain/usecases/get_storage_info_usecase.dart';
 import '../../../setting/domain/usecases/save_last_sync_time_usecase.dart';
 import '../../../setting/domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 import '../../domain/usecases/clear_data_usecase.dart';
+import '../../../../core/error/failures.dart';
 
 part 'data_sync_state.dart';
 
@@ -40,9 +41,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
   Future<void> checkData() async {
     emit(DataSyncLoading());
     final result = await checkDataExistenceUseCase(NoParams());
-    result.fold((failure) => emit(DataSyncError(failure.message)), (
-      hasData,
-    ) async {
+    result.fold((failure) => emit(DataSyncError(failure)), (hasData) async {
       if (hasData) {
         final infoResult = await getStorageInfoUseCase(NoParams());
         final updateCheckResult = await checkUpdateNeededUseCase(NoParams());
@@ -66,12 +65,12 @@ class DataSyncCubit extends Cubit<DataSyncState> {
     final settingsResult = await getSettingsUseCase(NoParams());
     String? apiKey;
     settingsResult.fold(
-      (f) => emit(DataSyncError(f.message)),
+      (f) => emit(DataSyncError(f)),
       (s) => apiKey = s.apiKey,
     );
 
     if (apiKey == null || apiKey!.isEmpty) {
-      emit(const DataSyncError('API Key not found'));
+      emit(const DataSyncError(ApiKeyMissingFailure()));
       return;
     }
 
@@ -95,7 +94,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
       ),
     );
 
-    result.fold((failure) => emit(DataSyncError(failure.message)), (_) async {
+    result.fold((failure) => emit(DataSyncError(failure)), (_) async {
       // Save Last Sync Time
       await saveLastSyncTimeUseCase(DateTime.now());
 
@@ -111,7 +110,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
     emit(DataSyncLoading());
     final result = await clearDataUseCase(NoParams());
     result.fold(
-      (failure) => emit(DataSyncError(failure.message)),
+      (failure) => emit(DataSyncError(failure)),
       (_) => emit(DataSyncNeeded()),
     );
   }

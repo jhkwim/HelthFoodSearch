@@ -141,6 +141,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchIngredientInitial => 'Add ingredients to start searching.';
 
   @override
+  String get errorNetwork => 'Please check your internet connection.';
+
+  @override
+  String get errorServer => 'Server connection failed. Please try again later.';
+
+  @override
+  String get errorCache => 'Failed to save data.';
+
+  @override
+  String get errorUnknown => 'An unknown error occurred.';
+
+  @override
+  String get errorApiKeyMissing => 'API Key is missing.';
+
+  @override
+  String get errorDataParsing => 'Data processing failed.';
+
+  @override
+  String get errorExport => 'Export failed';
+
+  @override
+  String get errorRefine => 'Refinement failed';
+
+  @override
   String errorOccurred(String message) {
     return 'Error: $message';
   }

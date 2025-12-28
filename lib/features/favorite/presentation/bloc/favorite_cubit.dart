@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/error/failures.dart';
 import '../../domain/entities/favorite_item.dart';
 import '../../domain/usecases/get_favorites_usecase.dart';
 import '../../domain/usecases/toggle_favorite_usecase.dart';
@@ -25,12 +26,8 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     emit(state.copyWith(status: FavoriteStatus.loading));
     final result = await getFavoritesUseCase();
     result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: FavoriteStatus.error,
-          errorMessage: failure.userMessage,
-        ),
-      ),
+      (failure) =>
+          emit(state.copyWith(status: FavoriteStatus.error, failure: failure)),
       (favorites) {
         final reportNos = favorites.map((f) => f.reportNo).toSet();
         emit(
@@ -53,20 +50,17 @@ class FavoriteCubit extends Cubit<FavoriteState> {
       reportNo: reportNo,
       prdlstNm: prdlstNm,
     );
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.userMessage)),
-      (isAdded) {
-        // 즉시 Set 업데이트 (빠른 UI 반영)
-        final newSet = Set<String>.from(state.favoriteReportNos);
-        if (isAdded) {
-          newSet.add(reportNo);
-        } else {
-          newSet.remove(reportNo);
-        }
-        emit(state.copyWith(favoriteReportNos: newSet));
-        // 전체 목록 새로고침
-        loadFavorites();
-      },
-    );
+    result.fold((failure) => emit(state.copyWith(failure: failure)), (isAdded) {
+      // 즉시 Set 업데이트 (빠른 UI 반영)
+      final newSet = Set<String>.from(state.favoriteReportNos);
+      if (isAdded) {
+        newSet.add(reportNo);
+      } else {
+        newSet.remove(reportNo);
+      }
+      emit(state.copyWith(favoriteReportNos: newSet));
+      // 전체 목록 새로고침
+      loadFavorites();
+    });
   }
 }

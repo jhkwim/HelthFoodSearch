@@ -17,6 +17,8 @@ import '../../domain/usecases/save_theme_mode_usecase.dart'; // New
 import '../../domain/usecases/fetch_and_apply_remote_rules_usecase.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/error/failures.dart';
+
 part 'settings_state.dart';
 
 @injectable
@@ -55,7 +57,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       debugPrint('Error getting package info: $e');
     }
 
-    result.fold((failure) => emit(SettingsError(failure.message)), (settings) {
+    result.fold((failure) => emit(SettingsError(failure)), (settings) {
       // Emit loaded with version info
       emit(
         SettingsLoaded(
@@ -71,7 +73,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(SettingsLoading());
     final result = await saveApiKeyUseCase(apiKey);
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
+      (failure) => emit(SettingsError(failure)),
       (_) => checkSettings(),
     );
   }
@@ -82,7 +84,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(SettingsLoading());
     final result = await saveTextScaleUseCase(scale);
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
+      (failure) => emit(SettingsError(failure)),
       (_) => checkSettings(),
     );
   }
@@ -92,7 +94,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     try {
       await exportFoodDataUseCase();
     } catch (e) {
-      emit(SettingsError('Failed to export data: $e'));
+      emit(const SettingsError(ExportFailure('Export failed')));
     }
   }
 
@@ -146,7 +148,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       // Optionally show success message via side effect or snackbar managed by UI listener?
       // For now, returning to idle state implies completion.
     } catch (e) {
-      emit(SettingsError('Failed to refine data: $e'));
+      emit(const SettingsError(RefineFailure('Refinement failed')));
     }
   }
 
@@ -154,7 +156,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(SettingsLoading());
     final result = await saveUpdateIntervalUseCase(days);
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
+      (failure) => emit(SettingsError(failure)),
       (_) => checkSettings(),
     );
   }
@@ -165,7 +167,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(SettingsLoading());
     final result = await saveThemeModeUseCase(mode);
     await result.fold(
-      (failure) async => emit(SettingsError(failure.message)),
+      (failure) async => emit(SettingsError(failure)),
       (_) => checkSettings(),
     );
   }
@@ -174,7 +176,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(SettingsLoading());
     final result = await forceExpireSyncTimeUseCase(NoParams());
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
+      (failure) => emit(SettingsError(failure)),
       (_) => checkSettings(),
     );
   }

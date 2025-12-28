@@ -8,7 +8,7 @@ class IngredientSearchState extends Equatable {
   final List<Ingredient> suggestions;
   final IngredientSearchType searchType;
   final IngredientSearchStatus status;
-  final String? errorMessage;
+  final Failure? failure;
 
   const IngredientSearchState({
     this.selectedIngredients = const [],
@@ -16,7 +16,7 @@ class IngredientSearchState extends Equatable {
     this.suggestions = const [],
     this.searchType = IngredientSearchType.include,
     this.status = IngredientSearchStatus.initial,
-    this.errorMessage,
+    this.failure,
   });
 
   IngredientSearchState copyWith({
@@ -25,7 +25,7 @@ class IngredientSearchState extends Equatable {
     List<Ingredient>? suggestions,
     IngredientSearchType? searchType,
     IngredientSearchStatus? status,
-    String? errorMessage,
+    Failure? failure,
   }) {
     return IngredientSearchState(
       selectedIngredients: selectedIngredients ?? this.selectedIngredients,
@@ -33,7 +33,7 @@ class IngredientSearchState extends Equatable {
       suggestions: suggestions ?? this.suggestions,
       searchType: searchType ?? this.searchType,
       status: status ?? this.status,
-      errorMessage: errorMessage ?? this.errorMessage,
+      failure: failure ?? this.failure,
     );
   }
 
@@ -44,6 +44,6 @@ class IngredientSearchState extends Equatable {
     suggestions,
     searchType,
     status,
-    errorMessage,
+    failure,
   ];
 }

@@ -6,6 +6,7 @@ import '../../domain/entities/food_item.dart';
 import '../../domain/entities/ingredient.dart';
 import '../../domain/usecases/search_food_by_ingredients_usecase.dart';
 import '../../domain/usecases/get_suggested_ingredients_usecase.dart';
+import '../../../../core/error/failures.dart';
 
 part 'ingredient_search_state.dart';
 
@@ -86,10 +87,7 @@ class IngredientSearchCubit extends Cubit<IngredientSearchState> {
 
     result.fold(
       (failure) => emit(
-        state.copyWith(
-          status: IngredientSearchStatus.error,
-          errorMessage: failure.message,
-        ),
+        state.copyWith(status: IngredientSearchStatus.error, failure: failure),
       ),
       (foods) => emit(
         state.copyWith(
