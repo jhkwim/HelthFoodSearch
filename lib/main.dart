@@ -55,18 +55,8 @@ class MyApp extends StatelessWidget {
           create: (context) => getIt<SettingsCubit>()..checkSettings(),
         ),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<DataSyncCubit, DataSyncState>(
-            listener: (context, state) {
-              if (state is DataSyncSuccess) {
-                context.read<SettingsCubit>().checkSettings();
-              }
-            },
-          ),
-        ],
-        child: BlocBuilder<SettingsCubit, SettingsState>(
-          builder: (context, state) {
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
             double textScale = 1.0;
             ThemeMode themeMode = ThemeMode.system;
             if (state is SettingsLoaded) {
