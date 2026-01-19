@@ -102,11 +102,33 @@ class _SplashScreenState extends State<SplashScreen> {
             } else if (state is DataSyncNeeded) {
               context.go('/download');
             } else if (state is DataSyncError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+              // Web 등에서 초기화 에러 발생 시, 스낵바만 띄우면 화면이 멈춘 것처럼 보임.
+              // 다이얼로그를 띄워서 사용자가 이동할 수 있게 해야 함.
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                  title: const Text('데이터 확인 오류'), // L10n 적용을 위해 추후 작업 필요
                   content: Text(
-                    'Data Check Error: ${state.failure.toUserMessage(context)}',
+                    '데이터를 확인하는 중 문제가 발생했습니다.\n(${state.failure.toUserMessage(context)})\n\n다운로드 화면으로 이동하여 복구를 시도하시겠습니까?',
                   ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        // 메인으로 강제 이동 (오프라인 모드 시도)
+                        Navigator.of(context).pop();
+                        context.go('/main');
+                      },
+                      child: const Text('나중에'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        context.go('/download');
+                      },
+                      child: const Text('복구(다운로드)'),
+                    ),
+                  ],
                 ),
               );
             }
