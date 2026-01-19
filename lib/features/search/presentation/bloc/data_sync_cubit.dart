@@ -45,7 +45,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
       if (hasData) {
         final infoResult = await getStorageInfoUseCase(NoParams());
         final updateCheckResult = await checkUpdateNeededUseCase(NoParams());
-        final bool updateNeeded = updateCheckResult.getOrElse(() => false);
+        final bool updateNeeded = updateCheckResult.getOrElse(() => true);
 
         infoResult.fold(
           (l) =>

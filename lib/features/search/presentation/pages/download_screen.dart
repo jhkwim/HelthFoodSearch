@@ -23,11 +23,15 @@ class DownloadScreen extends StatelessWidget {
           // So MainScreen needs to listen or show status.
 
           // Use go() might be abrupt if user is just watching. 'go' is fine.
-          if (GoRouter.of(
-                context,
-              ).routerDelegate.currentConfiguration.fullPath ==
-              '/download') {
-            context.go('/main');
+          // Only navigate if update is NOT needed (meaning sync completed or fresh start)
+          // If updateNeeded is true, it means we are here to download, so stay here.
+          if (!state.updateNeeded) {
+            if (GoRouter.of(
+                  context,
+                ).routerDelegate.currentConfiguration.fullPath ==
+                '/download') {
+              context.go('/main');
+            }
           }
         } else if (state is DataSyncError) {
           ScaffoldMessenger.of(context).showSnackBar(

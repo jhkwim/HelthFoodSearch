@@ -15,6 +15,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _isUpdateDialogShown = false;
+
   @override
   void initState() {
     super.initState();
@@ -65,30 +67,35 @@ class _SplashScreenState extends State<SplashScreen> {
           listener: (context, state) {
             if (state is DataSyncSuccess) {
               if (state.updateNeeded) {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => AlertDialog(
-                    title: Text(l10n.updateNeededTitle),
-                    content: Text(l10n.updateNeededContent),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          context.go('/main');
-                        },
-                        child: Text(l10n.updateLater),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          context.go('/download');
-                        },
-                        child: Text(l10n.updateNow),
-                      ),
-                    ],
-                  ),
-                );
+                if (!_isUpdateDialogShown) {
+                  _isUpdateDialogShown = true;
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => AlertDialog(
+                      title: Text(l10n.updateNeededTitle),
+                      content: Text(l10n.updateNeededContent),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            _isUpdateDialogShown = false;
+                            Navigator.of(context).pop();
+                            context.go('/main');
+                          },
+                          child: Text(l10n.updateLater),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            _isUpdateDialogShown = false;
+                            Navigator.of(context).pop();
+                            context.go('/download');
+                          },
+                          child: Text(l10n.updateNow),
+                        ),
+                      ],
+                    ),
+                  );
+                }
               } else {
                 context.go('/main');
               }

@@ -73,7 +73,12 @@ class FoodRepositoryImpl implements IFoodRepository {
     try {
       // --- Phase 1: Food Data (I0030) ---
       final initialFood = await remoteDataSource.fetchFoodData(apiKey, 1, 1);
-      final foodTotalConfig = initialFood.data?.totalCount ?? '0';
+
+      if (initialFood.data == null) {
+        return const Left(ServerFailure('API 응답에 데이터가 없습니다. (I0030 Missing)'));
+      }
+
+      final foodTotalConfig = initialFood.data!.totalCount;
       final int foodTotalCount = int.tryParse(foodTotalConfig) ?? 0;
 
       if (foodTotalCount == 0) return const Right(null);
