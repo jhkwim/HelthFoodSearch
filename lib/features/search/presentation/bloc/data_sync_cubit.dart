@@ -39,25 +39,37 @@ class DataSyncCubit extends Cubit<DataSyncState> {
   ) : super(DataSyncInitial());
 
   Future<void> checkData() async {
+    debugPrint('[DataSyncCubit] checkData: Started');
     emit(DataSyncLoading());
+    debugPrint('[DataSyncCubit] checkData: Calling checkDataExistenceUseCase');
     final result = await checkDataExistenceUseCase(NoParams());
-    result.fold((failure) => emit(DataSyncError(failure)), (hasData) async {
-      if (hasData) {
-        final infoResult = await getStorageInfoUseCase(NoParams());
-        final updateCheckResult = await checkUpdateNeededUseCase(NoParams());
-        final bool updateNeeded = updateCheckResult.getOrElse(() => true);
+    debugPrint(
+      '[DataSyncCubit] checkData: checkDataExistenceUseCase returned $result',
+    );
+    result.fold(
+      (failure) {
+        debugPrint('[DataSyncCubit] checkData: Failure $failure');
+        emit(DataSyncError(failure));
+      },
+      (hasData) async {
+        if (hasData) {
+          final infoResult = await getStorageInfoUseCase(NoParams());
+          final updateCheckResult = await checkUpdateNeededUseCase(NoParams());
+          final bool updateNeeded = updateCheckResult.getOrElse(() => true);
 
-        infoResult.fold(
-          (l) =>
-              emit(DataSyncSuccess(updateNeeded: updateNeeded)), // Ignore error
-          (info) => emit(
-            DataSyncSuccess(storageInfo: info, updateNeeded: updateNeeded),
-          ),
-        );
-      } else {
-        emit(DataSyncNeeded());
-      }
-    });
+          infoResult.fold(
+            (l) => emit(
+              DataSyncSuccess(updateNeeded: updateNeeded),
+            ), // Ignore error
+            (info) => emit(
+              DataSyncSuccess(storageInfo: info, updateNeeded: updateNeeded),
+            ),
+          );
+        } else {
+          emit(DataSyncNeeded());
+        }
+      },
+    );
   }
 
   Future<void> syncData() async {
