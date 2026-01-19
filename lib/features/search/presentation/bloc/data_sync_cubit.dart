@@ -39,16 +39,10 @@ class DataSyncCubit extends Cubit<DataSyncState> {
   ) : super(DataSyncInitial());
 
   Future<void> checkData() async {
-    debugPrint('[DataSyncCubit] checkData: Started');
     emit(DataSyncLoading());
-    debugPrint('[DataSyncCubit] checkData: Calling checkDataExistenceUseCase');
     final result = await checkDataExistenceUseCase(NoParams());
-    debugPrint(
-      '[DataSyncCubit] checkData: checkDataExistenceUseCase returned $result',
-    );
     result.fold(
       (failure) {
-        debugPrint('[DataSyncCubit] checkData: Failure $failure');
         emit(DataSyncError(failure));
       },
       (hasData) async {

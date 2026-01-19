@@ -65,7 +65,6 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
         BlocListener<DataSyncCubit, DataSyncState>(
           listener: (context, state) {
-            debugPrint('[SplashScreen] DataSyncCubit Listener: $state');
             if (state is DataSyncSuccess) {
               if (state.updateNeeded) {
                 if (!_isUpdateDialogShown) {

@@ -34,11 +34,7 @@ class LocalDataSourceImpl implements LocalDataSource {
 
   @override
   Future<void> cacheFoodItems(List<FoodItemHiveModel> items) async {
-    debugPrint('[LocalDataSource] cacheFoodItems: Opening box $boxName');
     final box = await Hive.openBox<FoodItemHiveModel>(boxName);
-    debugPrint(
-      '[LocalDataSource] cacheFoodItems: Box opened. Putting ${items.length} items.',
-    );
     final Map<String, FoodItemHiveModel> map = {
       for (var item in items) item.reportNo: item,
     };
@@ -155,18 +151,8 @@ class LocalDataSourceImpl implements LocalDataSource {
 
   @override
   Future<bool> hasData() async {
-    debugPrint('[LocalDataSource] hasData: Opening box $boxName');
-    try {
-      final box = await Hive.openBox<FoodItemHiveModel>(boxName);
-      debugPrint('[LocalDataSource] hasData: Box opened. Check isNotEmpty.');
-      final result = box.isNotEmpty;
-      debugPrint('[LocalDataSource] hasData: result=$result');
-      return result;
-    } catch (e) {
-      debugPrint('[LocalDataSource] hasData: Error $e');
-      rethrow;
-    }
-    return false; // Unreachable but safe
+    final box = await Hive.openBox<FoodItemHiveModel>(boxName);
+    return box.isNotEmpty;
   }
 
   @override
