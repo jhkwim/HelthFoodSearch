@@ -57,39 +57,38 @@ class MyApp extends StatelessWidget {
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
-            double textScale = 1.0;
-            ThemeMode themeMode = ThemeMode.system;
-            if (state is SettingsLoaded) {
-              textScale = state.settings.textScale;
-              themeMode = state.settings.themeMode;
-            }
+          double textScale = 1.0;
+          ThemeMode themeMode = ThemeMode.system;
+          if (state is SettingsLoaded) {
+            textScale = state.settings.textScale;
+            themeMode = state.settings.themeMode;
+          }
 
-            return MaterialApp.router(
-              onGenerateTitle: (context) =>
-                  AppLocalizations.of(context)!.appTitle,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('ko')],
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme, // New
-              themeMode: themeMode, // New
-              routerConfig: appRouter,
-              debugShowCheckedModeBanner: false,
-              builder: (context, child) {
-                return MediaQuery(
-                  data: MediaQuery.of(
-                    context,
-                  ).copyWith(textScaler: TextScaler.linear(textScale)),
-                  child: child!,
-                );
-              },
-            );
-          },
-        ),
+          return MaterialApp.router(
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)!.appTitle,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('ko')],
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme, // New
+            themeMode: themeMode, // New
+            routerConfig: appRouter,
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(textScale)),
+                child: child!,
+              );
+            },
+          );
+        },
       ),
     );
   }
