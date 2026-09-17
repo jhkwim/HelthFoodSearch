@@ -168,19 +168,30 @@ void main() {
       const tSettings = AppSettings(apiKey: 'test-api-key');
 
       blocTest<DataSyncCubit, DataSyncState>(
-        'API Key가 없는 경우 DataSyncError 상태',
+        'API Key가 없어도 CDN 동기화 성공 시 DataSyncSuccess 상태',
         build: () {
           when(
             () => mockGetSettings(any()),
           ).thenAnswer((_) async => const Right(AppSettings(apiKey: null)));
+          when(() => mockFetchRules.execute()).thenAnswer((_) async => false);
+          when(
+            () => mockSyncData(any()),
+          ).thenAnswer((_) async => const Right(null));
+          when(
+            () => mockSaveLastSyncTime(any()),
+          ).thenAnswer((_) async => const Right(null));
+          when(() => mockGetStorageInfo(any())).thenAnswer(
+            (_) async => const Right(StorageInfo(count: 200, sizeBytes: 2048)),
+          );
           return cubit;
         },
         act: (cubit) => cubit.syncData(),
         expect: () => [
-          isA<DataSyncError>().having(
-            (s) => s.failure,
-            'failure',
-            isA<ApiKeyMissingFailure>(),
+          isA<DataSyncInProgress>(),
+          isA<DataSyncSuccess>().having(
+            (s) => s.storageInfo?.count,
+            'count',
+            200,
           ),
         ],
       );

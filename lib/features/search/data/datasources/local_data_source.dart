@@ -9,6 +9,11 @@ import '../models/raw_material_hive_model.dart';
 
 abstract class LocalDataSource {
   Future<void> cacheFoodItems(List<FoodItemHiveModel> items);
+  Future<void> cacheFoodItemsInChunks(
+    List<FoodItemHiveModel> items, {
+    void Function(double progress)? onProgress,
+    int chunkSize,
+  });
   Future<void> updateFoodItems(List<FoodItemHiveModel> items);
   Future<void> cacheRawMaterials(List<RawMaterialHiveModel> items);
   Future<List<FoodItemHiveModel>> getFoodItems();
@@ -39,6 +44,33 @@ class LocalDataSourceImpl implements LocalDataSource {
       for (var item in items) item.reportNo: item,
     };
     await box.putAll(map);
+  }
+
+  @override
+  Future<void> cacheFoodItemsInChunks(
+    List<FoodItemHiveModel> items, {
+    void Function(double progress)? onProgress,
+    int chunkSize = 1000,
+  }) async {
+    final box = await Hive.openBox<FoodItemHiveModel>(boxName);
+    await box.clear();
+
+    final total = items.length;
+    if (total == 0) {
+      onProgress?.call(1.0);
+      return;
+    }
+
+    for (int i = 0; i < total; i += chunkSize) {
+      final end = (i + chunkSize > total) ? total : i + chunkSize;
+      final chunk = items.sublist(i, end);
+      final chunkMap = {for (var item in chunk) item.reportNo: item};
+
+      await box.putAll(chunkMap);
+      await Future.delayed(Duration.zero); // UI 프레임 드롭 방지 및 이벤트 루프 양보
+
+      onProgress?.call(end / total);
+    }
   }
 
   @override

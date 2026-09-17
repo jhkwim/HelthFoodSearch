@@ -62,7 +62,7 @@ void main() {
   late MockFetchAndApplyRemoteRulesUseCase mockFetchAndApplyRemoteRulesUseCase;
 
   setUp(() {
-    final handler = (MethodCall methodCall) async {
+    Future<Map<String, dynamic>?> handler(MethodCall methodCall) async {
       if (methodCall.method == 'getAll') {
         return <String, dynamic>{
           'appName': 'Test App',
@@ -74,7 +74,7 @@ void main() {
         };
       }
       return null;
-    };
+    }
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, handler);

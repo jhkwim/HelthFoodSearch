@@ -128,8 +128,8 @@ void main() {
     when(
       () => favoriteCubit.stream,
     ).thenAnswer((_) => Stream.value(const FavoriteState()));
-    when(() => favoriteCubit.loadFavorites()).thenAnswer((_) async {});
-    when(() => favoriteCubit.close()).thenAnswer((_) async {});
+    when(favoriteCubit.loadFavorites).thenAnswer((_) async {});
+    when(favoriteCubit.close).thenAnswer((_) async {});
 
     dataSyncCubit = DataSyncCubit(
       mockSyncData,

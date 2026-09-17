@@ -18,7 +18,7 @@ abstract class IFoodRepository {
   );
 
   Future<Either<Failure, void>> syncData(
-    String apiKey, {
+    String? apiKey, {
     Function(double)? onProgress,
   });
   Stream<double> refineLocalData();

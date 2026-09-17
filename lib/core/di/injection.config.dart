@@ -27,6 +27,8 @@ import '../../features/search/data/datasources/local_data_source.dart' as _i688;
 import '../../features/search/data/datasources/remote_data_source.dart' as _i91;
 import '../../features/search/data/repositories/food_repository_impl.dart'
     as _i64;
+import '../../features/search/data/services/food_data_sync_service.dart'
+    as _i888;
 import '../../features/search/domain/repositories/i_food_repository.dart'
     as _i424;
 import '../../features/search/domain/usecases/check_data_existence_usecase.dart'
@@ -134,9 +136,16 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i557.ToggleFavoriteUseCase>(),
           gh<_i1024.CheckFavoriteUseCase>(),
         ));
+    gh.lazySingleton<_i888.FoodDataSyncService>(
+        () => _i888.FoodDataSyncService(
+              gh<_i91.RemoteDataSource>(),
+              gh<_i688.LocalDataSource>(),
+              gh<_i990.ISettingsRepository>(),
+            ));
     gh.lazySingleton<_i424.IFoodRepository>(() => _i64.FoodRepositoryImpl(
           gh<_i91.RemoteDataSource>(),
           gh<_i688.LocalDataSource>(),
+          gh<_i888.FoodDataSyncService>(),
         ));
     gh.lazySingleton<_i913.FetchAndApplyRemoteRulesUseCase>(
         () => _i913.FetchAndApplyRemoteRulesUseCase(

@@ -37,7 +37,6 @@ linter:
     close_sinks: true
     no_logic_in_create_state: true
     prefer_final_locals: true
-    unnecessary_await_in_return: true
     unnecessary_statements: true
     use_key_in_widget_constructors: true
     camel_case_types: true

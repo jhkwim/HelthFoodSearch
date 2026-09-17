@@ -67,18 +67,13 @@ class DataSyncCubit extends Cubit<DataSyncState> {
   }
 
   Future<void> syncData() async {
-    // 1. Get API Key
+    // 1. Get API Key (Optional for CDN sync, required for fallback)
     final settingsResult = await getSettingsUseCase(NoParams());
     String? apiKey;
     settingsResult.fold(
-      (f) => emit(DataSyncError(f)),
+      (_) {},
       (s) => apiKey = s.apiKey,
     );
-
-    if (apiKey == null || apiKey!.isEmpty) {
-      emit(const DataSyncError(ApiKeyMissingFailure()));
-      return;
-    }
 
     emit(const DataSyncInProgress(0.0));
 
@@ -93,7 +88,7 @@ class DataSyncCubit extends Cubit<DataSyncState> {
 
     final result = await syncDataUseCase(
       SyncDataParams(
-        apiKey: apiKey!,
+        apiKey: apiKey,
         onProgress: (progress) {
           emit(DataSyncInProgress(progress));
         },

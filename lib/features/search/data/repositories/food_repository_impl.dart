@@ -11,6 +11,7 @@ import 'package:health_food_search/features/search/data/datasources/local_data_s
 import 'package:health_food_search/features/search/data/datasources/remote_data_source.dart';
 import '../models/food_item_hive_model.dart';
 import '../models/raw_material_hive_model.dart';
+import '../services/food_data_sync_service.dart';
 import '../../../../core/di/injection.dart';
 import '../../../setting/domain/repositories/i_settings_repository.dart';
 
@@ -21,8 +22,13 @@ import 'package:health_food_search/core/utils/ingredient_refiner.dart'; // Impor
 class FoodRepositoryImpl implements IFoodRepository {
   final RemoteDataSource remoteDataSource;
   final LocalDataSource localDataSource;
+  final FoodDataSyncService syncService;
 
-  FoodRepositoryImpl(this.remoteDataSource, this.localDataSource);
+  FoodRepositoryImpl(
+    this.remoteDataSource,
+    this.localDataSource,
+    this.syncService,
+  );
 
   @override
   Future<Either<Failure, List<FoodItem>>> searchFoodByName(String query) async {
@@ -67,59 +73,13 @@ class FoodRepositoryImpl implements IFoodRepository {
 
   @override
   Future<Either<Failure, void>> syncData(
-    String apiKey, {
+    String? apiKey, {
     Function(double)? onProgress,
   }) async {
-    try {
-      // --- Phase 1: Food Data (I0030) ---
-      final initialFood = await remoteDataSource.fetchFoodData(apiKey, 1, 1);
-
-      if (initialFood.data == null) {
-        return const Left(ServerFailure('API 응답에 데이터가 없습니다. (I0030 Missing)'));
-      }
-
-      final foodTotalConfig = initialFood.data!.totalCount;
-      final int foodTotalCount = int.tryParse(foodTotalConfig) ?? 0;
-
-      if (foodTotalCount == 0) return const Right(null);
-
-      // Clear existing data before starting full sync
-      await localDataSource.clearData();
-
-      final int batchSize = 1000;
-      int foodFetched = 0;
-
-      for (int i = 1; i <= foodTotalCount; i += batchSize) {
-        int end = i + batchSize - 1;
-        if (end > foodTotalCount) end = foodTotalCount;
-
-        final response = await remoteDataSource.fetchFoodData(apiKey, i, end);
-        final rows = response.data?.row;
-
-        if (rows != null) {
-          final batch = rows.map((dto) {
-            final entity = dto.toEntity();
-            return FoodItemHiveModel.fromEntity(entity);
-          }).toList();
-
-          if (batch.isNotEmpty) {
-            await localDataSource.cacheFoodItems(batch);
-          }
-        }
-
-        foodFetched = end;
-        if (onProgress != null) {
-          // Map 0 -> 1 to 0.0 -> 1.0 (Since Phase 2 is removed)
-          final phase1Progress = (foodFetched / foodTotalCount);
-          debugPrint('Sync Progress: $phase1Progress');
-          onProgress(phase1Progress);
-        }
-      }
-
-      return const Right(null);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    return syncService.sync(
+      apiKey: apiKey,
+      onProgress: onProgress,
+    );
   }
 
   @override

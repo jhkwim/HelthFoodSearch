@@ -5,10 +5,10 @@ import '../../../../core/usecases/usecase.dart';
 import '../repositories/i_food_repository.dart';
 
 class SyncDataParams {
-  final String apiKey;
+  final String? apiKey;
   final Function(double)? onProgress;
 
-  SyncDataParams({required this.apiKey, this.onProgress});
+  SyncDataParams({this.apiKey, this.onProgress});
 }
 
 @injectable

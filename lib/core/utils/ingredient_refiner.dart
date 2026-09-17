@@ -83,6 +83,9 @@ class IngredientRefiner {
     }
   }
 
+  /// Get current remote rules
+  static Map<String, String> get currentRemoteRules => _remoteReplacements;
+
   /// Refines a raw ingredient string into a clean, searchable keyword.
   static String refine(String raw) {
     if (raw.isEmpty) return '';
