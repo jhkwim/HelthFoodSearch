@@ -201,7 +201,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               final foodItem = await localDataSource.getFoodItemByReportNo(
                 item.reportNo,
               );
-              if (foodItem != null && mounted) {
+              if (!context.mounted) return;
+              if (foodItem != null) {
                 if (isWide) {
                   // 큰 화면: 우측 패널에 표시
                   setState(() {
@@ -209,11 +210,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   });
                 } else {
                   // 모바일: 상세 화면으로 이동
-                  if (!mounted) return;
                   context.push('/detail', extra: foodItem.toEntity());
                 }
               } else {
-                if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(l10n.favoriteProductNotFound)),
                 );

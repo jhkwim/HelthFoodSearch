@@ -196,6 +196,7 @@ void main() {
 
   Widget createWidgetUnderTest() {
     return MaterialApp(
+      locale: const Locale('ko'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: BlocProvider(
