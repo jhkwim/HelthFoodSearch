@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+// ignore: depend_on_referenced_packages
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:health_food_search/features/search/data/datasources/food_data_parser.dart';

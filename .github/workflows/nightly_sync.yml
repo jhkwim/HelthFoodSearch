@@ -63,6 +63,14 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Deploy Data to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist_data
+          destination_dir: data
+          keep_files: true
+
       - name: Notify Failure
         if: failure()
         uses: actions/github-script@v7

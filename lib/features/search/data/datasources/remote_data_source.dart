@@ -27,7 +27,11 @@ abstract class RemoteDataSource {
 class RemoteDataSourceImpl implements RemoteDataSource {
   final Dio dio;
 
-  // GitHub Release CDN Base URL
+  // 1순위: GitHub Pages CDN (302 리다이렉트 없이 CORS 완전 지원)
+  static const String _pagesBaseUrl =
+      'https://jhkwim.github.io/HelthFoodSearch/data';
+
+  // 2순위: GitHub Releases CDN
   static const String _releaseBaseUrl =
       'https://github.com/jhkwim/HelthFoodSearch/releases/download/data-latest';
 
@@ -35,50 +39,57 @@ class RemoteDataSourceImpl implements RemoteDataSource {
 
   @override
   Future<DataVersionDto?> fetchDataVersion() async {
-    try {
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final url = '$_releaseBaseUrl/version.json?t=$timestamp';
-      final response = await dio.get(
-        url,
-        options: Options(
-          responseType: ResponseType.json,
-          headers: {'Cache-Control': 'no-cache'},
-        ),
-      );
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final urls = [
+      '$_pagesBaseUrl/version.json?t=$timestamp',
+      '$_releaseBaseUrl/version.json?t=$timestamp',
+    ];
 
-      if (response.statusCode == 200 && response.data != null) {
-        final dynamic data = response.data;
-        if (data is Map<String, dynamic>) {
-          return DataVersionDto.fromJson(data);
+    for (final url in urls) {
+      try {
+        final response = await dio.get(
+          url,
+          options: Options(responseType: ResponseType.json),
+        );
+        if (response.statusCode == 200 && response.data != null) {
+          final dynamic data = response.data;
+          if (data is Map<String, dynamic>) {
+            return DataVersionDto.fromJson(data);
+          }
         }
+      } catch (_) {
+        // 다음 URL로 시도
       }
-      return null;
-    } catch (_) {
-      // Release Asset이 아직 없거나 네트워크 오류 시 null 반환 (Fallback 전환용)
-      return null;
     }
+    return null;
   }
 
   @override
   Future<Uint8List> downloadFoodDataBytes({
     void Function(int received, int total)? onReceiveProgress,
   }) async {
-    try {
-      final url = '$_releaseBaseUrl/foods_latest.json.gz';
-      final response = await dio.get<List<int>>(
-        url,
-        options: Options(responseType: ResponseType.bytes),
-        onReceiveProgress: onReceiveProgress,
-      );
+    final urls = [
+      '$_pagesBaseUrl/foods_latest.json.gz',
+      '$_releaseBaseUrl/foods_latest.json.gz',
+    ];
 
-      if (response.statusCode == 200 && response.data != null) {
-        return Uint8List.fromList(response.data!);
-      } else {
-        throw const ServerFailure('최신 데이터 다운로드에 실패했습니다.');
+    for (final url in urls) {
+      try {
+        final response = await dio.get<List<int>>(
+          url,
+          options: Options(responseType: ResponseType.bytes),
+          onReceiveProgress: onReceiveProgress,
+        );
+
+        if (response.statusCode == 200 && response.data != null) {
+          return Uint8List.fromList(response.data!);
+        }
+      } catch (_) {
+        // 다음 URL로 시도
       }
-    } catch (e) {
-      throw ServerFailure(e.toString());
     }
+
+    throw const ServerFailure('최신 공공데이터 다운로드에 실패했습니다. 네트워크 연결을 확인해주세요.');
   }
 
   @override
